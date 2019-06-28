@@ -1,6 +1,6 @@
 title: jac08h
-description: >- # this means to ignore newlines until "baseurl:"
-    Personal webpage
+description: >- 
+    <a href='/index'>Home</a> | <a href='/programming'>Programming</a>
     
 github_username:  jac08h
 
