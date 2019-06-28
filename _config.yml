@@ -1,0 +1,11 @@
+title: jac08h
+description: >- # this means to ignore newlines until "baseurl:"
+    Personal webpage
+    
+github_username:  jac08h
+
+# Build settings
+markdown: kramdown
+theme: jekyll-theme-hacker
+plugins:
+  - jekyll-feed
