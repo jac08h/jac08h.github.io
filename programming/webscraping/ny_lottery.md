@@ -1,3 +1,5 @@
+# NY Lottery
+
 **Objective**: Scrape new winning numbers from [NY Lottery](https://nylottery.ny.gov/) website.
 
 Website:
