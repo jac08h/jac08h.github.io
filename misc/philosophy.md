@@ -93,7 +93,7 @@
 
 > old father, 15 years old mother
 
-`What you do not wish for yourself, do not do to others.`
+`"What you do not wish for yourself, do not do to others."`
 * Leading by example
 
 ## The Buddha
@@ -111,7 +111,7 @@
 	* moving - removing pain/satisfying desire
 	* static - not desiring - best kind of pleasure
 * friends are very important
-`Before you eat or drink anything, carefully consider with whom you eat or drink rather than what you eat or drink because eating without a friend is the life of the lion or a wolf.`
+`"Before you eat or drink anything, carefully consider with whom you eat or drink rather than what you eat or drink because eating without a friend is the life of the lion or a wolf."`
 
 ## Stoicsm and the Early Cynics
 
@@ -128,11 +128,11 @@
 ## Hallmarks of Stoic Ethics
 
 * Oikeosis - orientation - disposition assigned by nature
-` A man’s true delight is to do the things he was made for. - Marcus Aurelius`
+`" A man’s true delight is to do the things he was made for. - Marcus Aurelius"`
 * Distinguish what is and what is not in our control
 * Don't stress over things which we have no control over
 * Expecting nothing
-`If a person gave your body to any stranger he met on his way, you would certainly be angry. And do you feel no shame in handing over your own mind to be confused and mystified by anyone who happens to verbally attack you - Epictetus?`
+`"If a person gave your body to any stranger he met on his way, you would certainly be angry. And do you feel no shame in handing over your own mind to be confused and mystified by anyone who happens to verbally attack you - Epictetus?"`
 
 ## Skepticism
 
@@ -158,7 +158,7 @@
 * Plutarch
 	* friends|flatterers
 	* avoid self-flattering
-	`We must eradicate self-love and conceit, because by flattering us beforehand they render us less resistant to flatterers.`
+	`"We must eradicate self-love and conceit, because by flattering us beforehand they render us less resistant to flatterers."`
 
 ## A period of transition
 * Neo-platonism
@@ -187,17 +187,17 @@
 * We kind arrive to all truth through reason only, we must add divine wisdom
 * He wanted to make Greek though accessible to Muslim audience
 
-`We ought not to be ashamed of appreciating the truth and of acquiring it wherever it comes from even if it comes from races distant and nations different from us. for the seeker of truth, nothing takes precedence over the truth. the status of no one is diminished by the truth, rather does the truth ennoble all.`
+`"We ought not to be ashamed of appreciating the truth and of acquiring it wherever it comes from even if it comes from races distant and nations different from us. for the seeker of truth, nothing takes precedence over the truth. the status of no one is diminished by the truth, rather does the truth ennoble all."`
 
 ### Al Ghazali
 * Reason is incapable to encompass all the truth
-`What a difference between knowing the definition of health together with its causes, and being healthy.`
+`"What a difference between knowing the definition of health together with its causes, and being healthy."`
 
 ### Averroes
 * Philosohpy and religion - neither is better just specialized in different areas
 * Religion provides an easily digestible version of the truth - masses aren't capable of understanding philosophy
 
-`...the religions are, according to the philosophers, obligatory, since they lead towards wisdom in a way universal to all human beings, philosophy only leads a certain number of people to the knowledge of intellectual happiness...`
+`"...the religions are, according to the philosophers, obligatory, since they lead towards wisdom in a way universal to all human beings, philosophy only leads a certain number of people to the knowledge of intellectual happiness..."`
 
 ## Two mediaval approaches to God
 
@@ -216,16 +216,25 @@
 ## Blast of the Renaissance
 * Black death - killed 30-60% of population - people began to question foundation of society - started to study Greek philosophers
 
-`I have turned my entire attention to Greek. The first thing I shall do, as soon as the money arrives, is to buy some Greek authors; after that, I shall buy clothes.` - Desiderius Erasmus
+`"I have turned my entire attention to Greek. The first thing I shall do, as soon as the money arrives, is to buy some Greek authors; after that, I shall buy clothes."` - Desiderius Erasmus
 
 ### Desiderius Erasmus
 * People should stop worry about rituals and just love each other
 
-`What hate required these things at your hands? In vain will they make their idle pleas, one that he has lived only on fish, another that he has never changed his sacred hood; this one that he has lost his voice by continual singing of holy anthems, and one that he has forgotten how to speak in his strict obedience to the vow of silence. Our Savior will interrupt their excuses and say: ‘Woe unto you, scribes and Pharisees, hypocrites, I know you not. I left you but one precept, of loving one another, and that I do not hear any one plead he has faithfully discharged.` 
+`"What hate required these things at your hands? In vain will they make their idle pleas, one that he has lived only on fish, another that he has never changed his sacred hood; this one that he has lost his voice by continual singing of holy anthems, and one that he has forgotten how to speak in his strict obedience to the vow of silence. Our Savior will interrupt their excuses and say: ‘Woe unto you, scribes and Pharisees, hypocrites, I know you not. I left you but one precept, of loving one another, and that I do not hear any one plead he has faithfully discharged."` 
 
 ## Machiavelli
-
 * Most his contributions are in politics
 * Great ruler should achieve to achieve stability of his realm at all costs
 
-`"Is it better to be loved rather than feared, or feared rather than loved? It might perhaps be answered that we should wish to be both: but since love and fear can hardly exist together, if we must choose between them, it is far safer to be feared than loved."`
+`"Is it better to be loved rather than feared, or feared rather than loved? It might perhaps be answered that we should wish to be both: but since love and fear can hardly exist together, if we must choose between them, it is far safer to be feared than loved. "`
+
+## Montaigne
+* Paralyzing fear of death
+* His outlook changed after surviving crash riding horse
+* Affected by Skepticism
+* We should base base our decisions on our own experience
+
+`"To philosophize is to learn how to die"` - name of one of his works (this saying goes back to the Greeks)
+
+`“Why may not a goose say thus: “All the parts of the universe I have an interest in: the earth serves me to walk upon, the sun to light me; the stars have their influence upon me; I have such an advantage by the winds and such by the waters; there is nothing that yon heavenly roof looks upon so favorably as me. I am the darling of Nature! Is it not man that keeps and serves me?”`
