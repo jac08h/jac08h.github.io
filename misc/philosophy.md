@@ -223,13 +223,13 @@
 
 `"What hate required these things at your hands? In vain will they make their idle pleas, one that he has lived only on fish, another that he has never changed his sacred hood; this one that he has lost his voice by continual singing of holy anthems, and one that he has forgotten how to speak in his strict obedience to the vow of silence. Our Savior will interrupt their excuses and say: ‘Woe unto you, scribes and Pharisees, hypocrites, I know you not. I left you but one precept, of loving one another, and that I do not hear any one plead he has faithfully discharged."` 
 
-## Machiavelli
+## Niccolo Machiavelli
 * Most his contributions are in politics
 * Great ruler should achieve to achieve stability of his realm at all costs
 
 `"Is it better to be loved rather than feared, or feared rather than loved? It might perhaps be answered that we should wish to be both: but since love and fear can hardly exist together, if we must choose between them, it is far safer to be feared than loved. "`
 
-## Montaigne
+## Michel de Montaigne
 * Paralyzing fear of death
 * His outlook changed after surviving crash riding horse
 * Affected by Skepticism
@@ -238,3 +238,11 @@
 `"To philosophize is to learn how to die"` - name of one of his works (this saying goes back to the Greeks)
 
 `“Why may not a goose say thus: “All the parts of the universe I have an interest in: the earth serves me to walk upon, the sun to light me; the stars have their influence upon me; I have such an advantage by the winds and such by the waters; there is nothing that yon heavenly roof looks upon so favorably as me. I am the darling of Nature! Is it not man that keeps and serves me?”`
+
+## Francis Bacon
+* Father of empiricism (Scientific method)
+* Biases that distort the truth:
+	* **Idols of the Tribe** - common to the race
+	* **Idols of the Den** - peculiar to the individual
+	* **Idols of the Marketplace** - coming from misuse of language ('healthcare reform' - 'socialized medicine')
+	* **Idols of the Theatre** - coming from philosophical dogmas
