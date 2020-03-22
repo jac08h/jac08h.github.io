@@ -2,7 +2,7 @@
 
 Hi! I'm Jakub. 
 
-I like to do bunch of stuff. I like programming, reading books, eating sweets, getting up early (but not by much!).
+I like to do bunch of stuff. I like programming, reading books, eating sweets, getting up early (but not too early!).
 
 Even more, I like to work on stuff that other people might find useful. Be it a open-source script, useful website, or notes from a book.
 

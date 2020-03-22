@@ -4,6 +4,6 @@ I use Goodreads for book reviews: [My Profile](https://www.goodreads.com/user/sh
 
 If I scribble some notes and thoughts from book, you'll find them [here](https://github.com/jac08h/notes/tree/master/books){:target="blank"}.
 
-<br><br>
+<br>
 ### Years in books:
 [2019](https://www.goodreads.com/user/year_in_books/2019/93465238){:target="blank"}
