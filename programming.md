@@ -8,4 +8,4 @@
 
 * [Webscraping](/programming/webscraping)
 
-* [Scripts](https://github.com/jac08h/my_scripts) (github redirect)
+* [Misc](/programming/misc)
