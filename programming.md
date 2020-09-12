@@ -8,4 +8,6 @@
 
 * [Webscraping](/programming/webscraping)
 
+* [Deep Learning](/programming/deep_learning)
+
 * [Misc](/programming/misc)
