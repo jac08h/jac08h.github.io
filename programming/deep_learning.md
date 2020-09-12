@@ -1,3 +1,3 @@
 # Deep Learning
 
-* [SnakeClassifier](https://github.com/jac08h/SnakeClassifie)
+* [SnakeClassifier](https://github.com/jac08h/SnakeClassifier)
