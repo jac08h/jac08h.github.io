@@ -8,3 +8,6 @@ Diplomaté si zvykli řešit věci na čerstvém vzduchu.
 
 "Žádné tajné informace nejsou probírany uvnitř budovy velvyslanectví.
  Je velice únavné vyjít ven na záhradu pokaždé, když je potřeba prodiskutovat citlivé téma."
+
+
+###### 2018

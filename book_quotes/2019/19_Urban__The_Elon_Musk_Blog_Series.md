@@ -15,3 +15,6 @@ There are other signs pointing to this being an extraordinarily unusual time to 
  If extra -terrestrial life were looking for other life in the universe, it would be dramatically easier to find us this century than in any century before, as we project millions of signals out into space.
 
  With an average of one mass extinction event every 100 million years since animals have been around, we may be currently engineering a sixth one by accident.
+
+
+###### 2019

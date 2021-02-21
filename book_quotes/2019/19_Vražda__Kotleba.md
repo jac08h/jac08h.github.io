@@ -14,3 +14,6 @@ Aj by vedeli ako.
 Uniformy, fakle, domobrana, hummer, pištoľ v parlamente, bagre v osadách, hliadky v divadlách, používanie ochranky na župných zastupiteľstvách, to všetko ukazuje, že hrozbu násilia používajú odjakživa s systematicky.
 Doplna sa s ďalšou črtou predsedu ĽSNS, ktorú znova a znova spomínajú tí, čo ho poznajú - so stihomamom.
 Dá sa skrátka pochopiť, že Kotleboci by Putin mohol byť sympatický, aj keby sa nakoniec ukázalo, že mu nedával peniaze.
+
+
+###### 2019

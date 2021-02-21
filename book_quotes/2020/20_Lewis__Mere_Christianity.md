@@ -9,3 +9,6 @@ Either this man was, and is, the Son of God, or else a madman or something worse
 You can shut him up for a fool, you can spit at him and kill him as a demon or you can fall at his feet and call him Lord and God, but let us not come with any patronizing nonsense about his being a great human teacher.
 He has not left that open to us.
 He did not intend to.
+
+
+###### 2020

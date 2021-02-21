@@ -6,3 +6,6 @@ The human brain has no such limits, owing to what neuroscientists call "synaptic
 As Dave Ackley puts it, "You must be impacted, or there is no experience."
 This is what makes good conversations, and good living, risky.
 You can't simply "get to know" a person without, to some degree, changing them - and without, to some degree becmoing than.
+
+
+###### 2019

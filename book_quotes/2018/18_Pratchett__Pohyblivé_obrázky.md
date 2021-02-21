@@ -5,3 +5,6 @@
 Jsou to všichni ti synové, kteří se stanou kováři, protože jejich otec byl kovář.
 Jsou to všichni ti lidé, kteří mohli hrát fantasticky na flétnu, kteří ale zestárnou a umřou, aniž v životě uvidí jediný hudební nástroj, takže se z nich místo toho stanou mizerní oráči. Všichni ti lidé s vrozeným, ale nikdy neobjeveným talentem.
 Možná že se dokonce rodí v časech a místech, kde to vůbec zjistit nemohou.“
+
+
+###### 2018

@@ -17,3 +17,6 @@ A ak by Kinovi jeho plány nevyšli, tí istí susedia by vraveli:
  Takveru, pán Boh potrestal Kina, lebo s vzbúril proti ustálenému poriadku.
  Aspoň vidíte, kam to dopracoval.
  A ja som na vlastné oči videl, ako sa pomiatol."
+
+
+###### 2018

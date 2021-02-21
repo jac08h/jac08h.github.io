@@ -12,3 +12,6 @@ Budovali paláce, pevnosti, pamätníky a chrámy.
 Až do neskorej modernej éry bojlo íé percent ľudí roľníkmi, ktorí každé ráno vstávali, aby v pote tváre obrábali pôdu.
 Nadbytky, ktoré produkovali, živili nepatrnú menšinu elít, kráľov, vládnucich úradnikov, vojakov, kňazov, umelcov a mysliteľov, ktorí zapĺňajú stránky historických kníh.
 História je niečo, čo vytvárala malá skupinka ľudí, zatiaľ čo všetci ostatní orali polia a nosili vedrá s vodou.
+
+
+###### 2019

@@ -12,3 +12,6 @@ The next day, a recharged future me usually responds that it’s okay from time 
 It’s okay for you, too.
 In the world of making, there’s space for that.
 There’s space for all.
+
+
+###### 2020

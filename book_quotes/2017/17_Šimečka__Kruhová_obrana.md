@@ -75,3 +75,6 @@ Po několika letech se ukázalo, že partyzán neměl být oběsen, že to si je
 Muj muž vyvodil z toho poučení, odevzdal uniformu a stranickou legitimaci a začal pracovat na buldozeru.
 Pracoval na něm až do duchodu, mlčenlivě a zachmuřeně.
 Škoda, že jiní nevyvodili poučení, měli bychom dost buldozeristu na zasypání našich dějinných odpadku.
+
+
+###### 2017

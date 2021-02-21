@@ -36,3 +36,6 @@ This generation could commit itself to an equally consequential investment in an
 
 Focusing on the civic consequences of inequality, and ways of reversing them, might find political traction that arguments about income distribution as such do not.
 It would also help highlight the connection between distributive justice and the common good.
+
+
+###### 2020

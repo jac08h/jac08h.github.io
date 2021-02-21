@@ -11,3 +11,6 @@ A když jsem ve snu opět vystoupil do výšky, shledával jsem v tom všem jist
 Když jsem se probudil, bylo mi jasné, že tyto poklidné, nikterak úzkostné sny představovaly tábor, ovšem tábor dokonalý, který dosáhl neskutečného klidového stavu, tábor bez násilí, autoregulovaný, dokonale fungující a stejně dokonale zbytečný, protože veškerý ten pohyb zhola nic nevytvářel.
 Ale není to snad při hlubší úvaze – o kterou jsem se snažil nad náhražkovým čajem v Haus der Waffen-SS – obraz života společnosti jako celku? Zbaví-li se přece lidský život všeho pozlátka a marného pachtění, sotva z něj zbude víc než tohle; jakmile se reprodukujeme, dosáhneme cíle lidského druhu; a pokud jde o naše vlastní cíle, ty jsou jen lákadlem, stimulem, který nás nutí ráno vstát z postele; při objektivním pohledu na věc, kterého jsem byl, jak jsem se domníval, schopen, byla zbytečnost všeho toho snažení do očí bijící, úplně stejně jako sama reprodukce, protože ta slouží jen k výrobě dalších zbytečností.
 A tak jsem došel k této myšlence: není sám tábor se vší svou tuhou organizací, se vším absurdním násilím a úzkostlivě dodržovanou hierarchií jen metafora, reductio ad absurdum našeho každodenního života?
+
+
+###### 2017

@@ -25,3 +25,6 @@ You will be bound, finally, to look at your work as a science; it will take in t
 On the other hand, all your thoughts, all the seeds you have sown, which you may already have forgotten, will take on flesh and grow; what was received from you will be passed on to someone else.
 And how do you know what share you will have in the future outcome of human destiny?
 And if the knowledge and the whole life of this work finally raises you so high that you are able to plant a tremendous seed, to bequeath a tremendous thought to mankind, then …” And so on, I talked a lot then.
+
+
+###### 2020

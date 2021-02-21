@@ -23,3 +23,6 @@ It is likewise not difficult to understand that economics is a study of the allo
 But that too is easy to lose sight of when the media or politicians focus on the plight of particular industries that are losing money and jhobs and call for rescuing these industries from such misfortunes.
 Those who proclaim that some particular industry or regions of the country are not sharing in the general prosperity - that they are being "left out" or "left behind" - seldom even acknowledge the possibillity that the general prosperity itself is in part a consequence of transferring resources from where they are less poroductive to where they are mor productive.
 Red ink on the bottom line and lay-off notices are among the mechanisms of such transfers.
+
+
+###### 2018

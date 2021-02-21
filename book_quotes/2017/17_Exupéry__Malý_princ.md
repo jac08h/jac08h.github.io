@@ -10,3 +10,6 @@
 "Hanbím sa, že pijem!" povedal pijan a odmlčal sa.
 A malý princ celý zmätený odišiel.
 Dospelí sú naozaj veľmi, veľmi čudní, vravel si cestou v duchu.
+
+
+###### 2017

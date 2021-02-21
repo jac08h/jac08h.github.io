@@ -6,3 +6,6 @@ Distrust yourself if you hear these tones creeping into your own style.
 The search for security and majority is not always the same as solidarity; it can be another name for consensus and tyranny and tribalism.
 Never forget that, even if there are “masses” to be invoked, or “the people” to be praised, they and it must by definition be composed of individuals.
 Stay on good terms with your inner Yossarian.
+
+
+###### 2020

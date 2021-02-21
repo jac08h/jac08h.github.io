@@ -25,3 +25,6 @@ Mnohí z nich sa radšej prispôsobia objednávke verejnosti a budú simulovať 
 Nežiadajme od politikov dokonalosť.
 Dokonalž nie je nik, hádam len rodičia v očiach malých detí.
 Očakávajme od politikov také konanie, aké by sme očakávali od kolegu, kamaráta či príbuzneho: totiž že k nám budú otvorení a nebudú nami manipulovať, že nás nebudú úmyselne okrádať či klamať, a tiež že keď urobia chybu, ospravedlnia sa za ňu.
+
+
+###### 2019

@@ -5,3 +5,6 @@ In Part 1, I quoted writer Winifred Gallagher saying, “I’ll live the focused
 I agree.
 So does Bill Gates.
 And hopefully now that you’ve finished this book, you agree too.
+
+
+###### 2020

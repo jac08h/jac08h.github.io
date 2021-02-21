@@ -9,3 +9,6 @@
  Jedno ale toto jasné a uctyhodné učení neobsahuje: neobsahuje tajemství toho, co Vznešený zakusil sám, jediný mezi státisíci.
  To je to, co jsem si pomyslel a co jsem pochopil, když jsem naslouchal nauce. 
  To je to, proč pokračuji ve své pouti - ne abych hledal jinou, lepší nauku, protože vím, že takové není, ale abych opustil všechny nauky a všechny učitele a sám dosáhl svého cíle, nebo zemřel."
+
+
+###### 2018

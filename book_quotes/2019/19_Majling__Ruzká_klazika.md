@@ -19,3 +19,6 @@ Dokonca aj Eve Braunovej bolo pri pohľade na neho trápne."
 "Ako ste na to prišli, že tento esalátor vedie až do neba, prosím vás?" uškrnul sa muž v čiernom.
 "A kam teda?" opýtal sa Marmuchin.
 "Aby ste si nemysleli, že nevieme. oceniť pekný pokus o pokánie na poslednú chvíľu, dovolíme vám zošmyknúť sa do pekla na našom novom tobogane," povedal muž v čiernom a vyslieko si sako, pretože z oblakov sa práve vynorila plošina, z ktorej v špirálach padala prudko k zemi farebná plastová rúra.
+
+
+###### 2019

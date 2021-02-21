@@ -2,3 +2,6 @@
 
 Ak ako muž vojdete do reštaurácie a časník pozdraví len vás, napadne vám spýtať sa ho: "Prečo ste nepozdravili aj moju partnerku?"
 Muži musia prehovoriť vo všetkých týchto zdanlivo malicherných situáciách.
+
+
+###### 2019
