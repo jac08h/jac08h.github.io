@@ -8,3 +8,6 @@ Kôrkar chvíľu premýšľal: "Aj pred tebou stojí malé zrnko piesku.
  Ich prítomnosť zmenila mňa, moja ich.
  Vietor do ničoho nezasahuje, žije len svoj život a mení to, čo stretne.
  Svet vo vojej podstate zostáva rovnaký, ale teraz je všetko inak ako pred chvíľou.
+
+
+###### 2019

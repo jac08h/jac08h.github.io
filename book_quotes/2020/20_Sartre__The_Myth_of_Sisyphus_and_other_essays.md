@@ -19,3 +19,6 @@ Were I to trace its entire relief with my finger, I should not know any more.
 And you give me the choice between a description that is sure but that teaches me nothing and hypotheses that claim to teach me but that are not sure.
 A stranger to myself and to the world, armed solely with a thought that negates itself as soon as it asserts, what is this condition in which I can have peace only by refusing to know and to live, in which the appetite for conquest bumps into walls that defy its assaults? To will is to stir up paradoxes.
 Everything is ordered in such a way as to bring into being that poisoned peace produced by thoughtlessness, lack of heart, or fatal renunciations.
+
+
+###### 2020

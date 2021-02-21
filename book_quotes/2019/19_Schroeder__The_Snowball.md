@@ -7,3 +7,6 @@ One is to buy or sell at the wrong time.
 Paying high fees is the other way to get killed.
 The best way to avoid both of these is to buy a low-cost index fund, and buy it over time.
 Be greedy when others are fearful, and fearful when others are greedy, but don’t think you can outsmart the market.
+
+
+###### 2019

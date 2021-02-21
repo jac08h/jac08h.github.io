@@ -8,3 +8,6 @@ V tom druhom majú možno pravdu, no ignorovať realitu nacionalizmu, ktorý ná
 Niektorí odborníci, intelektuáli a časť médií, príslušníci obchodníckej a politickej triedy vnímajú samých seba ako oslobodených od nacionalizmu.
 V roku 2016 predseda Európskej komisie Jean-Claude Juncker charakterizoval národné hranice ako "najhorší vynález vôbec".
 Možno v tom má pravdu, no povedať to takto z mosta do prosta ťažko presvedčí nacionalistov o myšlienke európskeho superštátu.
+
+
+###### 2019

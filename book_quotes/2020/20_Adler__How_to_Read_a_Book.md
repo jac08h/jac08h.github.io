@@ -11,3 +11,6 @@ Reading for information does not stretch your mind any more than reading for amu
 It may seem as though it does, but that is merely because your mind is fuller of facts than it was before you read the book.
 However, your mind is essentially in the same condition that it was before.
 There has been a quantitative change, but no improvement in your skill.
+
+
+###### 2020

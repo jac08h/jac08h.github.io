@@ -11,3 +11,6 @@ Pane bože na nebesích.
 Věčně v nich jsou nějaký pitomý dostihy a nějaká madam, jak rozbíjí láhev o loď, a nějakej šimpanz v kalhotkách, co jezdí na nějakým pitomým kole.
 To už pak vůbec nebude to.
 Ty vůbec nechápeš, co myslím.“
+
+
+###### 2019

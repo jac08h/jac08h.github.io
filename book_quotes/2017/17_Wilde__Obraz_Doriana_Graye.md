@@ -19,3 +19,6 @@
  Z  našeho pokolení vymizela odvaha.
  Možná, že jsme ji ani nikdy doopravdy neměli.
  Hrůza ze společnosti, což je základ mravnosti, a hrůza z Boha, což je tajemství náboženství, - to dvojí nás ovládá."
+
+
+###### 2017

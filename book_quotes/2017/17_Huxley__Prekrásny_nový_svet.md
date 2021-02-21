@@ -15,3 +15,6 @@ A keď nemôžu obsluhovať kolesá...
 Tisíc krát tisíc mŕtvol sa ťažko pochováva a spaľuje.
 
 
+
+
+###### 2017

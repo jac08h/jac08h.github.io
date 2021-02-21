@@ -26,3 +26,6 @@ Few societies in history have managed to be both multiracial and genuinely democ
 That is our challenge.
 It is also our opportunity.
 If we meet it, America will truly be exceptional.
+
+
+###### 2019

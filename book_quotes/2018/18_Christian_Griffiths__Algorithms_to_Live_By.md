@@ -12,3 +12,6 @@ He leapt.
 "I didn't know if she was Perfect (the assumptions of the model don't allow to determine that), but there was no doubt that she met the qualifications for this step of the algorithm.
  So I proposed," he writes.
 "And she turned me down."
+
+
+###### 2018

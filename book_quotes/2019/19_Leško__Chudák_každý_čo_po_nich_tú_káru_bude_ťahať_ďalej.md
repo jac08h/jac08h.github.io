@@ -8,3 +8,6 @@ Nikto si nemôže povedať, že sa po dvadsiatich piatich rokoch naplnil slogan 
 Pripadá mi to tak, akoby sme znovu prichádzali k bodu, keď sa to bude opäť lámať.
 Keby sa v základoch otriasol koncept Európskej únie, nevidím v rámci slovenskej spoločnosti dostatočnú väčšinu, ktorá by garantovala, že sa dokážeme ubrániť zvrhlým tendenciám.
 Pripadá mi to po dvadsiatich piatich rokoch dosť smutné.
+
+
+###### 2019

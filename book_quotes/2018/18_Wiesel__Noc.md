@@ -20,3 +20,6 @@ Uprel na mňa vyhasnuté, studené oči.
 Slabým hlasom povedal:
 "Hitlerovi dôverujem väčšmi ako komukoľvek inému.
  Len on jediný dodržal svoje sľuby, všetky svoje sľuby židovskému národu."
+
+
+###### 2018

@@ -9,3 +9,6 @@ I mean, before they came here I could stand it, being alone in the building.
 But now it's changed.
 You can't go back, he thought.
 You can't go from people to nonpeople.
+
+
+###### 2020

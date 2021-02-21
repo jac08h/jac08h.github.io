@@ -7,3 +7,6 @@ If we wish to avoid the suffocating noose of sleep neglect, the premature death 
  I believe it is time for us to reclaim our right to a full night of sleep, without embarrassment or the damaging stigma of laziness.
 In doing so, we can be reunited with that most powerful elixir of wellness and vitality, dispensed through every conceivable biological pathway.
 Then we may remember what it feels like to be truly awake during the day, infused with the very deepest plentitude of being.
+
+
+###### 2019

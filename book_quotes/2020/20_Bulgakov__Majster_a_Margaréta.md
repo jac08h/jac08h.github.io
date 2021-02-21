@@ -13,3 +13,6 @@ Slušný tichý dedko, oblečený chudobne, ale čisto, ktorý si kupoval tri ma
 Oči mu bojovne zasvietili, tvár očervenela, šmaril balíček s koláčikmi o zem a zapišťal tenkým detským hláskom:
 – Má pravdu!
 Potom schmatol cukrársku tácňu, zmietol z nej zvyšky čokoládovej eiffelovky, zdemolovanej Mosúrovou labou, zamával tácňou nad hlavou, ľavou rukou strhol cudzincovi klobúk, pravou sa zahnal a ovalil cudzinca tácňou po plešine.
+
+
+###### 2020

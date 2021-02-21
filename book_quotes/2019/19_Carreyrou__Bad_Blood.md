@@ -7,3 +7,6 @@ By all accounts, she had a vision that she genuinely believed in and threw herse
 But in her all-consuming quest to be the second coming of Steve Jobs amid the gold rush of the “unicorn” boom, there came a point when she stopped listening to sound advice and began to cut corners.
 Her ambition was voracious and it brooked no interference.
 If there was collateral damage on her way to riches and fame, so be it.
+
+
+###### 2019

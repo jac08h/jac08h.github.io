@@ -11,3 +11,6 @@ Poznamenala, že manželství je vážna záležitost.
 Řekl jsem, že není.
 Chvíli se na mě beze slova dívala.
 A pak zase začala.
+
+
+###### 2017

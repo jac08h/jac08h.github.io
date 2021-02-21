@@ -7,3 +7,6 @@ O niečo neskôr - spomína matematik Milan Kolibar -
  'Ako sa skončí vojna, o tom čvirikajú vrabce na streche.
   Nemci vojnu prehrajú.
   Osud slovenského národa je v Božích rukách a ja prídem o krk'"
+
+
+###### 2017

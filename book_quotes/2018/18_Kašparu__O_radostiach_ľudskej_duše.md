@@ -20,3 +20,6 @@ nie je ťažké začať, ťažšie je dokončiť,
 nie je ťažké...
 
 nie je ťažké vymyslieť tieto prirovnania, ťažšie je zistiť, komu som tie myšlienky nechtiac odcudzil.
+
+
+###### 2018

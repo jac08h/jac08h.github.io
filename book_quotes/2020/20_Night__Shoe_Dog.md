@@ -12,3 +12,6 @@ When you make something, when you improve something, when you deliver something,
 More than simply alive, you’re helping others to live more fully, and if that’s business, all right, call me a businessman.
 
 Maybe it will grow on me.
+
+
+###### 2020

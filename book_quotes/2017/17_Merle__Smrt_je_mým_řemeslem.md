@@ -13,3 +13,6 @@ Prokurátor se odmlčel, podíval se mně do očí, rozpřáhl ruce a zeptal se:
 Zavládlo ticho. Oči všech byly na mě upřeny, já jsem se na okamžik zamyslel a pak jsem odpověděl: 
 „Byla to protivná práce.“ 
 Prokurátor spustil ruce a v sále to znovu zahučelo. 
+
+
+###### 2017

@@ -35,3 +35,6 @@ Kindness.
 Intelligence.
 When he was in his thirties, he had looked at certain people’s relationships and asked the question that had (and continued to) fuel countless dinner-party conversations: What’s going on there? Now, though, as an almost-forty-eight-year-old, he saw people’s relationships as reflections of their keenest yet most inarticulable desires, their hopes and insecurities taking shape physically, in the form of another person.
 Now he looked at couples—in restaurants, on the street, at parties—and wondered: Why are you together? What did you identify as essential to you? What’s missing in you that you want someone else to provide? He now viewed a successful relationship as one in which both people had recognized the best of what the other person had to offer and had chosen to value it as well.
+
+
+###### 2019
