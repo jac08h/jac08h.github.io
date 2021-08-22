@@ -1,0 +1,63 @@
+# 1. Two Sum
+##### Published: 22.8.2021
+
+## My solution overview
+Create a hashtable containing number of occurrences for every present number.
+
+Iterate over the array. For every number, calculate what number to find (target - current).
+If exists, find it in array after index. It can't be located before our current number, because if that was the case, the pair would be already found, only reversed.
+
+> [2, 7, 11r 8]; target: 19. 
+> On number 11, we know 8 has to be after index 2, because if it was in front, pair [8, 11] would be already found.
+
+Special case: Needed number is same as current. Then, also check that there are at least 2 occurrences of the number.
+
+Time complexity: O(n)
+
+
+## Code
+
+```python
+from typing import List
+
+
+# https://leetcode.com/problems/two-sum
+
+class Solution:
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        occurences = {}
+        for n in nums:
+            occurences[n] = occurences.get(n, 0) + 1
+
+        for i, n in enumerate(nums):
+            x = target - n
+            x_occurences = occurences.get(x, 0)
+            if x_occurences > 0 and not (x == n and x_occurences == 1):
+                return [i, nums.index(x, i + 1)]
+
+
+if __name__ == '__main__':
+    s = Solution()
+    assert s.twoSum([2, 7, 11, 15], 9) == [0, 1]
+    assert s.twoSum([3, 2, 4], 6) == [1, 2]
+    assert s.twoSum([3, 3], 6) == [0, 1]
+```
+
+## Improvements
+More straightforward and faster solution: Iterate over the array. Insert to hashtable every number with the index. For every number, check if it's number to find wasn't encountered. If yes, return it's index  (from the hashtable) with the current index.
+
+Needs only one iteration over the array.
+
+```python
+class Solution:
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        seen = {}
+        for i, n in enumerate(nums):
+            x = target - n
+            if x in seen:
+                return [seen[x], i]
+            seen[n] = i
+```
+
+I got sidetracked by the fact that a number can occur multiple times in the array, but that does not matter.
+
