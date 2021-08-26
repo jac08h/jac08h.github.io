@@ -17,3 +17,7 @@
 #### Day 3
 * 2021-08-26 - [Leetcode: 283. Move Zeroes](/articles/2021-08-26-lc-283-move-zeroes)
 * 2021-08-26 - [Leetcode: 167. Two Sum II - Input array is sorted](/articles/2021-08-26-lc-167-two-sum-ii-input-array-is-sorted)
+
+#### Day 4
+* 2021-08-26 - [Leetcode: 344. Reverse String](/articles/2021-08-26-lc-344-reverse-string)
+* 2021-08-26 - [Leetcode: 557. Reverse Words in a String III](/articles/2021-08-26-lc-557-reverse-words-in-a-string-iii)
