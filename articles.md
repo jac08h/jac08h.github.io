@@ -13,3 +13,7 @@
 #### Day 2
 * 2021-08-25 - [Leetcode: 977. Squares of a Sorted Array](/articles/2021-08-25-lc-977-squares-of-a-sorted-array)
 * 2021-08-25 - [Leetcode: 189. Rotate Array](/articles/2021-08-25-lc-189-rotate-array)
+
+#### Day 3
+* 2021-08-26 - [Leetcode: 283. Move Zeroes](/articles/2021-08-26-lc-283-move-zeroes)
+* 2021-08-26 - [Leetcode: 167. Two Sum II - Input array is sorted](/articles/2021-08-26-lc-167-two-sum-ii-input-array-is-sorted)
