@@ -1,7 +1,6 @@
 # Articles
 * 2021-08-22 - [Leetcode: 1. Two Sum](/articles/2021-08-22-lc-1-two-sums)
 * 2021-08-23 - [Leetcode: 2. Add Two Numbers](/articles/2021-08-23-lc-2-add-two-numbers)
-* 2021-08-23 - [Leetcode: 3. Longest Substring Without Repeating Characters](/articles/2021-08-23-lc-3-longest-substring-without-repeating-characters)
 
 ### Leetcode Study Plan: Algorithms
 
@@ -21,3 +20,11 @@
 #### Day 4
 * 2021-08-26 - [Leetcode: 344. Reverse String](/articles/2021-08-26-lc-344-reverse-string)
 * 2021-08-26 - [Leetcode: 557. Reverse Words in a String III](/articles/2021-08-26-lc-557-reverse-words-in-a-string-iii)
+
+#### Day 5
+* 2021-08-27 - [Leetcode: 876. Middle of the Linked List](/articles/2021-08-27-lc-876-middle-of-the-linked-list)
+* 2021-08-27 - [Leetcode: 19. Remove Nth Node From End of List](/articles/2021-08-27-lc-19-remove-nth-node-from-end-of-list)
+
+#### Day 6
+* 2021-08-23 - [Leetcode: 3. Longest Substring Without Repeating Characters](/articles/2021-08-23-lc-3-longest-substring-without-repeating-characters)
+* 2021-08-27 - [Leetcode: 567. Permutation in String](/articles/2021-08-27-lc-567-permutation-in-string)
