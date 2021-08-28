@@ -28,3 +28,11 @@
 #### Day 6
 * 2021-08-23 - [Leetcode: 3. Longest Substring Without Repeating Characters](/articles/2021-08-23-lc-3-longest-substring-without-repeating-characters)
 * 2021-08-27 - [Leetcode: 567. Permutation in String](/articles/2021-08-27-lc-567-permutation-in-string)
+
+#### Day 7
+* 2021-08-28 - [Leetcode: 733. Flood Fill](/articles/2021-08-28-lc-733-flood-fill)
+* 2021-08-28 - [Leetcode: 695. Max Area of Island](/articles/2021-08-28-lc-695-max-area-of-island)
+
+#### Day 8
+* 2021-08-28 - [Leetcode: 617. Merge Two Binary Trees](/articles/2021-08-28-lc-617-merge-two-binary-trees)
+* 2021-08-28 - [Leetcode: 116. Populating Next Right Pointers in Each Node](/articles/2021-08-28-lc-116-populating-next-right-pointers-in-each-node)
