@@ -36,3 +36,8 @@
 #### Day 8
 * 2021-08-28 - [Leetcode: 617. Merge Two Binary Trees](/articles/2021-08-28-lc-617-merge-two-binary-trees)
 * 2021-08-28 - [Leetcode: 116. Populating Next Right Pointers in Each Node](/articles/2021-08-28-lc-116-populating-next-right-pointers-in-each-node)
+
+#### Day 9
+* 2021-08-29 - [Leetcode: 542. 01 Matrix](/articles/2021-08-29-lc-542-01-matrix)
+* 2021-08-29 - [Leetcode: 994. Rotting Oranges](/articles/2021-08-29-lc-994-rotting-oranges)
+
