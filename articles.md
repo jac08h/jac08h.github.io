@@ -41,3 +41,6 @@
 * 2021-08-29 - [Leetcode: 542. 01 Matrix](/articles/2021-08-29-lc-542-01-matrix)
 * 2021-08-29 - [Leetcode: 994. Rotting Oranges](/articles/2021-08-29-lc-994-rotting-oranges)
 
+#### Day 10
+* 2021-08-31 - [Leetcode: 21. Merge Two Sorted Lists](/articles/2021-08-31-lc-21-merge-two-sorted-lists)
+* 2021-08-31 - [Leetcode: 206. Reverse Linked List](/articles/2021-08-31-lc-206-reverse-linked-list)
