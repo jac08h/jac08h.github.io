@@ -1,4 +1,4 @@
-## Feynmen - Surely You're Joking, Mr
+## Feynman - Surely You're Joking, Mr
 
 There was always some kind of difficulty with the letters going back and forth.
 For example, my wife kept mentioning the fact that she felt uncomfortable writing with the feeling that the censor is looking over her shoulder.
