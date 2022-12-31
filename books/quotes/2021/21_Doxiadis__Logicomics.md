@@ -1,4 +1,4 @@
-## Doxiadis_Papadimitriou - Logicomics
+## Doxiadis - Logicomics
 
 - Bertie?
   Will you require anything?
