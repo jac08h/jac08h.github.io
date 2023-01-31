@@ -2,8 +2,8 @@
 layout: default
 title: Blog
 ---
-<h1>Latest Posts</h1>
 
+<h1>Latest Posts</h1>
 <ul>
   {% for post in site.posts %}
     <li>
@@ -11,3 +11,5 @@ title: Blog
     </li>
   {% endfor %}
 </ul>
+
+<a href="/feed.xml">RSS</a>
