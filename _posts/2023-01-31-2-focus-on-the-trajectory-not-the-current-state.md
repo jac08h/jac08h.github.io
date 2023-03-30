@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "The Path is the Goal: How to Make Achieving Things more Manageable"
+title: "Focus on the Trajectory, Not the Current State"
 author: Jakub Halmeš
 ---
 
@@ -27,3 +27,6 @@ Another area where it is applicable is when observing other people who are more 
 It is also useful in thinking about trends, e.g. in technology. Sometimes it is more insightful to see the pace of technological improvement rather than the current capabilities. 
 
 Anyway, I use these lenses to see this post as well. It is a long way to becoming a decent writer. But hopefully I am making progress, and that is what I should pay attention to.
+
+
+Update 30.3.2023: I changed the title to be more accurate. Previous title was "Path is the Goal: How to Make Achieving Things more Manageable"
