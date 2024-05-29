@@ -1,6 +1,9 @@
 # Programming
 
+### Categories
 * [Websites](/programming/websites)
-* [Event Synchronization in Multiple Video Recordings (bachelor's thesis)](https://github.com/jac08h/EventSynchronizationInMultipleVideoRecordings)
 * [LLMs](/programming/llms)
 * [Data Analysis](/programming/data_analysis)
+
+### Others
+* [Event Synchronization in Multiple Video Recordings](https://github.com/jac08h/EventSynchronizationInMultipleVideoRecordings) (Bachelor's thesis)
