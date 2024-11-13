@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill Splitter</title>
+
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+            line-height: 1.6;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .person-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .headers {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 8px 16px;
+            background: #0066ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        button:hover {
+            background: #0052cc;
+        }
+
+        #results, #error {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        #results {
+            background: #f5f5f5;
+        }
+
+        #error {
+            background: #fff0f0;
+            color: #d00;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .description {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .target-type {
+            margin-bottom: 15px;
+        }
+
+        .target-type label {
+            margin-right: 15px;
+        }
+
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-right: 15px;
+        }
+    </style>
+</head>
+<body>
+<h1>Bill Splitter</h1>
+
+<div class="description">
+   <p>Add payments and adjust how much each person should pay (use % or exact amount).</p>
+</div>
+
+<div class="target-type">
+    <label>Target type:</label>
+    <select id="targetType" onchange="switchTargetType()">
+        <option value="none">Equal split</option>
+        <option value="percentage">Target percentage</option>
+        <option value="amount">Target amount</option>
+    </select>
+</div>
+
+<div class="input-group">
+    <button onclick="addPerson()">Add Person</button>
+    <button onclick="removePerson()">Remove Person</button>
+</div>
+
+<div class="headers">
+    <div>Person</div>
+    <div>Amount paid</div>
+    <div id="targetHeader">Target percentage</div>
+</div>
+
+<div id="people">
+    <div class="person-inputs">
+        <input type="text" placeholder="Name" value="Person 1">
+        <input type="number" placeholder="Amount paid" value="0" class="amount">
+        <input type="number" step="1" placeholder="e.g. 50" min="0" max="100" class="target">
+    </div>
+    <div class="person-inputs">
+        <input type="text" placeholder="Name" value="Person 2">
+        <input type="number" placeholder="Amount paid" value="0" class="amount">
+        <input type="number" step="1" placeholder="e.g. 50" min="0" max="100" class="target">
+    </div>
+</div>
+
+<div class="input-group">
+    <button onclick="calculate()">Calculate Transfers</button>
+</div>
+
+<div id="error" class="hidden"></div>
+<div id="results" class="hidden"></div>
+
+<script>
+function switchTargetType() {
+    const targetType = document.getElementById('targetType').value;
+    const targetHeader = document.getElementById('targetHeader');
+    const targetInputs = document.getElementsByClassName('target');
+    const headers = document.querySelector('.headers');
+    const personInputs = document.querySelectorAll('.person-inputs');
+
+    // Show/hide target column
+    if (targetType === 'none') {
+        headers.style.gridTemplateColumns = '1fr 1fr';
+        personInputs.forEach(div => div.style.gridTemplateColumns = '1fr 1fr');
+        targetHeader.style.display = 'none';
+        Array.from(targetInputs).forEach(input => input.style.display = 'none');
+    } else {
+        headers.style.gridTemplateColumns = '1fr 1fr 1fr';
+        personInputs.forEach(div => div.style.gridTemplateColumns = '1fr 1fr 1fr');
+        targetHeader.style.display = 'block';
+        Array.from(targetInputs).forEach(input => input.style.display = 'block');
+
+        if (targetType === 'percentage') {
+            targetHeader.textContent = 'Target percentage';
+            const totalPaid = Array.from(document.getElementsByClassName('amount')).reduce((sum, input) => sum + Number(input.value), 0);
+            const n = targetInputs.length;
+            const prefillValue = (totalPaid / n * 100).toFixed(2);
+            Array.from(targetInputs).forEach(input => {
+                input.placeholder = 'e.g. 50';
+                input.max = '100';
+                input.step = '1';
+                input.value = prefillValue;
+            });
+        } else {
+            targetHeader.textContent = 'Target amount';
+            const totalPaid = Array.from(document.getElementsByClassName('amount')).reduce((sum, input) => sum + Number(input.value), 0);
+            const n = targetInputs.length;
+            const prefillValue = (totalPaid / n).toFixed(2);
+            Array.from(targetInputs).forEach(input => {
+                input.placeholder = 'e.g. 50.00';
+                input.removeAttribute('max');
+                input.step = '0.01';
+                input.value = prefillValue;
+            });
+        }
+    }
+
+    // Clear existing target values
+    Array.from(targetInputs).forEach(input => input.value = '');
+}
+
+
+    function addPerson() {
+        const people = document.getElementById('people');
+        const count = people.children.length + 1;
+        const div = document.createElement('div');
+        div.className = 'person-inputs';
+
+        const targetType = document.getElementById('targetType').value;
+        const targetDisplay = targetType === 'none' ? 'none' : 'block';
+        const gridCols = targetType === 'none' ? '1fr 1fr' : '1fr 1fr 1fr';
+        div.style.gridTemplateColumns = gridCols;
+
+        const targetPlaceholder = targetType === 'percentage' ? 'e.g. 50' : 'e.g. 50.00';
+        const targetStep = targetType === 'percentage' ? '1' : '0.01';
+        const targetMax = targetType === 'percentage' ? 'max="100"' : '';
+
+        div.innerHTML = `
+        <input type="text" placeholder="Name" value="Person ${count}">
+        <input type="number" placeholder="Amount paid" value="0" class="amount">
+        <input type="number" step="${targetStep}" placeholder="${targetPlaceholder}"
+               min="0" ${targetMax} class="target" style="display: ${targetDisplay}">
+    `;
+        people.appendChild(div);
+    }
+
+    function removePerson() {
+        const people = document.getElementById('people');
+        if (people.children.length > 2) {
+            people.removeChild(people.lastChild);
+        }
+    }
+
+    function validate() {
+        const people = document.getElementById('people');
+        const error = document.getElementById('error');
+        const targetType = document.getElementById('targetType').value;
+        error.classList.add('hidden');
+
+        const amounts = Array.from(people.getElementsByClassName('amount')).map(input => Number(input.value));
+        const targets = Array.from(people.getElementsByClassName('target')).map(input => input.value ? Number(input.value) : null);
+
+        // Check if any targets are specified
+        if (targets.some(t => t !== null)) {
+            // All targets must be filled
+            if (targets.some(t => t === null)) {
+                error.textContent = `If using target ${targetType}, all values must be specified.`;
+                error.classList.remove('hidden');
+                return false;
+            }
+
+            if (targetType === 'percentage') {
+                // Percentages must sum to 100
+                const sum = targets.reduce((a, b) => a + b, 0);
+                if (Math.abs(sum - 100) > 0.01) {
+                    error.textContent = `Percentages must sum to 100. Current sum: ${sum.toFixed(1)}%`;
+                    error.classList.remove('hidden');
+                    return false;
+                }
+            } else {
+                // Target amounts must sum to total paid
+                const totalPaid = amounts.reduce((a, b) => a + b, 0);
+                const targetSum = targets.reduce((a, b) => a + b, 0);
+                if (Math.abs(targetSum - totalPaid) > 0.01) {
+                    error.textContent = `Target amounts must sum to total paid (${totalPaid.toFixed(2)}). Current sum: ${targetSum.toFixed(2)}`;
+                    error.classList.remove('hidden');
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    function calculateTransfers(amounts, targets) {
+        const n = amounts.length;
+        const total = amounts.reduce((a, b) => a + b, 0);
+        const targetType = document.getElementById('targetType').value;
+
+        let targetAmounts;
+        if (targets.some(t => t !== null)) {
+            targetAmounts = targetType === 'percentage'
+                ? targets.map(t => total * t / 100)
+                : targets;
+        } else {
+            targetAmounts = Array(n).fill(total / n);
+        }
+
+        let balances = amounts.map((a, i) => a - targetAmounts[i]);
+        let transfers = [];
+
+        while (true) {
+            let maxDebtorIdx = balances.indexOf(Math.min(...balances));
+            let maxCreditorIdx = balances.indexOf(Math.max(...balances));
+
+            if (Math.abs(balances[maxDebtorIdx]) < 0.01) break;
+
+            let amount = Math.min(-balances[maxDebtorIdx], balances[maxCreditorIdx]);
+            transfers.push([maxDebtorIdx, maxCreditorIdx, amount]);
+
+            balances[maxDebtorIdx] += amount;
+            balances[maxCreditorIdx] -= amount;
+        }
+
+        return [transfers, targetAmounts];
+    }
+
+    function calculate() {
+        if (!validate()) return;
+
+        const people = document.getElementById('people');
+        const inputs = Array.from(people.getElementsByTagName('input'));
+
+        const names = inputs.filter(input => input.type === 'text').map(input => input.value);
+        const amounts = Array.from(people.getElementsByClassName('amount')).map(input => Number(input.value));
+        const targets = Array.from(people.getElementsByClassName('target')).map(input => input.value ? Number(input.value) : null);
+
+        const [transfers, finalAmounts] = calculateTransfers(amounts, targets);
+
+        const results = document.getElementById('results');
+        const total = amounts.reduce((a, b) => a + b, 0);
+
+        results.innerHTML = '';
+        if (transfers.length === 0) {
+            results.innerHTML += '<p>No transfers needed!</p>';
+        } else {
+            transfers.forEach(([from, to, amount]) => {
+                results.innerHTML += `<p>${names[from]} → <b>${amount.toFixed(2)}</b> → ${names[to]}</p>`;
+            });
+
+        }
+
+        results.classList.remove('hidden');
+    }
+
+    switchTargetType();
+
+</script>
+</body>
+</html>
