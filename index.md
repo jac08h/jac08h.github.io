@@ -2,6 +2,7 @@
 
 Hi! 
 
-My name is Jakub and I am currently studying Artificial intelligence and data processing at Masaryk University in Brno.
+I'm Jakub, currently studying Artificial Intelligence and Data Processing at Masaryk University in Brno.
 
-This website serves as a crossroad between my various endeavors: You can look at some of my [programming projects](/programming). There's also my [collection of quotes](/books/quotes) from books I've read, as well as [my favourite books](/books/picks) read in a given year. I sometimes publish at my [blog](https://jakubhalmes.substack.com/). I hope you enjoy your stay!
+This website serves as a crossroad between various endeavors: Check out some [programming projects](/programming), browse through a [collection of quotes](/books/quotes) from fascinating reads, or explore [recommended books](/books/picks) from each year. Occasional thoughts appear at this [blog](https://jakubhalmes.substack.com/). Enjoy your stay!
+
