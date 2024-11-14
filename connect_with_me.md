@@ -2,4 +2,4 @@
 
 * [Github](https://github.com/jac08h)
 * [LinkedIn](https://www.linkedin.com/in/jac08h/)
-* Email: **jac08h[alt+64]pm[alt+46]me**
+* jac08h@gmail.com ([Send message](mailto:jac08h@gmail.com))
