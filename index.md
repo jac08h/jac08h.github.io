@@ -4,5 +4,5 @@ Hi!
 
 I'm Jakub, currently studying Artificial Intelligence and Data Processing at Masaryk University in Brno.
 
-This website serves as a crossroad between various endeavors: Check out some [programming projects](/programming), browse through a [collection of quotes](/books/quotes) from fascinating reads, or explore [recommended books](/books/picks) from each year. Occasional thoughts appear at this [blog](https://jakubhalmes.substack.com/). Enjoy your stay!
-
+This website serves as a crossroad between various endeavors: Browse through [programming projects](/programming) or visit the [blog](https://jakubhalmes.substack.com/). 
+There is also a [collection of book quotes](/books/quotes) and a list of [my favorite reads](/books/picks). I hope you enjoy your stay!
