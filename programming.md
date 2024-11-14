@@ -1,9 +1,24 @@
 # Programming
 
-### Categories
-* [Websites](/programming/websites)
-* [LLMs](/programming/llms)
-* [Data Analysis](/programming/data_analysis)
+### Bachelor's Thesis
+* **Event synchronization in Multiple Video Recordings** (2022–2023)
+    * [Code](https://github.com/jac08h/EventSynchronizationInMultipleVideoRecordings), [Thesis](https://is.muni.cz/th/cyoc1/thesis.pdf)
+    * Implementation [VideoSnapping method](https://studios.disneyresearch.com/wp-content/uploads/2019/03/VideoSnapping-Interactive-Synchronization-of-Multiple-Videos-1.pdf) for video synchronization with additional support for various descriptors to detect image features and evaluation on soccer videos.
+    
+### Websites
+* **[nextsoccerderby.com (archived)](https://web.archive.org/web/20211219044408/http://www.nextsoccerderby.com/)** (2020)
+    * An aggregator of dates for upcoming soccer derbies.
+* **jakubhalmes.com** (2019–present) [Source](https://github.com/jac08h/jac08h.github.io)
 
-### Others
-* [Event Synchronization in Multiple Video Recordings](https://github.com/jac08h/EventSynchronizationInMultipleVideoRecordings) (Bachelor's thesis)
+### Working with LLMs
+* **Personality Classification with LLMs** (2024)
+    * [Code](https://github.com/jac08h/PersonalityClassificationWithLLMs), [Report](https://github.com/jac08h/PersonalityClassificationWithLLMs/blob/main/report.pdf)
+    * Fine-tuning Gemma models for MBTI personality classification based on forum posts.
+    * Completed as part of the [PA026 Artificial Intelligence Project - Spring 2024](https://nlp.fi.muni.cz/aiproject/) course.
+
+### Data Analysis
+* **[Chess Games Analysis](https://www.kaggle.com/jac08h/chess-games-analysis)** (2019)
+    * Exploratory analysis of 20,000 chess games
+
+* **[Spotify streams from 2017](https://www.kaggle.com/jac08h/spotify-streams-in-2017)** (2019)
+    * Summary of the most streamed songs and artists on Spotify in 2017
