@@ -6,9 +6,11 @@
     * Implementation [VideoSnapping method](https://studios.disneyresearch.com/wp-content/uploads/2019/03/VideoSnapping-Interactive-Synchronization-of-Multiple-Videos-1.pdf) for video synchronization with additional support for various descriptors to detect image features and evaluation on soccer videos.
     
 ### Websites
+* **jakubhalmes.com** (2019–present) [Source](https://github.com/jac08h/jac08h.github.io)
+* **[Bill Splitter](/bills.html)** (2024)
+    * Calculator to split bills between multiple people with minimal number of transactions.
 * **[nextsoccerderby.com (archived)](https://web.archive.org/web/20211219044408/http://www.nextsoccerderby.com/)** (2020)
     * An aggregator of dates for upcoming soccer derbies.
-* **jakubhalmes.com** (2019–present) [Source](https://github.com/jac08h/jac08h.github.io)
 
 ### Working with LLMs
 * **Personality Classification with LLMs** (2024)
