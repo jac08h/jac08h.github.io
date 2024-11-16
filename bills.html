@@ -8,7 +8,7 @@
     <style>
         body {
             font-family: system-ui, -apple-system, sans-serif;
-            max-width: 800px;
+            max-width: 650px;
             margin: 20px auto;
             padding: 0 20px;
             line-height: 1.6;
@@ -23,6 +23,14 @@
             grid-template-columns: 1fr 1fr 1fr;
             gap: 10px;
             margin-bottom: 10px;
+        }
+
+        .person-inputs input[type="text"] {
+            width: 140px;  /* Width for name field */
+        }
+
+        .person-inputs input[type="number"] {
+            width: 80px;   /* Width for number fields */
         }
 
         .headers {
@@ -118,12 +126,12 @@
 
 <div id="people">
     <div class="person-inputs">
-        <input type="text" placeholder="Name" value="Person 1">
+        <input type="text" placeholder="Name" value="Alice">
         <input type="number" placeholder="Amount paid" value="0" class="amount">
         <input type="number" step="1" placeholder="e.g. 50" min="0" max="100" class="target">
     </div>
     <div class="person-inputs">
-        <input type="text" placeholder="Name" value="Person 2">
+        <input type="text" placeholder="Name" value="Bob">
         <input type="number" placeholder="Amount paid" value="0" class="amount">
         <input type="number" step="1" placeholder="e.g. 50" min="0" max="100" class="target">
     </div>
