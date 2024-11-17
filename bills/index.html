@@ -60,10 +60,7 @@
 
     <div id="algorithmExplanation" class="algorithm-explanation hidden">
         <div class="algorithm-content">
-            <p>The calculation works by iteratively pairing the person who needs to pay the most with the person who
-                needs to be paid the most, and making a transfer between them. The transfer amount is the minimum of
-                these two amounts. By this step, at least one balance is reduced to zero, and the process is repeated
-                until all balances are zero.</p>
+            <p>The algorithm works by repeatedly matching the person who owes the most money with the person who is owed the most. In each step, a payment is made between them using whichever amount is smaller - either what's owed or what's due. This ensures that at least one person's balance will be completely settled (reduced to zero) after each transfer. The process continues, matching the next highest debtor and creditor, until everyone's balance is zero and all debts are settled.</p>
         </div>
     </div>
 
