@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,11 +27,13 @@
         }
 
         .person-inputs input[type="text"] {
-            width: 140px;  /* Width for name field */
+            width: 140px;
+            /* Width for name field */
         }
 
         .person-inputs input[type="number"] {
-            width: 80px;   /* Width for number fields */
+            width: 80px;
+            /* Width for number fields */
         }
 
         .headers {
@@ -55,7 +58,8 @@
             background: #0052cc;
         }
 
-        #results, #error {
+        #results,
+        #error {
             margin-top: 20px;
             padding: 20px;
             border-radius: 4px;
@@ -95,240 +99,348 @@
             border: 1px solid #ccc;
             margin-right: 15px;
         }
+
+        .algorithm-explanation {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+            border-radius: 4px;
+            transition: max-height 0.3s ease-out;
+            overflow: hidden;
+        }
+
+        .algorithm-explanation h4 {
+            margin-top: 0;
+            color: #007bff;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #toggleAlgorithm {
+            background: none;
+            border: none;
+            color: #007bff;
+            cursor: pointer;
+            padding: 10px;
+            font-size: 1em;
+            text-align: left;
+            width: 100%;
+        }
+
+        #toggleAlgorithm:hover {
+            background-color: #f8f9fa;
+        }
     </style>
 </head>
+
 <body>
-<h1>Bill Splitter</h1>
+    <h1>Bill Splitter</h1>
 
-<div class="description">
-   <p>Add payments and adjust how much each person should pay (use % or exact amount).</p>
-</div>
-
-<div class="target-type">
-    <label>Target type:</label>
-    <select id="targetType" onchange="switchTargetType()">
-        <option value="none">Equal split</option>
-        <option value="percentage">Target percentage</option>
-        <option value="amount">Target amount</option>
-    </select>
-</div>
-
-<div class="input-group">
-    <button onclick="addPerson()">Add Person</button>
-    <button onclick="removePerson()">Remove Person</button>
-</div>
-
-<div class="headers">
-    <div>Person</div>
-    <div>Amount paid</div>
-    <div id="targetHeader">Target percentage</div>
-</div>
-
-<div id="people">
-    <div class="person-inputs">
-        <input type="text" placeholder="Name" value="Alice">
-        <input type="number" placeholder="Amount paid" value="0" class="amount">
-        <input type="number" step="1" placeholder="e.g. 50" min="0" max="100" class="target">
+    <div class="description">
+        <p>Calculate how to split bill(s) between people to minimize the number of transactions.</p>
     </div>
-    <div class="person-inputs">
-        <input type="text" placeholder="Name" value="Bob">
-        <input type="number" placeholder="Amount paid" value="0" class="amount">
-        <input type="number" step="1" placeholder="e.g. 50" min="0" max="100" class="target">
+
+    <div class="target-type">
+        <label>Target type:</label>
+        <select id="targetType" onchange="switchTargetType()">
+            <option value="none">Equal split</option>
+            <option value="percentage">Target percentage</option>
+            <option value="amount">Target amount</option>
+        </select>
     </div>
-</div>
 
-<div class="input-group">
-    <button onclick="calculate()">Calculate Transfers</button>
-</div>
+    <div class="input-group">
+        <button onclick="addPerson()">Add Person</button>
+        <button onclick="removePerson()">Remove Person</button>
+    </div>
 
-<div id="error" class="hidden"></div>
-<div id="results" class="hidden"></div>
+    <div class="headers">
+        <div>Person</div>
+        <div>Amount paid</div>
+        <div id="targetHeader">Target percentage</div>
+    </div>
 
-<script>
-function switchTargetType() {
-    const targetType = document.getElementById('targetType').value;
-    const targetHeader = document.getElementById('targetHeader');
-    const targetInputs = document.getElementsByClassName('target');
-    const headers = document.querySelector('.headers');
-    const personInputs = document.querySelectorAll('.person-inputs');
+    <div id="people">
+        <div class="person-inputs">
+            <input type="text" placeholder="Name" value="A">
+            <input type="number" placeholder="Amount paid" value="0" min="0" class="amount">
+            <input type="number" step="1" placeholder="e.g. 50" min="0" max="100" class="target">
+        </div>
+        <div class="person-inputs">
+            <input type="text" placeholder="Name" value="B">
+            <input type="number" placeholder="Amount paid" value="0" min="0" class="amount">
+            <input type="number" step="1" placeholder="e.g. 50" min="0" max="100" class="target">
+        </div>
+    </div>
 
-    // Show/hide target column
-    if (targetType === 'none') {
-        headers.style.gridTemplateColumns = '1fr 1fr';
-        personInputs.forEach(div => div.style.gridTemplateColumns = '1fr 1fr');
-        targetHeader.style.display = 'none';
-        Array.from(targetInputs).forEach(input => input.style.display = 'none');
-    } else {
-        headers.style.gridTemplateColumns = '1fr 1fr 1fr';
-        personInputs.forEach(div => div.style.gridTemplateColumns = '1fr 1fr 1fr');
-        targetHeader.style.display = 'block';
-        Array.from(targetInputs).forEach(input => input.style.display = 'block');
+    <div class="input-group">
+        <button onclick="calculate()">Calculate Transfers</button>
+    </div>
 
-        if (targetType === 'percentage') {
-            targetHeader.textContent = 'Target percentage';
-            const totalPaid = Array.from(document.getElementsByClassName('amount')).reduce((sum, input) => sum + Number(input.value), 0);
-            const n = targetInputs.length;
-            const prefillValue = (totalPaid / n * 100).toFixed(2);
-            Array.from(targetInputs).forEach(input => {
-                input.placeholder = 'e.g. 50';
-                input.max = '100';
-                input.step = '1';
-                input.value = prefillValue;
-            });
-        } else {
-            targetHeader.textContent = 'Target amount';
-            const totalPaid = Array.from(document.getElementsByClassName('amount')).reduce((sum, input) => sum + Number(input.value), 0);
-            const n = targetInputs.length;
-            const prefillValue = (totalPaid / n).toFixed(2);
-            Array.from(targetInputs).forEach(input => {
-                input.placeholder = 'e.g. 50.00';
-                input.removeAttribute('max');
-                input.step = '0.01';
-                input.value = prefillValue;
-            });
+    <div id="error" class="hidden"></div>
+    <div id="results" class="hidden"></div>
+
+    <div class="input-group">
+        <button id="toggleAlgorithm" onclick="toggleExplanation()">How it works ▼</button>
+    </div>
+
+    <div id="algorithmExplanation" class="algorithm-explanation hidden">
+        <div class="algorithm-content">
+            <p>The calculation works by iteratively pairing the person who needs to pay the most with the person who
+                needs to be paid the most, and making a transfer between them. The transfer amount is the minimum of
+                these two amounts. By this step, at least one balance is reduced to zero, and the process is repeated
+                until all balances are zero.</p>
+        </div>
+    </div>
+
+    <script>
+        function switchTargetType() {
+            const targetType = document.getElementById('targetType').value;
+            const targetHeader = document.getElementById('targetHeader');
+            const targetInputs = document.getElementsByClassName('target');
+            const headers = document.querySelector('.headers');
+            const personInputs = document.querySelectorAll('.person-inputs');
+
+            // Show/hide target column
+            if (targetType === 'none') {
+                headers.style.gridTemplateColumns = '1fr 1fr';
+                personInputs.forEach(div => div.style.gridTemplateColumns = '1fr 1fr');
+                targetHeader.style.display = 'none';
+                Array.from(targetInputs).forEach(input => input.style.display = 'none');
+            } else {
+                headers.style.gridTemplateColumns = '1fr 1fr 1fr';
+                personInputs.forEach(div => div.style.gridTemplateColumns = '1fr 1fr 1fr');
+                targetHeader.style.display = 'block';
+                Array.from(targetInputs).forEach(input => input.style.display = 'block');
+
+                if (targetType === 'percentage') {
+                    targetHeader.textContent = 'Target percentage';
+                    const totalPaid = Array.from(document.getElementsByClassName('amount')).reduce((sum, input) => sum + Number(input.value), 0);
+                    const n = targetInputs.length;
+                    const prefillValue = (totalPaid / n * 100).toFixed(2);
+                    Array.from(targetInputs).forEach(input => {
+                        input.placeholder = 'e.g. 50';
+                        input.max = '100';
+                        input.step = '1';
+                        input.value = prefillValue;
+                    });
+                } else {
+                    targetHeader.textContent = 'Target amount';
+                    const totalPaid = Array.from(document.getElementsByClassName('amount')).reduce((sum, input) => sum + Number(input.value), 0);
+                    const n = targetInputs.length;
+                    const prefillValue = (totalPaid / n).toFixed(2);
+                    Array.from(targetInputs).forEach(input => {
+                        input.placeholder = 'e.g. 50.00';
+                        input.removeAttribute('max');
+                        input.step = '0.01';
+                        input.value = prefillValue;
+                    });
+                }
+            }
+
+            // Clear existing target values
+            Array.from(targetInputs).forEach(input => input.value = '');
         }
-    }
-
-    // Clear existing target values
-    Array.from(targetInputs).forEach(input => input.value = '');
-}
 
 
-    function addPerson() {
-        const people = document.getElementById('people');
-        const count = people.children.length + 1;
-        const div = document.createElement('div');
-        div.className = 'person-inputs';
+        function addPerson() {
+            const people = document.getElementById('people');
+            const count = people.children.length + 1;
+            const nameChar = String.fromCharCode(65 + count - 1);
+            const div = document.createElement('div');
+            div.className = 'person-inputs';
 
-        const targetType = document.getElementById('targetType').value;
-        const targetDisplay = targetType === 'none' ? 'none' : 'block';
-        const gridCols = targetType === 'none' ? '1fr 1fr' : '1fr 1fr 1fr';
-        div.style.gridTemplateColumns = gridCols;
+            const targetType = document.getElementById('targetType').value;
+            const targetDisplay = targetType === 'none' ? 'none' : 'block';
+            const gridCols = targetType === 'none' ? '1fr 1fr' : '1fr 1fr 1fr';
+            div.style.gridTemplateColumns = gridCols;
 
-        const targetPlaceholder = targetType === 'percentage' ? 'e.g. 50' : 'e.g. 50.00';
-        const targetStep = targetType === 'percentage' ? '1' : '0.01';
-        const targetMax = targetType === 'percentage' ? 'max="100"' : '';
+            const targetPlaceholder = targetType === 'percentage' ? 'e.g. 50' : 'e.g. 50.00';
+            const targetStep = targetType === 'percentage' ? '1' : '0.01';
+            const targetMax = targetType === 'percentage' ? 'max="100"' : '';
 
-        div.innerHTML = `
-        <input type="text" placeholder="Name" value="Person ${count}">
-        <input type="number" placeholder="Amount paid" value="0" class="amount">
+            div.innerHTML = `
+        <input type="text" placeholder="Name" value="${nameChar}">
+        <input type="number" placeholder="Amount paid" value="0" min="0" class="amount">
         <input type="number" step="${targetStep}" placeholder="${targetPlaceholder}"
                min="0" ${targetMax} class="target" style="display: ${targetDisplay}">
     `;
-        people.appendChild(div);
-    }
-
-    function removePerson() {
-        const people = document.getElementById('people');
-        if (people.children.length > 2) {
-            people.removeChild(people.lastChild);
+            people.appendChild(div);
         }
-    }
 
-    function validate() {
-        const people = document.getElementById('people');
-        const error = document.getElementById('error');
-        const targetType = document.getElementById('targetType').value;
-        error.classList.add('hidden');
+        function removePerson() {
+            const people = document.getElementById('people');
+            if (people.children.length > 2) {
+                people.removeChild(people.lastChild);
+            }
+        }
 
-        const amounts = Array.from(people.getElementsByClassName('amount')).map(input => Number(input.value));
-        const targets = Array.from(people.getElementsByClassName('target')).map(input => input.value ? Number(input.value) : null);
 
-        // Check if any targets are specified
-        if (targets.some(t => t !== null)) {
-            // All targets must be filled
-            if (targets.some(t => t === null)) {
-                error.textContent = `If using target ${targetType}, all values must be specified.`;
+        function validate() {
+            const people = document.getElementById('people');
+            const error = document.getElementById('error');
+            const targetType = document.getElementById('targetType').value;
+            error.classList.add('hidden');
+
+            let amounts = [];
+            let targets = [];
+
+            try {
+                amounts = Array.from(people.getElementsByClassName('amount'))
+                    .map(input => {
+                        const parsed = parseFloat(input.value);
+                        if (isNaN(parsed)) {
+                            throw new Error('Invalid amount format');
+                        }
+                        return parsed;
+                    });
+            } catch (e) {
+                error.textContent = 'Please enter valid numbers for amounts paid.';
                 error.classList.remove('hidden');
+                document.getElementById('results').classList.add('hidden');
                 return false;
             }
 
-            if (targetType === 'percentage') {
-                // Percentages must sum to 100
-                const sum = targets.reduce((a, b) => a + b, 0);
-                if (Math.abs(sum - 100) > 0.01) {
-                    error.textContent = `Percentages must sum to 100. Current sum: ${sum.toFixed(1)}%`;
-                    error.classList.remove('hidden');
-                    return false;
+            try {
+                targets = Array.from(people.getElementsByClassName('target'))
+                    .map(input => {
+                        if (!input.value) return null;
+                        const parsed = parseFloat(input.value);
+                        if (isNaN(parsed)) {
+                            throw new Error('Invalid target format');
+                        }
+                        return parsed;
+                    });
+            } catch (e) {
+                error.textContent = 'Please enter valid numbers for target values.';
+                error.classList.remove('hidden');
+                document.getElementById('results').classList.add('hidden');
+                return false;
+            }
+
+            let is_ok = true;
+
+            if (amounts.some(a => a < 0)) {
+                error.textContent = 'Amounts paid cannot be negative.';
+                is_ok = false;
+            }
+
+            if (targets.some(t => t !== null && t < 0)) {
+                error.textContent = 'Target values cannot be negative.';
+                is_ok = false;
+            }
+
+            if (is_ok && targets.some(t => t !== null)) {
+                // All targets must be filled
+                if (targets.some(t => t === null)) {
+                    error.textContent = `If using target ${targetType}, all values must be specified.`;
+                    is_ok = false;
                 }
-            } else {
-                // Target amounts must sum to total paid
-                const totalPaid = amounts.reduce((a, b) => a + b, 0);
-                const targetSum = targets.reduce((a, b) => a + b, 0);
-                if (Math.abs(targetSum - totalPaid) > 0.01) {
-                    error.textContent = `Target amounts must sum to total paid (${totalPaid.toFixed(2)}). Current sum: ${targetSum.toFixed(2)}`;
-                    error.classList.remove('hidden');
-                    return false;
+
+                if (targetType === 'percentage') {
+                    // Percentages must sum to 100
+                    const sum = targets.reduce((a, b) => a + b, 0);
+                    if (Math.abs(sum - 100) > 0.01) {
+                        error.textContent = `Percentages must sum to 100. Current sum: ${sum.toFixed(1)}%`;
+                        is_ok = false;
+                    }
+                } else {
+                    // Target amounts must sum to total paid
+                    const totalPaid = amounts.reduce((a, b) => a + b, 0);
+                    const targetSum = targets.reduce((a, b) => a + b, 0);
+                    if (Math.abs(targetSum - totalPaid) > 0.01) {
+                        error.textContent = `Target amounts must sum to total paid (${totalPaid.toFixed(2)}). Current sum: ${targetSum.toFixed(2)}`;
+                        is_ok = false;
+                    }
                 }
             }
+
+            if (!is_ok) {
+                error.classList.remove('hidden');
+                document.getElementById('results').classList.add('hidden');
+            }
+            return is_ok;
         }
 
-        return true;
-    }
+        function calculateTransfers(amounts, targets) {
+            const n = amounts.length;
+            const total = amounts.reduce((a, b) => a + b, 0);
+            const targetType = document.getElementById('targetType').value;
 
-    function calculateTransfers(amounts, targets) {
-        const n = amounts.length;
-        const total = amounts.reduce((a, b) => a + b, 0);
-        const targetType = document.getElementById('targetType').value;
+            let targetAmounts;
+            if (targets.some(t => t !== null)) {
+                targetAmounts = targetType === 'percentage'
+                    ? targets.map(t => total * t / 100)
+                    : targets;
+            } else {
+                targetAmounts = Array(n).fill(total / n);
+            }
 
-        let targetAmounts;
-        if (targets.some(t => t !== null)) {
-            targetAmounts = targetType === 'percentage'
-                ? targets.map(t => total * t / 100)
-                : targets;
-        } else {
-            targetAmounts = Array(n).fill(total / n);
+            let balances = amounts.map((a, i) => a - targetAmounts[i]);
+            let transfers = [];
+
+            while (true) {
+                let maxDebtorIdx = balances.indexOf(Math.min(...balances));
+                let maxCreditorIdx = balances.indexOf(Math.max(...balances));
+
+                if (Math.abs(balances[maxDebtorIdx]) < 0.01) break;
+
+                let amount = Math.min(-balances[maxDebtorIdx], balances[maxCreditorIdx]);
+                transfers.push([maxDebtorIdx, maxCreditorIdx, amount]);
+
+                balances[maxDebtorIdx] += amount;
+                balances[maxCreditorIdx] -= amount;
+            }
+
+            return [transfers, targetAmounts];
         }
 
-        let balances = amounts.map((a, i) => a - targetAmounts[i]);
-        let transfers = [];
+        function calculate() {
+            if (!validate()) return;
 
-        while (true) {
-            let maxDebtorIdx = balances.indexOf(Math.min(...balances));
-            let maxCreditorIdx = balances.indexOf(Math.max(...balances));
+            const people = document.getElementById('people');
+            const inputs = Array.from(people.getElementsByTagName('input'));
 
-            if (Math.abs(balances[maxDebtorIdx]) < 0.01) break;
+            const names = inputs.filter(input => input.type === 'text').map(input => input.value);
+            const amounts = Array.from(people.getElementsByClassName('amount')).map(input => Number(input.value));
+            const targets = Array.from(people.getElementsByClassName('target')).map(input => input.value ? Number(input.value) : null);
 
-            let amount = Math.min(-balances[maxDebtorIdx], balances[maxCreditorIdx]);
-            transfers.push([maxDebtorIdx, maxCreditorIdx, amount]);
+            const [transfers, finalAmounts] = calculateTransfers(amounts, targets);
 
-            balances[maxDebtorIdx] += amount;
-            balances[maxCreditorIdx] -= amount;
+            const results = document.getElementById('results');
+            const total = amounts.reduce((a, b) => a + b, 0);
+
+            results.innerHTML = '';
+            if (transfers.length === 0) {
+                results.innerHTML += '<p>No transfers needed!</p>';
+            } else {
+                transfers.forEach(([from, to, amount]) => {
+                    results.innerHTML += `<p>${names[from]} → <b>${amount.toFixed(2)}</b> → ${names[to]}</p>`;
+                });
+
+            }
+
+            results.classList.remove('hidden');
         }
 
-        return [transfers, targetAmounts];
-    }
+        switchTargetType();
 
-    function calculate() {
-        if (!validate()) return;
+        function toggleExplanation() {
+            const explanation = document.getElementById('algorithmExplanation');
+            const button = document.getElementById('toggleAlgorithm');
 
-        const people = document.getElementById('people');
-        const inputs = Array.from(people.getElementsByTagName('input'));
-
-        const names = inputs.filter(input => input.type === 'text').map(input => input.value);
-        const amounts = Array.from(people.getElementsByClassName('amount')).map(input => Number(input.value));
-        const targets = Array.from(people.getElementsByClassName('target')).map(input => input.value ? Number(input.value) : null);
-
-        const [transfers, finalAmounts] = calculateTransfers(amounts, targets);
-
-        const results = document.getElementById('results');
-        const total = amounts.reduce((a, b) => a + b, 0);
-
-        results.innerHTML = '';
-        if (transfers.length === 0) {
-            results.innerHTML += '<p>No transfers needed!</p>';
-        } else {
-            transfers.forEach(([from, to, amount]) => {
-                results.innerHTML += `<p>${names[from]} → <b>${amount.toFixed(2)}</b> → ${names[to]}</p>`;
-            });
-
+            if (explanation.classList.contains('hidden')) {
+                explanation.classList.remove('hidden');
+                button.innerHTML = 'How it works ▲';
+            } else {
+                explanation.classList.add('hidden');
+                button.innerHTML = 'How it works ▼';
+            }
         }
-
-        results.classList.remove('hidden');
-    }
-
-    switchTargetType();
-
-</script>
+    </script>
 </body>
+
 </html>
