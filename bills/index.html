@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill Splitter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <h1>Bill Splitter</h1>
+
+    <div class="description">
+        <p>Calculate how to split bill(s) between people to minimize the number of transactions.</p>
+    </div>
+
+    <div class="target-type">
+        <label>Target type:</label>
+        <select id="targetType" onchange="switchTargetType()">
+            <option value="none">Equal split</option>
+            <option value="percentage">Target percentage</option>
+            <option value="amount">Target amount</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <button onclick="addPerson()">Add Person</button>
+        <button onclick="removePerson()">Remove Person</button>
+    </div>
+
+    <div class="headers">
+        <div>Person</div>
+        <div>Amount paid</div>
+        <div id="targetHeader">Target percentage</div>
+    </div>
+
+    <div id="people">
+        <div class="person-inputs">
+            <input type="text" placeholder="Name" value="A">
+            <input type="number" placeholder="Amount paid" value="0" min="0" class="amount">
+            <input type="number" step="1" placeholder="e.g. 50" min="0" max="100" class="target">
+        </div>
+        <div class="person-inputs">
+            <input type="text" placeholder="Name" value="B">
+            <input type="number" placeholder="Amount paid" value="0" min="0" class="amount">
+            <input type="number" step="1" placeholder="e.g. 50" min="0" max="100" class="target">
+        </div>
+    </div>
+
+    <div class="input-group">
+        <button onclick="calculate()">Calculate Transfers</button>
+    </div>
+
+    <div id="error" class="hidden"></div>
+    <div id="results" class="hidden"></div>
+
+    <div class="input-group">
+        <button id="toggleAlgorithm" onclick="toggleExplanation()">How it works ▼</button>
+    </div>
+
+    <div id="algorithmExplanation" class="algorithm-explanation hidden">
+        <div class="algorithm-content">
+            <p>The calculation works by iteratively pairing the person who needs to pay the most with the person who
+                needs to be paid the most, and making a transfer between them. The transfer amount is the minimum of
+                these two amounts. By this step, at least one balance is reduced to zero, and the process is repeated
+                until all balances are zero.</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
