@@ -1,9 +1,34 @@
 body {
     font-family: system-ui, -apple-system, sans-serif;
-    max-width: 650px;
+    max-width: 800px;
     margin: 20px auto;
     padding: 0 20px;
     line-height: 1.6;
+    background-color: #f9f9f9;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.title {
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.subtitle {
+    font-size: 1.5em;
+    margin-bottom: 10px;
 }
 
 .input-group {
@@ -34,17 +59,34 @@ body {
 }
 
 button {
-    padding: 8px 16px;
-    background: #0066ff;
-    color: white;
+    padding: 0.75rem 1.5rem;
     border: none;
-    border-radius: 4px;
+    border-radius: 0.5rem;
+    font-weight: 500;
     cursor: pointer;
-    margin-right: 8px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 button:hover {
-    background: #0052cc;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+button[onclick="addPerson()"],
+button[onclick="addTransaction()"],
+button[onclick="calculate()"] {
+    background: linear-gradient(135deg, #34d399, #10b981);
+    color: white;
+}
+
+button[onclick="removePerson()"],
+button[onclick^="removeTransaction("] {
+    background: linear-gradient(135deg, #f87171, #ef4444);
+    color: white;
 }
 
 #results,
@@ -117,4 +159,200 @@ select {
 
 #toggleAlgorithm:hover {
     background-color: #f8f9fa;
+}
+
+.transaction-input {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.transaction-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 10px;
+    margin-bottom: 10px;
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+  line-height: 1.7;
+  background-color: #fafbfc;
+  color: #1a1a1a;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.title {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+              0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.subtitle {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #2d3748;
+}
+
+.input-group {
+  margin-bottom: 1.5rem;
+}
+
+.person-inputs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.person-inputs input[type="text"],
+.person-inputs input[type="number"],
+select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.person-inputs input[type="text"]:focus,
+.person-inputs input[type="number"]:focus,
+select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.headers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+button {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+button[onclick="addPerson()"],
+button[onclick="addTransaction()"],
+button[onclick="calculate()"] {
+  background: linear-gradient(135deg, #34d399, #10b981);
+  color: white;
+}
+
+button[onclick="removePerson()"],
+button[onclick^="removeTransaction("] {
+  background: linear-gradient(135deg, #f87171, #ef4444);
+  color: white;
+}
+
+#results,
+#error {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  animation: fadeIn 0.3s ease;
+}
+
+#results {
+  background: #f8fafc;
+  border-left: 4px solid #3b82f6;
+}
+
+#error {
+  background: #fef2f2;
+  border-left: 4px solid #ef4444;
+  color: #dc2626;
+}
+
+.description {
+  background: #f8fafc;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border-left: 4px solid #64748b;
+  margin-bottom: 1.5rem;
+}
+
+.algorithm-explanation {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-left: 4px solid #3b82f6;
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.transaction-input,
+.transaction-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .person-inputs,
+  .transaction-input,
+  .transaction-item {
+    grid-template-columns: 1fr;
+  }
+  
+  body {
+    padding: 1rem;
+    }
+}
 }
