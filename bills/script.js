@@ -1,3 +1,79 @@
+let transactions = [];
+
+function updatePersonDropdown() {
+    const select = document.getElementById('transactionPerson');
+    const currentValue = select.value;
+    select.innerHTML = '<option value="">Select Person</option>';
+    
+    const names = Array.from(document.querySelectorAll('.person-inputs input[type="text"]'))
+        .map(input => input.value);
+    
+    names.forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        select.appendChild(option);
+    });
+    
+    if (names.includes(currentValue)) {
+        select.value = currentValue;
+    }
+}
+
+function updateTotalAmounts() {
+    const people = document.querySelectorAll('.person-inputs');
+    people.forEach(person => {
+        const name = person.querySelector('input[type="text"]').value;
+        const totalAmount = transactions
+            .filter(t => t.person === name)
+            .reduce((sum, t) => sum + t.amount, 0);
+        person.querySelector('.total-amount').textContent = `$${totalAmount.toFixed(2)}`;
+    });
+}
+
+function addTransaction() {
+    const person = document.getElementById('transactionPerson').value;
+    const amount = parseFloat(document.getElementById('transactionAmount').value);
+    const description = document.getElementById('transactionDescription').value;
+
+    if (!person || isNaN(amount) || amount <= 0) {
+        alert('Please select a person and enter a valid amount');
+        return;
+    }
+
+    transactions.push({
+        id: Date.now(),
+        person,
+        amount,
+        description
+    });
+
+    updateTransactionsList();
+    updateTotalAmounts();
+
+    // Reset inputs
+    document.getElementById('transactionAmount').value = '';
+    document.getElementById('transactionDescription').value = '';
+}
+
+function removeTransaction(id) {
+    transactions = transactions.filter(t => t.id !== id);
+    updateTransactionsList();
+    updateTotalAmounts();
+}
+
+function updateTransactionsList() {
+    const list = document.getElementById('transactionsList');
+    list.innerHTML = transactions.map(t => `
+        <div class="transaction-item">
+            <span>${t.person}</span>
+            <span>$${t.amount.toFixed(2)}</span>
+            <span>${t.description}</span>
+            <button onclick="removeTransaction(${t.id})">Remove</button>
+        </div>
+    `).join('');
+}
+
 function switchTargetType() {
     const targetType = document.getElementById('targetType').value;
     const targetHeader = document.getElementById('targetHeader');
@@ -5,12 +81,14 @@ function switchTargetType() {
     const headers = document.querySelector('.headers');
     const personInputs = document.querySelectorAll('.person-inputs');
 
-    // Show/hide target column
     if (targetType === 'none') {
         headers.style.gridTemplateColumns = '1fr 1fr';
         personInputs.forEach(div => div.style.gridTemplateColumns = '1fr 1fr');
         targetHeader.style.display = 'none';
-        Array.from(targetInputs).forEach(input => input.style.display = 'none');
+        Array.from(targetInputs).forEach(input => {
+            input.style.display = 'none';
+            input.value = '';
+        });
     } else {
         headers.style.gridTemplateColumns = '1fr 1fr 1fr';
         personInputs.forEach(div => div.style.gridTemplateColumns = '1fr 1fr 1fr');
@@ -19,9 +97,8 @@ function switchTargetType() {
 
         if (targetType === 'percentage') {
             targetHeader.textContent = 'Target percentage';
-            const totalPaid = Array.from(document.getElementsByClassName('amount')).reduce((sum, input) => sum + Number(input.value), 0);
             const n = targetInputs.length;
-            const prefillValue = (totalPaid / n * 100).toFixed(2);
+            const prefillValue = (100 / n).toFixed(2);
             Array.from(targetInputs).forEach(input => {
                 input.placeholder = 'e.g. 50';
                 input.max = '100';
@@ -30,7 +107,7 @@ function switchTargetType() {
             });
         } else {
             targetHeader.textContent = 'Target amount';
-            const totalPaid = Array.from(document.getElementsByClassName('amount')).reduce((sum, input) => sum + Number(input.value), 0);
+            const totalPaid = transactions.reduce((sum, t) => sum + t.amount, 0);
             const n = targetInputs.length;
             const prefillValue = (totalPaid / n).toFixed(2);
             Array.from(targetInputs).forEach(input => {
@@ -61,17 +138,22 @@ function addPerson() {
 
     div.innerHTML = `
         <input type="text" placeholder="Name" value="${nameChar}">
-        <input type="number" placeholder="Amount paid" value="0" min="0" class="amount">
+        <div class="total-amount">$0.00</div>
         <input type="number" step="${targetStep}" placeholder="${targetPlaceholder}"
                min="0" ${targetMax} class="target" style="display: ${targetDisplay}">
     `;
     people.appendChild(div);
+    updatePersonDropdown();
 }
 
 function removePerson() {
     const people = document.getElementById('people');
     if (people.children.length > 2) {
+        const removedPerson = people.lastChild.querySelector('input[type="text"]').value;
         people.removeChild(people.lastChild);
+        transactions = transactions.filter(t => t.person !== removedPerson);
+        updateTransactionsList();
+        updatePersonDropdown();
     }
 }
 
@@ -81,24 +163,11 @@ function validate() {
     const targetType = document.getElementById('targetType').value;
     error.classList.add('hidden');
 
-    let amounts = [];
     let targets = [];
 
-    try {
-        amounts = Array.from(people.getElementsByClassName('amount'))
-            .map(input => {
-                const parsed = parseFloat(input.value);
-                if (isNaN(parsed)) {
-                    throw new Error('Invalid amount format');
-                }
-                return parsed;
-            });
-    } catch (e) {
-        error.textContent = 'Please enter valid numbers for amounts paid.';
-        error.classList.remove('hidden');
-        document.getElementById('results').classList.add('hidden');
-        return false;
-    }
+    // Get total amounts from transactions
+    let amounts = Array.from(people.getElementsByClassName('total-amount'))
+        .map(div => parseFloat(div.textContent.replace('$', '')));
 
     try {
         targets = Array.from(people.getElementsByClassName('target'))
@@ -118,18 +187,14 @@ function validate() {
     }
 
     let is_ok = true;
+    const totalPaid = amounts.reduce((a, b) => a + b, 0);
 
-    if (amounts.some(a => a < 0)) {
-        error.textContent = 'Amounts paid cannot be negative.';
+    if (amounts.every(a => a === 0)) {
+        error.textContent = 'No transactions added yet.';
         is_ok = false;
     }
 
-    if (targets.some(t => t !== null && t < 0)) {
-        error.textContent = 'Target values cannot be negative.';
-        is_ok = false;
-    }
-
-    if (is_ok && targets.some(t => t !== null)) {
+    if (targets.some(t => t !== null)) {
         // All targets must be filled
         if (targets.some(t => t === null)) {
             error.textContent = `If using target ${targetType}, all values must be specified.`;
@@ -145,7 +210,6 @@ function validate() {
             }
         } else {
             // Target amounts must sum to total paid
-            const totalPaid = amounts.reduce((a, b) => a + b, 0);
             const targetSum = targets.reduce((a, b) => a + b, 0);
             if (Math.abs(targetSum - totalPaid) > 0.01) {
                 error.textContent = `Target amounts must sum to total paid (${totalPaid.toFixed(2)}). Current sum: ${targetSum.toFixed(2)}`;
@@ -198,23 +262,26 @@ function calculate() {
     if (!validate()) return;
 
     const people = document.getElementById('people');
-    const inputs = Array.from(people.getElementsByTagName('input'));
-
-    const names = inputs.filter(input => input.type === 'text').map(input => input.value);
-    const amounts = Array.from(people.getElementsByClassName('amount')).map(input => Number(input.value));
-    const targets = Array.from(people.getElementsByClassName('target')).map(input => input.value ? Number(input.value) : null);
+    const names = Array.from(people.getElementsByTagName('input'))
+        .filter(input => input.type === 'text')
+        .map(input => input.value);
+    
+    const amounts = Array.from(people.getElementsByClassName('total-amount'))
+        .map(div => parseFloat(div.textContent.replace('$', '')));
+    
+    const targets = Array.from(people.getElementsByClassName('target'))
+        .map(input => input.value ? parseFloat(input.value) : null);
 
     const [transfers, finalAmounts] = calculateTransfers(amounts, targets);
 
     const results = document.getElementById('results');
-    const total = amounts.reduce((a, b) => a + b, 0);
-
     results.innerHTML = '';
+    
     if (transfers.length === 0) {
         results.innerHTML += '<p>No transfers needed!</p>';
     } else {
         transfers.forEach(([from, to, amount]) => {
-            results.innerHTML += `<p>${names[from]} → <b>${amount.toFixed(2)}</b> → ${names[to]}</p>`;
+            results.innerHTML += `<p>${names[from]} → <b>$${amount.toFixed(2)}</b> → ${names[to]}</p>`;
         });
     }
 
@@ -234,5 +301,26 @@ function toggleExplanation() {
     }
 }
 
-// Initialize the page
+
+// Add event listeners for name changes
+document.addEventListener('input', function(e) {
+    if (e.target.matches('.person-inputs input[type="text"]')) {
+        const oldName = e.target.defaultValue;
+        const newName = e.target.value;
+        
+        // Update transactions with new name
+        transactions.forEach(t => {
+            if (t.person === oldName) {
+                t.person = newName;
+            }
+        });
+        
+        e.target.defaultValue = newName;
+        updateTransactionsList();
+        updatePersonDropdown();
+    }
+});
+
+// Initialize
 switchTargetType();
+updatePersonDropdown();
