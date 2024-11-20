@@ -6,14 +6,11 @@
     <title>Bill Splitter</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
     <h1>Bill Splitter</h1>
-
     <div class="description">
         <p>Calculate how to split bill(s) between people to minimize the number of transactions.</p>
     </div>
-
     <div class="target-type">
         <label>Target type:</label>
         <select id="targetType" onchange="switchTargetType()">
@@ -22,48 +19,54 @@
             <option value="amount">Target amount</option>
         </select>
     </div>
-
     <div class="input-group">
         <button onclick="addPerson()">Add Person</button>
         <button onclick="removePerson()">Remove Person</button>
     </div>
-
     <div class="headers">
         <div>Person</div>
-        <div>Amount paid</div>
+        <div>Total Paid</div>
         <div id="targetHeader">Target percentage</div>
     </div>
-
     <div id="people">
         <div class="person-inputs">
             <input type="text" placeholder="Name" value="A">
-            <input type="number" placeholder="Amount paid" value="0" min="0" class="amount">
+            <div class="total-amount">$0.00</div>
             <input type="number" step="1" placeholder="e.g. 50" min="0" max="100" class="target">
         </div>
         <div class="person-inputs">
             <input type="text" placeholder="Name" value="B">
-            <input type="number" placeholder="Amount paid" value="0" min="0" class="amount">
+            <div class="total-amount">$0.00</div>
             <input type="number" step="1" placeholder="e.g. 50" min="0" max="100" class="target">
         </div>
+    </div>
+
+    <div class="input-group transactions-section">
+        <h2>Transactions</h2>
+        <div class="transaction-input">
+            <select id="transactionPerson">
+                <option value="">Select Person</option>
+            </select>
+            <input type="number" id="transactionAmount" placeholder="Amount" min="0" step="0.01">
+            <input type="text" id="transactionDescription" placeholder="Description (optional)">
+            <button onclick="addTransaction()">Add Transaction</button>
+        </div>
+        <div id="transactionsList"></div>
     </div>
 
     <div class="input-group">
         <button onclick="calculate()">Calculate Transfers</button>
     </div>
-
     <div id="error" class="hidden"></div>
     <div id="results" class="hidden"></div>
-
     <div class="input-group">
         <button id="toggleAlgorithm" onclick="toggleExplanation()">How it works ▼</button>
     </div>
-
     <div id="algorithmExplanation" class="algorithm-explanation hidden">
         <div class="algorithm-content">
             <p>The algorithm works by repeatedly matching the person who owes the most money with the person who is owed the most. In each step, a payment is made between them using whichever amount is smaller - either what's owed or what's due. This ensures that at least one person's balance will be completely settled (reduced to zero) after each transfer. The process continues, matching the next highest debtor and creditor, until everyone's balance is zero and all debts are settled.</p>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
