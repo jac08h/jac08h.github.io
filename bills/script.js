@@ -3,7 +3,7 @@ let transactions = [];
 function updatePersonDropdown() {
     const select = document.getElementById('transactionPerson');
     const currentValue = select.value;
-    select.innerHTML = '<option value="">Select Person</option>';
+    select.innerHTML = '';
     
     const names = Array.from(document.querySelectorAll('.person-inputs input[type="text"]'))
         .map(input => input.value);
@@ -27,7 +27,7 @@ function updateTotalAmounts() {
         const totalAmount = transactions
             .filter(t => t.person === name)
             .reduce((sum, t) => sum + t.amount, 0);
-        person.querySelector('.total-amount').textContent = `$${totalAmount.toFixed(2)}`;
+        person.querySelector('.total-amount').textContent = totalAmount.toFixed(2);
     });
 }
 
@@ -50,9 +50,9 @@ function addTransaction() {
 
     updateTransactionsList();
     updateTotalAmounts();
+    hideResults();
 
-    // Reset inputs
-    document.getElementById('transactionAmount').value = '';
+    // Reset description input
     document.getElementById('transactionDescription').value = '';
 }
 
@@ -60,6 +60,7 @@ function removeTransaction(id) {
     transactions = transactions.filter(t => t.id !== id);
     updateTransactionsList();
     updateTotalAmounts();
+    hideResults();
 }
 
 function updateTransactionsList() {
@@ -67,7 +68,7 @@ function updateTransactionsList() {
     list.innerHTML = transactions.map(t => `
         <div class="transaction-item">
             <span>${t.person}</span>
-            <span>$${t.amount.toFixed(2)}</span>
+            <span>${t.amount.toFixed(2)}</span>
             <span>${t.description}</span>
             <button onclick="removeTransaction(${t.id})">Remove</button>
         </div>
@@ -138,12 +139,13 @@ function addPerson() {
 
     div.innerHTML = `
         <input type="text" placeholder="Name" value="${nameChar}">
-        <div class="total-amount">$0.00</div>
+        <div class="total-amount">0.00</div>
         <input type="number" step="${targetStep}" placeholder="${targetPlaceholder}"
                min="0" ${targetMax} class="target" style="display: ${targetDisplay}">
     `;
     people.appendChild(div);
     updatePersonDropdown();
+    hideResults();
 }
 
 function removePerson() {
@@ -154,6 +156,7 @@ function removePerson() {
         transactions = transactions.filter(t => t.person !== removedPerson);
         updateTransactionsList();
         updatePersonDropdown();
+        hideResults();
     }
 }
 
@@ -190,7 +193,7 @@ function validate() {
     const totalPaid = amounts.reduce((a, b) => a + b, 0);
 
     if (amounts.every(a => a === 0)) {
-        error.textContent = 'No transactions added yet.';
+        error.textContent = 'No expenses added yet.';
         is_ok = false;
     }
 
@@ -267,7 +270,7 @@ function calculate() {
         .map(input => input.value);
     
     const amounts = Array.from(people.getElementsByClassName('total-amount'))
-        .map(div => parseFloat(div.textContent.replace('$', '')));
+        .map(div => parseFloat(div.textContent));
     
     const targets = Array.from(people.getElementsByClassName('target'))
         .map(input => input.value ? parseFloat(input.value) : null);
@@ -278,10 +281,10 @@ function calculate() {
     results.innerHTML = '';
     
     if (transfers.length === 0) {
-        results.innerHTML += '<p>No transfers needed!</p>';
+        results.innerHTML += '<p>No settlements needed!</p>';
     } else {
         transfers.forEach(([from, to, amount]) => {
-            results.innerHTML += `<p>${names[from]} → <b>$${amount.toFixed(2)}</b> → ${names[to]}</p>`;
+            results.innerHTML += `<p>${names[from]} → <b>${amount.toFixed(2)}</b> → ${names[to]}</p>`;
         });
     }
 
@@ -301,6 +304,9 @@ function toggleExplanation() {
     }
 }
 
+function hideResults() {
+    document.getElementById('results').classList.add('hidden');
+}
 
 // Add event listeners for name changes
 document.addEventListener('input', function(e) {
@@ -318,6 +324,7 @@ document.addEventListener('input', function(e) {
         e.target.defaultValue = newName;
         updateTransactionsList();
         updatePersonDropdown();
+        hideResults();
     }
 });
 
