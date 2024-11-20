@@ -106,7 +106,7 @@ function switchTargetType() {
                 input.step = '1';
                 input.value = prefillValue;
             });
-        } else {
+        } else if (targetType === 'amount') {
             targetHeader.textContent = 'Target amount';
             const totalPaid = transactions.reduce((sum, t) => sum + t.amount, 0);
             const n = targetInputs.length;

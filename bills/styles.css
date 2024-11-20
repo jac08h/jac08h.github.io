@@ -356,3 +356,22 @@ button[onclick^="removeTransaction("] {
     }
 }
 }
+
+@media (max-width: 768px) {
+  .person-inputs,
+  .transaction-input,
+  .transaction-item,
+  .description {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+  
+  body {
+    padding: 1rem;
+  }
+  
+  .description {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+}
