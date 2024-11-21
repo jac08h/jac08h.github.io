@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bill Splitter</title>
+    <title>Expense Sharing Calculator</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1 class="title">Bill Splitter</h1>
         <div class="card">
-            <div class="description">
-                <p>Calculate how to split bill(s) between people to minimize the number of transactions.</p>
-            </div>
-            <h2 class="subtitle">People</h2>
+            <h2 class="title">Expense Sharing Calculator</h2>
+            <p>Calculate the simplest way to settle shared expenses.</p>
+        </div>
+        <div class="card">
+            <h2 class="subtitle">Participants</h2>
             <div class="headers">
-                <div>Person</div>
-                <div>Total Paid</div>
-                <div id="targetHeader">Target percentage</div>
+                <div>Name</div>
+                <div>Amount Paid</div>
+                <div id="targetHeader">Share</div>
             </div>
             <div id="people">
                 <div class="person-inputs">
@@ -48,18 +48,18 @@
         </div>
 
         <div class="card">
-            <h2 class="subtitle">Bills</h2>
+            <h2 class="subtitle">Expenses</h2>
             <div class="headers">
                 <div>Person</div>
                 <div>Amount</div>
                 <div>Description (optional)</div>
             </div>
             <div class="transaction-input">
-                <select id="transactionPerson">
-                    <option value="">Select Person</option>
+                <select id="transactionPerson" required>
+                    <option value="" disabled selected>Choose participant</option>
                 </select>
-                <input type="number" id="transactionAmount" placeholder="Amount" min="0" step="1" value="10">
-                <input type="text" id="transactionDescription" placeholder="Description (optional)">
+                <input type="number" id="transactionAmount" placeholder="Enter amount" min="0" step="0.01" value="10">
+                <input type="text" id="transactionDescription" placeholder="Add description (optional)">
                 <button onclick="addTransaction()">Add</button>
             </div>
             <div id="transactionsList"></div>
@@ -75,7 +75,8 @@
             <button id="toggleAlgorithm" onclick="toggleExplanation()">How it works ▼</button>
             <div id="algorithmExplanation" class="algorithm-explanation hidden">
                 <div class="algorithm-content">
-                    <p>The algorithm works by repeatedly matching the person who owes the most money with the person who is owed the most. In each step, a payment is made between them using whichever amount is smaller - either what's owed or what's due. This ensures that at least one person's balance will be completely settled (reduced to zero) after each transfer. The process continues, matching the next highest debtor and creditor, until everyone's balance is zero and all debts are settled.</p>
+                    <p>The settlement algorithm works by matching the largest debtor with the largest creditor in each step. It transfers the smaller amount between what's owed and what's due, ensuring at least one balance is fully settled per transfer. This process repeats until all balances are zero.</p>
+
                 </div>
             </div>
         </div>
