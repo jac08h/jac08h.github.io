@@ -11,8 +11,8 @@
     * Calculator to split expenses between multiple people with minimal number of transactions.
 * **[nextsoccerderby.com (archived)](https://web.archive.org/web/20211219044408/http://www.nextsoccerderby.com/)** (2020)
     * An aggregator of dates for upcoming soccer derbies.
-* **[Fair bet calculator](https://claude.site/artifacts/f8bc2755-071c-4cf1-be1e-01ee34d58379)** (Claude Artifact) (2024)
-    * Calculate a bet size between two people disagreeing on some event to maximize their expected value.
+* **[Fair bet calculator](https://claude.site/artifacts/73c60e30-0d03-42a4-a513-08cee1f77f3b)** (Claude Artifact) (2024)
+    * Calculate a bet size between two people disagreeing on some event such that their subjective expected value is equal.
 
 ### Working with LLMs
 * **Personality Classification with LLMs** (2024)
