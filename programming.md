@@ -7,12 +7,15 @@
     
 ### Websites
 * **jakubhalmes.com** (2019–present) [Source](https://github.com/jac08h/jac08h.github.io)
-* **[Expense sharing calculator](/expenses)** (2024)
+* **[Expense Sharing Calculator](/expenses)** (2024)
     * Calculator to split expenses between multiple people with minimal number of transactions.
 * **[nextsoccerderby.com (archived)](https://web.archive.org/web/20211219044408/http://www.nextsoccerderby.com/)** (2020)
     * An aggregator of dates for upcoming soccer derbies.
-* **[Fair bet calculator](https://claude.site/artifacts/73c60e30-0d03-42a4-a513-08cee1f77f3b)** (Claude Artifact) (2024)
+* **[Fair Bet Calculator](https://claude.site/artifacts/73c60e30-0d03-42a4-a513-08cee1f77f3b)** (Claude Artifact) (2025)
     * Calculate a bet size between two people disagreeing on some event such that their subjective expected value is equal.
+* **[ELO Rating Spreadsheet](https://docs.google.com/spreadsheets/d/1jKr7s25eHw5f0cF3uzbSaOR4m9I73-bgRrzjEVUeSW8/edit?usp=sharing)** (Google Sheet) (2025)
+    * A template for logging matches (1v1, 2v2) which calculates player ratings.
+
 
 ### Working with LLMs
 * **Personality Classification with LLMs** (2024)
