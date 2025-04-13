@@ -5,12 +5,37 @@ document.addEventListener("DOMContentLoaded", function() {
     const juxtaposeContainer = document.getElementById("juxtapose-container");
     const transitionVideo = document.getElementById("transition-video");
     const comparisonElement = document.getElementById("comparison");
+    const matchSelector = document.getElementById("match-selector");
 
-    if (comparisonElement) {
-        // Wait for juxtapose to initialize
-        setTimeout(() => {
-            comparisonElement.classList.add("single-image");
-        }, 500);
+    const availableMatches = {
+        "man_city_west_brom": "Man City vs West Brom",
+        "chelsea_leicester": "Chelsea vs Leicester"
+    };
+
+    // Initialize match selector dropdown
+    if (matchSelector) {
+        for (const [value, label] of Object.entries(availableMatches)) {
+            const option = document.createElement("option");
+            option.value = value;
+            option.textContent = label;
+            matchSelector.appendChild(option);
+        }
+
+        // Set initial match if not already selected
+        if (!matchSelector.value) {
+            matchSelector.value = "man_city_west_brom";
+        }
+
+        // Handle match selection change
+        matchSelector.addEventListener("change", function() {
+            updateMatchContent(matchSelector.value);
+        });
+
+        // Initialize with current selection
+        updateMatchContent(matchSelector.value);
+    } else {
+        // If no match selector, initialize the comparison view with default
+        initializeJuxtapose("man_city_west_brom");
     }
 
     if (transitionBtn && comparisonBtn) {
@@ -37,10 +62,64 @@ document.addEventListener("DOMContentLoaded", function() {
             // Pause video when not visible
             transitionVideo.pause();
 
-            // Make sure the comparison is in single image mode
-            if (comparisonElement) {
-                comparisonElement.classList.add("single-image");
+            // Reinitialize juxtapose to ensure proper sizing
+            const currentMatch = matchSelector ? matchSelector.value : "man_city_west_brom";
+            initializeJuxtapose(currentMatch);
+        });
+    }
+
+    // Function to update content based on match selection
+    function updateMatchContent(match) {
+        // Update input images
+        document.getElementById("input1").src = `files/${match}/frame_0.png`;
+        document.getElementById("input2").src = `files/${match}/frame_1.png`;
+
+        // Update video source
+        const videoSource = document.querySelector("#transition-video source");
+        videoSource.src = `files/${match}/transition.webm`;
+        transitionVideo.load(); // Reload the video with new source
+
+        // Initialize juxtapose with new match data
+        initializeJuxtapose(match);
+    }
+
+    // Function to initialize or reinitialize juxtapose
+    function initializeJuxtapose(match) {
+        // Clear the juxtapose container first to avoid duplicate elements
+        const juxtaposeContainer = document.getElementById("juxtapose-container");
+        const comparisonTitle = juxtaposeContainer.querySelector(".image-title");
+
+        // Remove all contents except the title
+        while (juxtaposeContainer.lastChild) {
+            juxtaposeContainer.removeChild(juxtaposeContainer.lastChild);
+        }
+
+        // Add the title back
+        juxtaposeContainer.appendChild(comparisonTitle);
+
+        // Create new comparison div
+        const newComparison = document.createElement("div");
+        newComparison.id = "comparison";
+        newComparison.className = "juxtapose";
+        newComparison.setAttribute("data-startingposition", "50%");
+        newComparison.setAttribute("data-animate", "true");
+
+        // Add the comparison div to the container
+        juxtaposeContainer.appendChild(newComparison);
+
+        // Initialize juxtapose on the new element
+        new juxtapose.JXSlider("#comparison", [
+            {
+                src: `files/${match}/simulated_view.png`,
+                label: "Simulated"
+            },
+            {
+                src: `files/${match}/actual_frame.png`,
+                label: "Actual"
             }
+        ], {
+            startingPosition: "50%",
+            animate: true
         });
     }
 });
