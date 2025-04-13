@@ -8,8 +8,21 @@ document.addEventListener("DOMContentLoaded", function() {
     const matchSelector = document.getElementById("match-selector");
 
     const availableMatches = {
-        "man_city_west_brom": "Man City vs West Brom",
-        "chelsea_leicester": "Chelsea vs Leicester"
+        "manchester_city_west_brom": "Manchester City vs West Brom",
+        "chelsea_leicester": "Chelsea vs Leicester",
+        "real_madrid_napoli": "Real Madrid vs Napoli",
+        "atletico_barcelona": "Atletico vs Barcelona",
+        "barcelona_atletico": "Barcelona vs Atletico",
+        "barcelona_celta": "Barcelona vs Celta",
+        "barcelona_villarreal": "Barcelona vs Villarreal",
+        "bayern_schalke": "Bayern vs Schalke",
+        "benfica_napoli": "Benfica vs Napoli",
+        "celta_real_madrid": "Celta vs Real Madrid",
+        "nantes_paris_sg": "Nantes vs Paris SG",
+        "paris_sg_nice": "Paris SG vs Nice",
+        "real_madrid_betis": "Real Madrid vs Betis",
+        "roma_sassuolo": "Roma vs Sassuolo",
+        "valencia_barcelona": "Valencia vs Barcelona"
     };
 
     // Initialize match selector dropdown
