@@ -57,23 +57,23 @@ video {
 button {
     padding: 12px 24px;
     font-size: 16px;
-    background-color: var(--primary-color);
-    color: white;
+    background-color: var(--background);
+    color: var(--text-color);
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: 0;
     cursor: pointer;
     transition: var(--transition);
     font-weight: 500;
 }
 
 button:hover {
-    background-color: var(--primary-dark);
-    transform: translateY(-2px);
+    background-color: #e0e0e0;
 }
 
 button.active {
-    background-color: var(--primary-dark);
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    background-color: var(--card-bg);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    border-bottom: 3px solid var(--primary-color);
 }
 
 .video-title {
@@ -141,8 +141,17 @@ button.active {
 .view-controls {
     display: flex;
     justify-content: center;
-    gap: 15px;
+    gap: 0;
     margin-bottom: 25px;
+    background-color: var(--background);
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    overflow: hidden;
+}
+
+.view-controls button {
+    flex: 1;
+    border-radius: 0;
+    text-align: center;
 }
 
 .view-content {
@@ -184,7 +193,7 @@ button.active {
     border-radius: var(--border-radius);
     border: 2px solid #e0e0e0;
     background-color: white;
-    min-width: 250px;
+    min-width: 300px;
     cursor: pointer;
     transition: var(--transition);
     appearance: none;
@@ -206,32 +215,38 @@ button.active {
 
 .transition-tabs {
     display: flex;
-    gap: 8px;
+    gap: 0;
     margin-bottom: 15px;
     flex-wrap: wrap;
     justify-content: center;
+    background-color: var(--background);
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    overflow: hidden;
 }
 
 .tab-btn {
     padding: 10px 16px;
     font-size: 14px;
-    background-color: #f0f0f0;
+    background-color: var(--background);
     color: var(--text-color);
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: 0;
     cursor: pointer;
     transition: var(--transition);
     font-weight: 500;
+    flex: 1;
+    text-align: center;
 }
 
 .tab-btn:hover {
     background-color: #e0e0e0;
-    transform: translateY(-2px);
+    transform: none;
 }
 
 .tab-btn.active {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border-bottom: 3px solid var(--primary-color);
 }
 
 .transition-description,
@@ -293,5 +308,10 @@ button.active {
     .tab-btn {
         padding: 8px 12px;
         font-size: 13px;
+        flex-basis: 50%;
+    }
+
+    #match-selector {
+        min-width: 250px;
     }
 }
