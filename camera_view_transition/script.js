@@ -7,6 +7,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const comparisonElement = document.getElementById("comparison");
     const matchSelector = document.getElementById("match-selector");
     const tabButtons = document.querySelectorAll(".tab-btn");
+    const transitionDescription = document.getElementById("transition-description");
+    const viewDescription = document.getElementById("view-description");
 
     const availableMatches = {
         "manchester_city_west_brom": "Manchester City vs West Brom",
@@ -58,6 +60,21 @@ document.addEventListener("DOMContentLoaded", function() {
         initializeJuxtapose("manchester_city_west_brom");
     }
 
+    // Descriptions for each transition type
+    const transitionDescriptions = {
+        "baseline": "Default configuration: Focus-point guided interpolation which is faster during middle of the transition. The missing areas are filled with inpainting, and the player textures are blended.",
+        "linear": "Same as the default, but with linear interpolation and without inpainting.",
+        "constant_speed": "Same as the default, but with constant speed during the transition.",
+        "slower_in_the_middle": "Same as the default, but with slower speed during the middle of the transition.",
+        "without_inpainting": "Same as the default, but without inpainting.",
+        "without_player_blending": "Same as the default, but without player blending.",
+    };
+
+    // Set the initial description
+    if (transitionDescription) {
+        transitionDescription.textContent = transitionDescriptions["baseline"];
+    }
+
     // Initialize tab buttons
     if (tabButtons) {
         tabButtons.forEach(button => {
@@ -73,8 +90,24 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 // Update video source based on selected transition
                 updateVideoSource(currentMatch, currentTransitionType);
+
+                // Update the description text
+                if (transitionDescription) {
+                    transitionDescription.textContent = transitionDescriptions[currentTransitionType] || "";
+                }
             });
         });
+    }
+
+    // View descriptions
+    const viewDescriptions = {
+        "transition": "Video transition between the two input frames.",
+        "comparison": "Comparison of the simulated frame and the actual frame."
+    };
+
+    // Set initial view description
+    if (viewDescription) {
+        viewDescription.textContent = viewDescriptions["transition"];
     }
 
     if (transitionBtn && comparisonBtn) {
@@ -83,6 +116,9 @@ document.addEventListener("DOMContentLoaded", function() {
             comparisonBtn.classList.remove("active");
             transitionContainer.classList.remove("hidden");
             juxtaposeContainer.classList.add("hidden");
+
+            // Update view description
+            viewDescription.textContent = viewDescriptions["transition"];
 
             // Ensure video plays when switching to transition view
             if (transitionVideo.paused) {
@@ -97,6 +133,9 @@ document.addEventListener("DOMContentLoaded", function() {
             transitionBtn.classList.remove("active");
             juxtaposeContainer.classList.remove("hidden");
             transitionContainer.classList.add("hidden");
+
+            // Update view description
+            viewDescription.textContent = viewDescriptions["comparison"];
 
             // Pause video when not visible
             transitionVideo.pause();
@@ -124,10 +163,19 @@ document.addEventListener("DOMContentLoaded", function() {
         const videoSource = document.querySelector("#transition-video source");
         let videoFileName = "transition.webm"; // Default
 
-        if (transitionType === "linear") {
-            videoFileName = "transition_linear.webm";
-        } else if (transitionType === "baseline") {
-            videoFileName = "transition.webm";
+        // Map transition types to file names
+        const transitionFileNames = {
+            "baseline": "transition.webm",
+            "linear": "transition_linear.webm",
+            "without_inpainting": "transition_without_inpainting.webm",
+            "without_player_blending": "transition_without_player_blending.webm",
+            "constant_speed": "transition_constant_speed.webm",
+            "slower_in_the_middle": "transition_slower_in_the_middle.webm"
+        };
+
+        // Get the file name for the selected transition type
+        if (transitionFileNames[transitionType]) {
+            videoFileName = transitionFileNames[transitionType];
         }
 
         videoSource.src = `files/${match}/${videoFileName}`;
@@ -145,15 +193,11 @@ document.addEventListener("DOMContentLoaded", function() {
     function initializeJuxtapose(match) {
         // Clear the juxtapose container first to avoid duplicate elements
         const juxtaposeContainer = document.getElementById("juxtapose-container");
-        const comparisonTitle = juxtaposeContainer.querySelector(".image-title");
 
-        // Remove all contents except the title
+        // Remove all contents
         while (juxtaposeContainer.lastChild) {
             juxtaposeContainer.removeChild(juxtaposeContainer.lastChild);
         }
-
-        // Add the title back
-        juxtaposeContainer.appendChild(comparisonTitle);
 
         // Create new comparison div
         const newComparison = document.createElement("div");
