@@ -32,20 +32,27 @@
             <button id="comparison-btn" class="active">Single image</button>
         </div>
 
-        <div id="transition-container" class="view-content hidden">
-            <p class="image-title">Transition Between Views</p>
+        <div class="view-description" id="view-description">
+        </div>
+
+        <div id="transition-container" class="view-content">
             <div class="transition-tabs">
                 <button class="tab-btn active" data-transition="baseline">Default</button>
-                <button class="tab-btn" data-transition="linear">Linear Interpolation</button>
+                <button class="tab-btn" data-transition="linear">Linear interpolation</button>
+                <button class="tab-btn" data-transition="constant_speed">Constant speed</button>
+                <button class="tab-btn" data-transition="slower_in_the_middle">Slower in the middle</button>
+                <button class="tab-btn" data-transition="without_inpainting">No inpainting</button>
+                <button class="tab-btn" data-transition="without_player_blending">No player blending</button>
             </div>
             <video id="transition-video" controls loop muted>
                 <source src="files/manchester_city_west_brom/transition.webm" type="video/webm">
                 Your browser does not support the video tag.
             </video>
+            <br>
+            <div id="transition-description" class="transition-description"></div>
         </div>
 
-        <div id="juxtapose-container" class="view-content">
-            <p class="image-title">Comparison: Simulated (Left) vs. Actual (Right)</p>
+        <div id="juxtapose-container" class="view-content hidden">
             <div id="comparison" class="juxtapose" data-startingposition="50%" data-animate="true">
                 <img src="files/manchester_city_west_brom/simulated_view.png" alt="Simulated View">
                 <img src="files/manchester_city_west_brom/actual_frame.png" alt="Actual Frame">
