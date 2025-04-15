@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const transitionVideo = document.getElementById("transition-video");
     const comparisonElement = document.getElementById("comparison");
     const matchSelector = document.getElementById("match-selector");
+    const tabButtons = document.querySelectorAll(".tab-btn");
 
     const availableMatches = {
         "manchester_city_west_brom": "Manchester City vs West Brom",
@@ -25,6 +26,10 @@ document.addEventListener("DOMContentLoaded", function() {
         "valencia_barcelona": "Valencia vs Barcelona"
     };
 
+    // Current state tracking
+    let currentMatch = "manchester_city_west_brom";
+    let currentTransitionType = "baseline";
+
     // Initialize match selector dropdown
     if (matchSelector) {
         for (const [value, label] of Object.entries(availableMatches)) {
@@ -36,19 +41,40 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Set initial match if not already selected
         if (!matchSelector.value) {
-            matchSelector.value = "man_city_west_brom";
+            matchSelector.value = "manchester_city_west_brom";
+            currentMatch = "manchester_city_west_brom";
         }
 
         // Handle match selection change
         matchSelector.addEventListener("change", function() {
-            updateMatchContent(matchSelector.value);
+            currentMatch = matchSelector.value;
+            updateMatchContent(currentMatch, currentTransitionType);
         });
 
         // Initialize with current selection
-        updateMatchContent(matchSelector.value);
+        updateMatchContent(currentMatch, currentTransitionType);
     } else {
         // If no match selector, initialize the comparison view with default
-        initializeJuxtapose("man_city_west_brom");
+        initializeJuxtapose("manchester_city_west_brom");
+    }
+
+    // Initialize tab buttons
+    if (tabButtons) {
+        tabButtons.forEach(button => {
+            button.addEventListener("click", function() {
+                // Deactivate all buttons
+                tabButtons.forEach(btn => btn.classList.remove("active"));
+
+                // Activate clicked button
+                this.classList.add("active");
+
+                // Get transition type from data attribute
+                currentTransitionType = this.dataset.transition;
+
+                // Update video source based on selected transition
+                updateVideoSource(currentMatch, currentTransitionType);
+            });
+        });
     }
 
     if (transitionBtn && comparisonBtn) {
@@ -76,24 +102,43 @@ document.addEventListener("DOMContentLoaded", function() {
             transitionVideo.pause();
 
             // Reinitialize juxtapose to ensure proper sizing
-            const currentMatch = matchSelector ? matchSelector.value : "man_city_west_brom";
             initializeJuxtapose(currentMatch);
         });
     }
 
-    // Function to update content based on match selection
-    function updateMatchContent(match) {
+    // Function to update content based on match selection and transition type
+    function updateMatchContent(match, transitionType) {
         // Update input images
         document.getElementById("input1").src = `files/${match}/frame_0.png`;
         document.getElementById("input2").src = `files/${match}/frame_1.png`;
 
         // Update video source
-        const videoSource = document.querySelector("#transition-video source");
-        videoSource.src = `files/${match}/transition.webm`;
-        transitionVideo.load(); // Reload the video with new source
+        updateVideoSource(match, transitionType);
 
         // Initialize juxtapose with new match data
         initializeJuxtapose(match);
+    }
+
+    // Function to update video source based on match and transition type
+    function updateVideoSource(match, transitionType) {
+        const videoSource = document.querySelector("#transition-video source");
+        let videoFileName = "transition.webm"; // Default
+
+        if (transitionType === "linear") {
+            videoFileName = "transition_linear.webm";
+        } else if (transitionType === "baseline") {
+            videoFileName = "transition.webm";
+        }
+
+        videoSource.src = `files/${match}/${videoFileName}`;
+        transitionVideo.load(); // Reload the video with new source
+
+        // Try to play if the container is visible
+        if (!transitionContainer.classList.contains("hidden")) {
+            transitionVideo.play().catch(e => {
+                console.log("Could not autoplay video: ", e);
+            });
+        }
     }
 
     // Function to initialize or reinitialize juxtapose
