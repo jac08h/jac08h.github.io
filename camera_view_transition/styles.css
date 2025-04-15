@@ -190,3 +190,21 @@ button.active {
     line-height: 1.4;
     text-align: center;
 }
+
+.source-attribution {
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.source-attribution a {
+    color: #4285f4;
+    text-decoration: none;
+}
+
+.source-attribution a:hover {
+    text-decoration: underline;
+}
