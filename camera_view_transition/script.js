@@ -70,12 +70,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Descriptions for each transition type
     const transitionDescriptions = {
-        "baseline": "Default configuration: Focus-point guided interpolation which is faster during middle of the transition. The missing areas are filled with inpainting, and the player textures are blended.",
+        "baseline": "Default configuration: Focus-point guided interpolation which is faster during middle of the transition. The missing areas are filled with inpainting, and the player textures are blended. Player segmentation and camera calibration is done manually.",
         "linear": "Same as the default, but with linear interpolation and without inpainting.",
         "constant_speed": "Same as the default, but with constant speed during the transition.",
         "slower_in_the_middle": "Same as the default, but with slower speed during the middle of the transition.",
         "without_inpainting": "Same as the default, but without inpainting.",
         "without_player_blending": "Same as the default, but without player blending.",
+        "yolo_masks": "Same as the default, but with automatic player segmentation using YOLO11 instead of manual annotation.",
     };
 
     // Set the initial description
@@ -225,7 +226,8 @@ document.addEventListener("DOMContentLoaded", function() {
             "without_inpainting": "transition_without_inpainting.webm",
             "without_player_blending": "transition_without_player_blending.webm",
             "constant_speed": "transition_constant_speed.webm",
-            "slower_in_the_middle": "transition_slower_in_the_middle.webm"
+            "slower_in_the_middle": "transition_slower_in_the_middle.webm",
+            "yolo_masks": "transition_yolo_masks.webm",
         };
 
         // Get the file name for the selected transition type
