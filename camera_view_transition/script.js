@@ -13,9 +13,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Available matches data
     const availableMatches = {
-        "manchester_city_west_brom": "Manchester City vs West Brom",
-        "chelsea_leicester": "Chelsea vs Leicester",
-        "real_madrid_napoli": "Real Madrid vs Napoli",
         "atletico_barcelona": "Atletico vs Barcelona",
         "barcelona_atletico": "Barcelona vs Atletico",
         "barcelona_celta": "Barcelona vs Celta",
@@ -23,9 +20,12 @@ document.addEventListener("DOMContentLoaded", function() {
         "bayern_schalke": "Bayern vs Schalke",
         "benfica_napoli": "Benfica vs Napoli",
         "celta_real_madrid": "Celta vs Real Madrid",
+        "chelsea_leicester": "Chelsea vs Leicester",
+        "manchester_city_west_brom": "Manchester City vs West Brom",
         "nantes_paris_sg": "Nantes vs Paris SG",
         "paris_sg_nice": "Paris SG vs Nice",
         "real_madrid_betis": "Real Madrid vs Betis",
+        "real_madrid_napoli": "Real Madrid vs Napoli",
         "roma_sassuolo": "Roma vs Sassuolo",
         "valencia_barcelona": "Valencia vs Barcelona"
     };
@@ -43,11 +43,9 @@ document.addEventListener("DOMContentLoaded", function() {
             matchSelector.appendChild(option);
         }
 
-        // Set initial match if not already selected
-        if (!matchSelector.value) {
-            matchSelector.value = "manchester_city_west_brom";
-            currentMatch = "manchester_city_west_brom";
-        }
+        // Set initial match
+        matchSelector.value = "manchester_city_west_brom";
+        currentMatch = "manchester_city_west_brom";
 
         // Handle match selection change with smooth transition
         matchSelector.addEventListener("change", function() {
@@ -76,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function() {
         "slower_in_the_middle": "Same as the default, but with slower speed during the middle of the transition.",
         "without_inpainting": "Same as the default, but without inpainting.",
         "without_player_blending": "Same as the default, but without player blending.",
-        "yolo_masks": "Same as the default, but with automatic player segmentation using YOLO11 instead of manual annotation.",
+        "yolo_masks": "Same as the default, but with automatic player segmentation using YOLO11x-seg instead of manual annotation.",
     };
 
     // Set the initial description
