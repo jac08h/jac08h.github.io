@@ -27,7 +27,7 @@
     * [Code](https://github.com/jac08h/PersonalityClassificationWithLLMs), [Report](https://github.com/jac08h/PersonalityClassificationWithLLMs/blob/main/report.pdf)
     * Fine-tuning Gemma models for MBTI personality classification based on forum posts.
     * Completed as part of the [PA026 Artificial Intelligence Project - Spring 2024](https://nlp.fi.muni.cz/aiproject/) course.
-* **[LLMs for Age-Of-Acquisition Estimation](https://jakubhalmes.substack.com/p/can-llms-predict-when-we-learn-different)** (2024)
+* **[LLMs for Age-Of-Acquisition Estimation](https://unpredictabletokens.substack.com/p/can-llms-predict-when-we-learn-different)** (2024)
     * Evaluating LLMs for estimation of the age of acquiring Czech words, comparing the results with an existing dataset and human annotations.
     * Completed as part of the IV127 Adaptive Learning Seminar - Fall 2024.
 
