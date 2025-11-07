@@ -1,10 +1,15 @@
 # Programming
 
+### Master's Thesis
+* **Camera View Transition** (2024–2025)
+    * [Project website](https://jakubhalmes.com/camera_view_transition)
+    * A design and implementation of a method for creating transitions between two camera views in soccer broadcasts.
+
 ### Bachelor's Thesis
 * **Event Synchronization in Multiple Video Recordings** (2022–2023)
     * [Code](https://github.com/jac08h/EventSynchronizationInMultipleVideoRecordings), [Thesis](https://is.muni.cz/th/cyoc1/thesis.pdf)
     * Implementation of [VideoSnapping method](https://studios.disneyresearch.com/wp-content/uploads/2019/03/VideoSnapping-Interactive-Synchronization-of-Multiple-Videos-1.pdf) for video synchronization with additional support for various descriptors to detect image features and evaluation on soccer videos.
-    
+
 ### Websites
 * **jakubhalmes.com** (2019–present) [Source](https://github.com/jac08h/jac08h.github.io)
 * **[Expense Sharing Calculator](/expenses)** (2024)
@@ -22,7 +27,7 @@
     * [Code](https://github.com/jac08h/PersonalityClassificationWithLLMs), [Report](https://github.com/jac08h/PersonalityClassificationWithLLMs/blob/main/report.pdf)
     * Fine-tuning Gemma models for MBTI personality classification based on forum posts.
     * Completed as part of the [PA026 Artificial Intelligence Project - Spring 2024](https://nlp.fi.muni.cz/aiproject/) course.
-* **[LLMs for Age-Of-Acquisition Estimation](https://jakubhalmes.substack.com/p/can-llms-predict-when-we-learn-different)** (2024)
+* **[LLMs for Age-Of-Acquisition Estimation](https://unpredictabletokens.substack.com/p/can-llms-predict-when-we-learn-different)** (2024)
     * Evaluating LLMs for estimation of the age of acquiring Czech words, comparing the results with an existing dataset and human annotations.
     * Completed as part of the IV127 Adaptive Learning Seminar - Fall 2024.
 

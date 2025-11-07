@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera View Transition</title>
+    <link rel="stylesheet" href="https://cdn.knightlab.com/libs/juxtapose/latest/css/juxtapose.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Camera View Transition</h1>
+
+        <div class="buttons-container">
+            <a href="https://is.muni.cz/th/ljbua/thesis.pdf" target="_blank" class="link-button">📃 Paper</a>
+            <a href="https://github.com/jac08h/camera_view_transition" target="_blank" class="link-button">💻 Code</a>
+        </div>
+
+        <div class="match-selector-container">
+            <label for="match-selector">Select Match:</label>
+            <select id="match-selector">
+                <!-- Options will be populated by JavaScript -->
+            </select>
+        </div>
+
+        <div class="input-row">
+            <div class="input-image-container">
+                <p class="image-title">Input View 1</p>
+                <img id="input1" src="files/manchester_city_west_brom/frame_0.png" alt="Input Image 1">
+            </div>
+            <div class="input-image-container">
+                <p class="image-title">Input View 2</p>
+                <img id="input2" src="files/manchester_city_west_brom/frame_1.png" alt="Input Image 2">
+            </div>
+        </div>
+
+        <div class="view-controls">
+            <button id="transition-btn" class="active">Transition</button>
+            <button id="comparison-btn">Single image</button>
+        </div>
+
+        <div class="transition-description" id="view-description">
+        </div>
+
+        <div id="transition-container" class="view-content">
+            <div class="transition-tabs">
+                <button class="tab-btn active" data-transition="baseline">Default</button>
+                <button class="tab-btn" data-transition="linear">Linear interpolation</button>
+                <button class="tab-btn" data-transition="constant_speed">Constant speed</button>
+                <button class="tab-btn" data-transition="slower_in_the_middle">Slower in the middle</button>
+                <button class="tab-btn" data-transition="without_inpainting">No inpainting</button>
+                <button class="tab-btn" data-transition="without_player_blending">No player blending</button>
+                <button class="tab-btn" data-transition="yolo_masks">YOLO masks</button>
+            </div>
+            <video id="transition-video" controls loop muted>
+                <source src="files/manchester_city_west_brom/transition.webm" type="video/webm">
+                Your browser does not support the video tag.
+            </video>
+            <br>
+            <div id="transition-description" class="transition-description"></div>
+        </div>
+
+        <div id="juxtapose-container" class="view-content hidden">
+            <div id="comparison" class="juxtapose" data-startingposition="50%" data-animate="true">
+                <img src="files/manchester_city_west_brom/simulated_view.png" alt="Simulated View">
+                <img src="files/manchester_city_west_brom/actual_frame.png" alt="Actual Frame">
+            </div>
+        </div>
+
+        <div class="source-attribution">
+            Image source: <a href="https://www.nature.com/articles/s41597-022-01469-1" target="_blank">SoccerNet dataset</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.knightlab.com/libs/juxtapose/latest/js/juxtapose.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
