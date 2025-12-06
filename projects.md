@@ -3,15 +3,15 @@ Organized by year of publication.
 
 ### 2025
 
+  * **volebneprieskumy.sk**
+      * A website providing an overview of opinion polls related to Slovak parliamentary elections.
+      * [Link](https://volebneprieskumy.sk/)
   * **Great Filter**
       * AI-powered content filtering for social media platforms. [Demo video](https://www.youtube.com/watch?v=japjNSU3O7A).
       * [Chrome Web Store](https://chromewebstore.google.com/detail/great-filter/mbifgfgfbnemojmfkckodkikibihcgaj), [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/great-filter/)
   * **Camera View Transition**
       * Master's thesis. A design and implementation of a method for creating transitions between two camera views in soccer broadcasts.
       * [Project website](https://jakubhalmes.com/camera_view_transition)
-  * **volebneprieskumy.sk**
-      * A website providing an overview of opinion polls related to Slovak parliamentary elections.
-      * [Link](https://volebneprieskumy.sk/)
   * **Fair Bet Calculator**
       * Calculate a bet size between two people disagreeing on some event such that their subjective expected value is equal.
       * [Claude Artifact](https://claude.site/artifacts/73c60e30-0d03-42a4-a513-08cee1f77f3b)
