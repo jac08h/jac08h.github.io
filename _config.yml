@@ -1,8 +1,8 @@
-title: jac08h
-description: >- 
-    <a href='/index'>Home</a> | <a href='/programming'>Programming</a> | <a href='/books'>Books</a> | <a href='https://unpredictabletokens.substack.com'>Blog</a> @ Substack | <a href='/connect_with_me'>Connect With Me</a>
-    
-github_username:  jac08h
+title: Personal Website
+description: >-
+  <a href='/index'>Home</a> | <a href='/projects'>Projects</a> | <a href='/books'>Books</a> | <a href='https://unpredictabletokens.substack.com'>Blog</a> @ Substack | <a href='/connect_with_me'>Connect With Me</a>
+
+github_username: jac08h
 
 # Build settings
 markdown: kramdown
