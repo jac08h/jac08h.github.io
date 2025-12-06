@@ -1,5 +1,10 @@
 # Programming
 
+### Extensions
+* **Great Filter** (2025)
+  * [Chrome Web Store](https://chromewebstore.google.com/detail/great-filter/mbifgfgfbnemojmfkckodkikibihcgaj), [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/great-filter/)
+  * AI-powered content filtering for social media platforms. [Demo video](https://www.youtube.com/watch?v=japjNSU3O7A).
+
 ### Master's Thesis
 * **Camera View Transition** (2024–2025)
     * [Project website](https://jakubhalmes.com/camera_view_transition)
@@ -11,6 +16,8 @@
     * Implementation of [VideoSnapping method](https://studios.disneyresearch.com/wp-content/uploads/2019/03/VideoSnapping-Interactive-Synchronization-of-Multiple-Videos-1.pdf) for video synchronization with additional support for various descriptors to detect image features and evaluation on soccer videos.
 
 ### Websites
+* **[volebneprieskumy.sk](https://volebneprieskumy.sk/)** (2025)
+  * A website providing an overview of opinion polls related to Slovak parliamentary elections.
 * **jakubhalmes.com** (2019–present) [Source](https://github.com/jac08h/jac08h.github.io)
 * **[Expense Sharing Calculator](/expenses)** (2024)
     * Calculator to split expenses between multiple people with minimal number of transactions.
