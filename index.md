@@ -1,8 +1,7 @@
 # Welcome
 
-Hi! 
+Hi!
 
 I'm Jakub, currently working as an AI Engineer at [Chyron](https://chyron.com/).
 
-This website serves as a crossroad between various endeavors: Browse through [programming projects](/programming) or visit the [blog](https://unpredictabletokens.substack.com/). 
-There is also a [collection of book quotes](/books/quotes) and a list of [my favorite reads](/books/picks). I hope you enjoy your stay!
+This website connects some of my activities and interests: Browse through my [programming projects](/programming), visit the [blog](https://unpredictabletokens.substack.com/), or check out my [book quotes collection](/books/quotes). I hope you enjoy your stay!
