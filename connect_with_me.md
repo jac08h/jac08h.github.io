@@ -1,5 +1,5 @@
-# Connect With Me
+# Social Media & Contact
 
-* [Github](https://github.com/jac08h)
+* hi@jakubhalmes.com ([Send message](mailto:hi@jakubhalmes.com))
 * [LinkedIn](https://www.linkedin.com/in/jac08h/)
-* jac08h@gmail.com ([Send message](mailto:jac08h@gmail.com))
+* [Github](https://github.com/jac08h)
