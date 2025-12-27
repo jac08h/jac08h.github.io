@@ -1,3 +1,0 @@
-# Books
-
-* [Quotes](/books/quotes)
