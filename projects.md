@@ -8,7 +8,7 @@ Organized by year of publication.
     * A proof-of-concept demonstration that monitoring of untrusted model was improved when the monitor could run the proposed commands in a sandbox and inspect the activity logs, such as file changes or network logs.
     * [Project's page](https://apartresearch.com/project/safe-sandboxed-actions-forensics-and-evaluation-for-ai-control-via-actionaware-monitoring-h3fi)
 
-<span id="random-word-display"></span>
+* <span id="random-word-display"></span>... (check back later!)
 
 <script>
 (function() {
@@ -34,7 +34,7 @@ Organized by year of publication.
   ];
   var el = document.getElementById("random-word-display");
   var word = words[Math.floor(Math.random() * words.length)];
-  el.textContent = word + "...";
+  el.textContent = word;
 })();
 </script>
 
