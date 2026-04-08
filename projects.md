@@ -3,6 +3,11 @@ Organized by year of publication.
 
 ### 2026
 
+* **SAFE: Sandboxed Actions Forensics and Evaluation for AI Control via Action-Aware Monitoring**
+    * Project done during [Apart's AI Control Hackathon](https://apartresearch.com/sprints/ai-control-hackathon-2026-03-20-to-2026-03-22).
+    * A proof-of-concept demonstration that monitoring of untrusted model was improved when the monitor could run the proposed commands in a sandbox and inspect the activity logs, such as file changes or network logs.
+    * [Project's page](https://apartresearch.com/project/safe-sandboxed-actions-forensics-and-evaluation-for-ai-control-via-actionaware-monitoring-h3fi)
+
 <span id="random-word-display"></span>
 
 <script>
