@@ -3,6 +3,10 @@ Organized by year of publication.
 
 ### 2026
 
+* **ChatbotChambers**
+    * A web app where two chatbots talk to each other while you watch.
+    * [Website](https://www.chatbotchambers.net/), [Demo video](https://youtu.be/WuS2g5VZ-NM), [Code](https://github.com/jac08h/ChatbotChambers)
+
 * **SAFE: Sandboxed Actions Forensics and Evaluation for AI Control via Action-Aware Monitoring**
     * Project done during [Apart's AI Control Hackathon](https://apartresearch.com/sprints/ai-control-hackathon-2026-03-20-to-2026-03-22).
     * A proof-of-concept demonstration that monitoring of untrusted model was improved when the monitor could run the proposed commands in a sandbox and inspect the activity logs, such as file changes or network logs.
