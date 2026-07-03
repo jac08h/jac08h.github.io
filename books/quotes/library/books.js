@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { leatherFor, makeSpineTexture, mulberry32 } from "./textures.js";
-import { HALL } from "./hall.js";
+import { STACKS } from "./stacks.js";
 
 const BOOK_DEPTH = 0.235;
 
@@ -114,15 +114,15 @@ export function buildBooks(scene, bays, decorBays, booksData) {
     const raycastTargets = [];
     const fillers = [];
     const rng = mulberry32(2017);
-    const bookFrontZ = HALL.caseDepth / 2 - 0.03;
+    const bookFrontZ = STACKS.caseDepth / 2 - 0.03;
 
     function placeBay(bay, reals) {
         const innerW = bay.width - 0.3;
-        const counts = rowCounts(reals.length, HALL.rowBottoms.length);
+        const counts = rowCounts(reals.length, STACKS.rowBottoms.length);
         let offset = 0;
         let overflow = [];
 
-        HALL.rowBottoms.forEach(function (rowY, r) {
+        STACKS.rowBottoms.forEach(function (rowY, r) {
             let rowReals = reals.slice(offset, offset + counts[r]);
             offset += counts[r];
             rowReals = overflow.concat(rowReals);
@@ -150,9 +150,29 @@ export function buildBooks(scene, bays, decorBays, booksData) {
         return overflow;
     }
 
-    let leftover = [];
+    // Each year's aisle has two shelved faces; split the year's books across
+    // them, letting overflow from one face spill onto the next.
+    const yearOrder = [];
+    const facesByYear = {};
     bays.forEach(function (bay) {
-        leftover = leftover.concat(placeBay(bay, byYear[bay.year] || []));
+        if (!facesByYear[bay.year]) {
+            facesByYear[bay.year] = [];
+            yearOrder.push(bay.year);
+        }
+        facesByYear[bay.year].push(bay);
+    });
+
+    let leftover = [];
+    yearOrder.forEach(function (year) {
+        const faces = facesByYear[year];
+        const reals = byYear[year] || [];
+        const perFace = Math.ceil(reals.length / faces.length);
+        let carry = [];
+        faces.forEach(function (bay, f) {
+            const chunk = carry.concat(reals.slice(f * perFace, (f + 1) * perFace));
+            carry = placeBay(bay, chunk);
+        });
+        leftover = leftover.concat(carry);
     });
     if (leftover.length > 0) {
         console.warn("Library: " + leftover.length + " books did not fit shelves");

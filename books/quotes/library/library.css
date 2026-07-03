@@ -34,14 +34,6 @@ body {
     cursor: default;
 }
 
-#scene.pickable {
-    cursor: pointer;
-}
-
-#scene.grabbing {
-    cursor: grabbing;
-}
-
 .vignette {
     position: fixed;
     inset: 0;
@@ -61,6 +53,7 @@ body {
     text-align: center;
     background: #050302;
     transition: opacity 2.2s ease;
+    cursor: pointer;
 }
 
 .intro.fading {
@@ -221,57 +214,95 @@ body {
     color: var(--gilt-solid);
 }
 
-/* Hover preview card (positioned from 3D projection) */
-.spine-preview {
+/* First-person HUD: reticle, aim label, pause veil, teleport fade */
+.reticle {
     position: fixed;
-    z-index: 8;
-    left: 0;
-    top: 0;
-    max-width: 280px;
-    padding: 0.7rem 0.95rem;
-    display: none;
-    flex-direction: column;
-    gap: 0.25rem;
+    z-index: 4;
+    left: 50%;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    margin: -2.5px 0 0 -2.5px;
+    border-radius: 50%;
+    background: rgba(243, 231, 214, 0.55);
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
     pointer-events: none;
-    background: linear-gradient(160deg, rgba(34, 24, 18, 0.96), rgba(20, 13, 8, 0.96));
-    color: var(--text);
-    border: 1px solid rgba(198, 160, 92, 0.35);
-    border-radius: 6px;
-    box-shadow:
-        0 12px 30px rgba(0, 0, 0, 0.7),
-        0 0 0 1px rgba(0, 0, 0, 0.4);
-    opacity: 0;
-    transform: scale(0.96) translateY(4px);
-    transition: opacity 0.15s ease, transform 0.15s ease;
+    transition: transform 0.15s ease, background 0.15s ease;
 }
 
-.spine-preview.visible {
-    display: flex;
-    opacity: 1;
-    transform: scale(1) translateY(0);
+.reticle.aiming {
+    transform: scale(1.9);
+    background: var(--gilt-solid);
+    box-shadow: 0 0 10px var(--glow);
 }
 
-.preview-author {
-    font-size: 1rem;
+.aim-label {
+    position: fixed;
+    z-index: 4;
+    left: 50%;
+    top: calc(50% + 2rem);
+    transform: translateX(-50%);
+    max-width: 340px;
+    padding: 0.32rem 0.85rem;
+    text-align: center;
     font-style: italic;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    color: var(--text);
+    background: rgba(10, 6, 3, 0.72);
+    border: 1px solid rgba(198, 160, 92, 0.35);
+    border-radius: 4px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.aim-label.visible {
+    opacity: 1;
+}
+
+.pause {
+    position: fixed;
+    inset: 0;
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(5, 3, 2, 0.55);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.pause.visible {
+    opacity: 1;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.pause-text {
+    font-style: italic;
+    letter-spacing: 0.14em;
     color: var(--text-dim);
 }
 
-.preview-title {
-    font-size: 1.2rem;
-    font-weight: bold;
-    line-height: 1.25;
+.fade {
+    position: fixed;
+    inset: 0;
+    z-index: 18;
+    background: #050302;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.24s ease;
 }
 
-.preview-year {
-    align-self: flex-start;
-    margin-top: 0.15rem;
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    color: var(--gilt);
-    border: 1px solid rgba(198, 160, 92, 0.4);
-    border-radius: 3px;
-    padding: 0.05rem 0.4rem;
+.fade.visible {
+    opacity: 1;
+}
+
+body.playing #scene {
+    cursor: none;
 }
 
 
