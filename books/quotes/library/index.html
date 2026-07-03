@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Library — Book Quotes</title>
+    <link rel="stylesheet" href="library.css">
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "./vendor/three.module.min.js",
+            "three/addons/": "./vendor/addons/"
+        }
+    }
+    </script>
+</head>
+<body>
+    <canvas id="scene" tabindex="0" aria-label="3D library hall. Use the year list to navigate, arrow keys to browse books, Enter to open."></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <div id="intro" class="intro">
+        <div class="intro-inner">
+            <h1 class="intro-title">The Library</h1>
+            <p class="intro-sub">quotes, shelved by year</p>
+            <p class="intro-hint" id="intro-hint">scroll or drag to move along the shelves &middot; pick a year &middot; click a book to open it</p>
+        </div>
+    </div>
+
+    <header class="hud hud-header">
+        <span class="hud-title">The Library</span>
+        <nav class="hud-nav" aria-label="Other views">
+            <a href="/books/quotes/float/">floating quotes</a>
+            <a href="/books/quotes/all">index</a>
+        </nav>
+    </header>
+
+    <nav id="year-rail" class="hud year-rail" aria-label="Shelves by year"></nav>
+
+    <div id="fallback" class="fallback" hidden>
+        <h1>The Library</h1>
+        <p id="fallback-reason">This view needs WebGL, which your browser could not provide.</p>
+        <p><a href="/books/quotes/all">Browse the alphabetical index</a> or the
+            <a href="/books/quotes/float/">floating quotes</a> instead.</p>
+    </div>
+    <noscript>
+        <div class="fallback">
+            <h1>The Library</h1>
+            <p>This view needs JavaScript.
+                <a href="/books/quotes/all">Browse the alphabetical index</a> instead.</p>
+        </div>
+    </noscript>
+
+    <div id="backdrop" class="backdrop" hidden></div>
+
+    <div id="stage" class="stage" hidden aria-hidden="true">
+        <button id="close-btn" class="close-btn" aria-label="Close book">✕</button>
+
+        <button id="prev-btn" class="nav-arrow nav-prev" aria-label="Previous quote">
+            <span aria-hidden="true">‹</span>
+        </button>
+
+        <div id="book" class="book" role="dialog" aria-modal="true" aria-label="Opened book">
+            <div class="running-head running-head-left" id="head-left"></div>
+            <div class="running-head running-head-right" id="head-right"></div>
+            <div class="page-flow" id="page-flow"></div>
+            <div class="page-number page-number-left" id="pageno-left"></div>
+            <div class="page-number page-number-right" id="pageno-right"></div>
+            <div class="gutter" aria-hidden="true"></div>
+            <div class="page-shade" aria-hidden="true"></div>
+        </div>
+
+        <button id="next-btn" class="nav-arrow nav-next" aria-label="Next quote">
+            <span aria-hidden="true">›</span>
+        </button>
+
+        <div class="book-caption" id="book-caption">
+            <span class="caption-title" id="caption-title"></span>
+            <span class="caption-author" id="caption-author"></span>
+            <span class="caption-indicator" id="page-indicator"></span>
+        </div>
+    </div>
+
+    <script type="module" src="library.js"></script>
+</body>
+</html>
