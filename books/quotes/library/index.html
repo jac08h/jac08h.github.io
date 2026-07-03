@@ -15,15 +15,23 @@
     </script>
 </head>
 <body>
-    <canvas id="scene" tabindex="0" aria-label="3D library hall. Use the year list to navigate, arrow keys to browse books, Enter to open."></canvas>
+    <canvas id="scene" tabindex="0" aria-label="First-person 3D library. Click to enter, walk with W A S D, aim at a book and click to pick it up."></canvas>
     <div class="vignette" aria-hidden="true"></div>
+
+    <div id="reticle" class="reticle" aria-hidden="true"></div>
+    <div id="aim-label" class="aim-label" aria-hidden="true"></div>
+    <div id="fade" class="fade" aria-hidden="true"></div>
 
     <div id="intro" class="intro">
         <div class="intro-inner">
             <h1 class="intro-title">The Library</h1>
             <p class="intro-sub">quotes, shelved by year</p>
-            <p class="intro-hint" id="intro-hint">scroll or drag to move along the shelves &middot; pick a year &middot; click a book to open it</p>
+            <p class="intro-hint" id="intro-hint">click to enter &middot; walk with W&thinsp;A&thinsp;S&thinsp;D &middot; aim at a book and click to pick it up &middot; Esc frees the mouse</p>
         </div>
+    </div>
+
+    <div id="pause" class="pause">
+        <p class="pause-text">paused &middot; click to resume</p>
     </div>
 
     <header class="hud hud-header">
