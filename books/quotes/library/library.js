@@ -74,6 +74,78 @@ let activeAisle = null;
 let started = false;
 let entered = false;
 
+// Scripted walk-in sequence state. Phases: "beat" (short pause) → "doors"
+// (ease open) → "walk" (scripted stride from spawn to insideSpawn), then done.
+const ENTER_TIMING = { beat: 0.3, doors: 1.4, walk: 1.9 };
+let enterSeq = null;
+let doorsOpen = 0;
+
+function easeInOut(t) {
+    return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+}
+
+function startEnterSequence() {
+    const spawn = stacks.entry.spawn;
+    const target = stacks.entry.insideSpawn;
+    player.teleport(spawn.x, spawn.z, spawn.yaw, 0);
+    player.setEnabled(false);
+    enterSeq = {
+        phase: "beat", t: 0,
+        fromX: spawn.x, fromZ: spawn.z,
+        toX: target.x, toZ: target.z, yaw: target.yaw
+    };
+}
+
+function finishEnterInstant() {
+    const target = stacks.entry.insideSpawn;
+    stacks.entry.setOpen(1);
+    doorsOpen = 1;
+    player.teleport(target.x, target.z, target.yaw, 0);
+    player.setEnabled(true);
+    enterSeq = null;
+}
+
+function updateEnterSequence(dt) {
+    if (!enterSeq) {
+        return;
+    }
+    enterSeq.t += dt;
+    if (enterSeq.phase === "beat") {
+        if (enterSeq.t >= ENTER_TIMING.beat) {
+            enterSeq.t = 0;
+            enterSeq.phase = "doors";
+        }
+        return;
+    }
+    if (enterSeq.phase === "doors") {
+        const k = Math.min(1, enterSeq.t / ENTER_TIMING.doors);
+        doorsOpen = easeInOut(k);
+        stacks.entry.setOpen(doorsOpen);
+        if (k >= 1) {
+            doorsOpen = 1;
+            stacks.entry.setOpen(1);
+            enterSeq.t = 0;
+            enterSeq.phase = "walk";
+        }
+        return;
+    }
+    if (enterSeq.phase === "walk") {
+        const raw = Math.min(1, enterSeq.t / ENTER_TIMING.walk);
+        const p = easeInOut(raw);
+        const x = enterSeq.fromX + (enterSeq.toX - enterSeq.fromX) * p;
+        const z = enterSeq.fromZ + (enterSeq.toZ - enterSeq.fromZ) * p;
+        player.teleport(x, z, enterSeq.yaw, 0);
+        // Drive the walk cycle: speedFactor ramps 0→1→0, bobPhase advances.
+        player.state.speedFactor = Math.sin(raw * Math.PI);
+        player.state.bobPhase += dt * 5 * player.state.speedFactor;
+        if (raw >= 1) {
+            player.state.speedFactor = 0;
+            player.setEnabled(true);
+            enterSeq = null;
+        }
+    }
+}
+
 fetch("../data/quotes.json")
     .then(function (resp) {
         if (!resp.ok) {
@@ -104,7 +176,7 @@ function start(booksData) {
     player.teleport(stacks.spawn.x, stacks.spawn.z, stacks.spawn.yaw, 0);
     player.onLockChange(onLockChange);
     body = createBody(player);
-    grab = createGrab(scene, camera, player, body, overlay, onBookReturned);
+    grab = createGrab(scene, camera, player, overlay, onBookReturned);
 
     activeAisle = stacks.aisles[0];
     buildYearRail(years);
@@ -122,6 +194,11 @@ function enter() {
     }, 900);
     document.body.classList.add("playing");
     player.lock();
+    if (reducedMotion) {
+        finishEnterInstant();
+    } else {
+        startEnterSequence();
+    }
 }
 
 introEl.addEventListener("click", function () {
@@ -170,7 +247,8 @@ function updateRail() {
     const buttons = railEl.querySelectorAll("button");
     buttons.forEach(function (btn) {
         btn.classList.toggle("active",
-            activeAisle !== null && Number(btn.textContent) === activeAisle.year);
+            activeAisle !== null &&
+                activeAisle.years.indexOf(Number(btn.textContent)) !== -1);
     });
 }
 
@@ -185,9 +263,20 @@ function nearestAisle() {
     return best;
 }
 
+// The year of the shelf FACE the player is nearest to: nearest aisle, then
+// its left face (years[0]) if the player is on the low-x side, else its right
+// face (years[1]); single-year aisles fall back to years[0].
+function nearestFaceYear() {
+    const aisle = nearestAisle();
+    if (aisle.years.length > 1 && player.rigYaw.position.x > aisle.x) {
+        return aisle.years[1];
+    }
+    return aisle.years[0];
+}
+
 function teleportToYear(year, withFade) {
     const aisle = stacks.aisles.find(function (a) {
-        return a.year === year;
+        return a.years.indexOf(year) !== -1;
     });
     if (!aisle) {
         return false;
@@ -270,7 +359,7 @@ function onBookReturned() {
 }
 
 canvas.addEventListener("mousedown", function (event) {
-    if (!started || overlay.isOpen() || !player.state.locked) {
+    if (!started || overlay.isOpen() || !player.state.locked || enterSeq) {
         return;
     }
     if (event.button === 0 && aimed) {
@@ -279,7 +368,7 @@ canvas.addEventListener("mousedown", function (event) {
 });
 
 document.addEventListener("keydown", function (event) {
-    if (!started || overlay.isOpen()) {
+    if (!started || overlay.isOpen() || enterSeq) {
         return;
     }
     if (event.code === "KeyE" && aimed && player.state.locked) {
@@ -309,11 +398,12 @@ function animate() {
 
     if (started) {
         player.update(dt);
+        updateEnterSequence(dt);
         grab.update(dt);
         body.update(dt, elapsedTime);
         stacks.updateDust(dt, elapsedTime);
 
-        if (!overlay.isOpen() && grab.isIdle()) {
+        if (!overlay.isOpen() && grab.isIdle() && !enterSeq) {
             setAimed(pickCenter());
         }
 
@@ -378,16 +468,29 @@ window.__library = {
                 yaw: Number(player.state.yaw.toFixed(3)),
                 pitch: Number(player.state.pitch.toFixed(3))
             } : null,
-            activeYear: player && stacks ? nearestAisle().year : null,
+            activeYear: player && stacks ? nearestFaceYear() : null,
             aimedBookId: aimed ? aimed.book.id : null,
             grabState: grab ? grab.state() : "idle",
-            overlayOpen: overlay.isOpen()
+            overlayOpen: overlay.isOpen(),
+            doorsOpen: doorsOpen,
+            entering: enterSeq !== null
         };
     },
     enter: function () {
         entered = true;
         introEl.classList.add("gone");
         document.body.classList.add("playing");
+        finishEnterInstant();
+    },
+    enterAnimated: function () {
+        entered = true;
+        introEl.classList.add("gone");
+        document.body.classList.add("playing");
+        if (reducedMotion) {
+            finishEnterInstant();
+        } else {
+            startEnterSequence();
+        }
     },
     gotoYear: function (year) {
         return teleportToYear(year, false);

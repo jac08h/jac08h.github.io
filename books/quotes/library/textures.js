@@ -234,8 +234,9 @@ export function makeSpineTexture(book, colors) {
     return tex;
 }
 
-// Brass year plaque.
-export function makePlaqueTexture(year) {
+// Brass year plaque. side (-1 left / +1 right, optional) adds a small
+// triangle pointing at the shelf face the plaque belongs to.
+export function makePlaqueTexture(year, side) {
     const w = 256, h = 96;
     const canvas = makeCanvas(w, h);
     const ctx = canvas.getContext("2d");
@@ -260,10 +261,88 @@ export function makePlaqueTexture(year) {
     ctx.shadowColor = "rgba(255, 200, 120, 0.5)";
     ctx.shadowBlur = 10;
     ctx.fillText(String(year).split("").join(" "), w / 2, h / 2 + 2);
+    if (side) {
+        const tipX = side < 0 ? 26 : w - 26;
+        const baseX = side < 0 ? 44 : w - 44;
+        ctx.beginPath();
+        ctx.moveTo(tipX, h / 2);
+        ctx.lineTo(baseX, h / 2 - 11);
+        ctx.lineTo(baseX, h / 2 + 11);
+        ctx.closePath();
+        ctx.fill();
+    }
     const tex = new THREE.CanvasTexture(canvas);
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.anisotropy = 8;
     return tex;
+}
+
+// Trouser cloth: dark warm weave with fine diagonal thread streaks and a few
+// soft vertical fold shadows. Tiled along the leg tube; muted so it never
+// reads louder than the library wood.
+export function makeTrouserTexture() {
+    const w = 256, h = 256;
+    const canvas = makeCanvas(w, h);
+    const ctx = canvas.getContext("2d");
+    const rng = mulberry32(71);
+    ctx.fillStyle = "#8a7256";
+    ctx.fillRect(0, 0, w, h);
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 340; i++) {
+        const x = rng() * w;
+        const y = rng() * h;
+        const len = 6 + rng() * 10;
+        const dark = rng() < 0.5;
+        ctx.strokeStyle = dark
+            ? "rgba(0, 0, 0, " + (0.06 + rng() * 0.07) + ")"
+            : "rgba(200, 172, 130, " + (0.06 + rng() * 0.07) + ")";
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + len, y + len);
+        ctx.stroke();
+    }
+    for (let i = 0; i < 8; i++) {
+        const x = rng() * w;
+        const grad = ctx.createLinearGradient(x - 12, 0, x + 12, 0);
+        grad.addColorStop(0, "rgba(0, 0, 0, 0)");
+        grad.addColorStop(0.5, "rgba(0, 0, 0, " + (0.1 + rng() * 0.12) + ")");
+        grad.addColorStop(1, "rgba(0, 0, 0, 0)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(x - 12, 0, 24, h);
+    }
+    grain(ctx, w, h, 700, rng, 0.04);
+    return asTexture(canvas, 1, 2);
+}
+
+// Shoe leather: near-black with a faint uneven sheen and creased toe streaks.
+export function makeLeatherTexture() {
+    const w = 128, h = 128;
+    const canvas = makeCanvas(w, h);
+    const ctx = canvas.getContext("2d");
+    const rng = mulberry32(83);
+    ctx.fillStyle = "#8f857a";
+    ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < 40; i++) {
+        const x = rng() * w;
+        const y = rng() * h;
+        const r = 6 + rng() * 18;
+        const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+        grad.addColorStop(0, "rgba(220, 210, 200, " + (0.06 + rng() * 0.08) + ")");
+        grad.addColorStop(1, "rgba(220, 210, 200, 0)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+    for (let i = 0; i < 60; i++) {
+        ctx.strokeStyle = "rgba(0, 0, 0, " + (0.1 + rng() * 0.15) + ")";
+        ctx.beginPath();
+        const x = rng() * w;
+        const y = rng() * h;
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + (rng() - 0.5) * 14, y + (rng() - 0.5) * 6);
+        ctx.stroke();
+    }
+    grain(ctx, w, h, 300, rng, 0.05);
+    return asTexture(canvas, 1, 1);
 }
 
 // Soft radial sprite (lamp halos, dust motes).
@@ -302,6 +381,131 @@ export function makeRayTexture() {
     ctx.globalCompositeOperation = "destination-out";
     ctx.fillStyle = across;
     ctx.fillRect(0, 0, w, h);
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+}
+
+// Upper-wall plaster: warm, aged, faintly mottled so the walls read as a
+// surface (not a flat colour) at room distances under bloom.
+export function makeWallTexture() {
+    const w = 256, h = 256;
+    const canvas = makeCanvas(w, h);
+    const ctx = canvas.getContext("2d");
+    const rng = mulberry32(61);
+    ctx.fillStyle = "#5a4630";
+    ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < 240; i++) {
+        const r = 6 + rng() * 34;
+        const l = 24 + rng() * 14;
+        ctx.fillStyle = "hsla(" + (26 + rng() * 12) + ", 30%, " + l + "%, 0.06)";
+        ctx.beginPath();
+        ctx.arc(rng() * w, rng() * h, r, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.12)";
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 12; i++) {
+        const x = rng() * w;
+        ctx.beginPath();
+        ctx.moveTo(x, rng() * h * 0.2);
+        ctx.lineTo(x + (rng() - 0.5) * 30, h * (0.6 + rng() * 0.4));
+        ctx.stroke();
+    }
+    grain(ctx, w, h, 700, rng, 0.05);
+    return asTexture(canvas, 4, 2);
+}
+
+// Wainscot / panelling wood: horizontal-friendly darker grain for the lower
+// wall dado. Distinct hue from the case wood so panelling reads as joinery.
+export function makePanelTexture() {
+    const w = 256, h = 256;
+    const canvas = makeCanvas(w, h);
+    const ctx = canvas.getContext("2d");
+    const rng = mulberry32(43);
+    ctx.fillStyle = "#2a1a0d";
+    ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < 120; i++) {
+        const y = rng() * h;
+        const light = 8 + rng() * 12;
+        ctx.strokeStyle = "hsla(" + (24 + rng() * 10) + ", 40%, " + light + "%, " +
+            (0.2 + rng() * 0.35) + ")";
+        ctx.lineWidth = 1 + rng() * 2;
+        ctx.beginPath();
+        ctx.moveTo(-8, y);
+        ctx.bezierCurveTo(
+            w * 0.33, y + (rng() - 0.5) * 12,
+            w * 0.66, y + (rng() - 0.5) * 12,
+            w + 8, y + (rng() - 0.5) * 8);
+        ctx.stroke();
+    }
+    grain(ctx, w, h, 500, rng, 0.05);
+    return asTexture(canvas);
+}
+
+// Framed picture: an aged mezzotint-ish portrait/landscape suggestion inside a
+// mount. Deliberately dim and low-contrast so it reads as decor, not signage.
+export function makePictureTexture(seed) {
+    const w = 200, h = 256;
+    const canvas = makeCanvas(w, h);
+    const ctx = canvas.getContext("2d");
+    const rng = mulberry32(seed >>> 0);
+    ctx.fillStyle = "#0d0a07";
+    ctx.fillRect(0, 0, w, h);
+    const grad = ctx.createRadialGradient(
+        w / 2, h * 0.42, 8, w / 2, h * 0.42, h * 0.6);
+    grad.addColorStop(0, "hsl(" + (28 + rng() * 14) + ", 28%, 20%)");
+    grad.addColorStop(0.6, "hsl(" + (26 + rng() * 10) + ", 24%, 11%)");
+    grad.addColorStop(1, "#0a0705");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+    if (rng() < 0.5) {
+        ctx.fillStyle = "rgba(20, 14, 9, 0.7)";
+        ctx.beginPath();
+        ctx.ellipse(w / 2, h * 0.5, w * 0.22, h * 0.28, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "hsla(" + (30 + rng() * 12) + ", 22%, 24%, 0.5)";
+        ctx.beginPath();
+        ctx.ellipse(w / 2, h * 0.4, w * 0.11, h * 0.13, 0, 0, Math.PI * 2);
+        ctx.fill();
+    } else {
+        ctx.strokeStyle = "hsla(30, 20%, 22%, 0.5)";
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 5; i++) {
+            const y = h * (0.55 + i * 0.08);
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            for (let x = 0; x <= w; x += 20) {
+                ctx.lineTo(x, y - Math.sin(x * 0.05 + i) * 6 * rng());
+            }
+            ctx.stroke();
+        }
+    }
+    grain(ctx, w, h, 900, rng, 0.06);
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    return tex;
+}
+
+// Sconce emissive plate: a warm glowing lozenge on a dark backing, used with
+// MeshBasicMaterial (fog off) so bloom picks it up as a light fixture without a
+// real PointLight.
+export function makeSconceTexture() {
+    const size = 128;
+    const canvas = makeCanvas(size, size);
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, size, size);
+    const grad = ctx.createRadialGradient(
+        size / 2, size * 0.44, 2, size / 2, size * 0.44, size * 0.5);
+    grad.addColorStop(0, "rgba(255, 226, 170, 1)");
+    grad.addColorStop(0.4, "rgba(255, 180, 110, 0.75)");
+    grad.addColorStop(1, "rgba(60, 30, 10, 0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.ellipse(size / 2, size * 0.44, size * 0.24, size * 0.42, 0, 0, Math.PI * 2);
+    ctx.fill();
     const tex = new THREE.CanvasTexture(canvas);
     tex.colorSpace = THREE.SRGBColorSpace;
     return tex;

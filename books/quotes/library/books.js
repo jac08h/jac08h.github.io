@@ -150,33 +150,14 @@ export function buildBooks(scene, bays, decorBays, booksData) {
         return overflow;
     }
 
-    // Each year's aisle has two shelved faces; split the year's books across
-    // them, letting overflow from one face spill onto the next.
-    const yearOrder = [];
-    const facesByYear = {};
+    // Each shelf face holds exactly one year's books.
     bays.forEach(function (bay) {
-        if (!facesByYear[bay.year]) {
-            facesByYear[bay.year] = [];
-            yearOrder.push(bay.year);
+        const leftover = placeBay(bay, byYear[bay.year] || []);
+        if (leftover.length > 0) {
+            console.warn("Library: " + leftover.length + " books of " +
+                bay.year + " did not fit their shelf face");
         }
-        facesByYear[bay.year].push(bay);
     });
-
-    let leftover = [];
-    yearOrder.forEach(function (year) {
-        const faces = facesByYear[year];
-        const reals = byYear[year] || [];
-        const perFace = Math.ceil(reals.length / faces.length);
-        let carry = [];
-        faces.forEach(function (bay, f) {
-            const chunk = carry.concat(reals.slice(f * perFace, (f + 1) * perFace));
-            carry = placeBay(bay, chunk);
-        });
-        leftover = leftover.concat(carry);
-    });
-    if (leftover.length > 0) {
-        console.warn("Library: " + leftover.length + " books did not fit shelves");
-    }
 
     decorBays.forEach(function (bay) {
         placeBay(bay, []);

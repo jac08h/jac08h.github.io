@@ -1,210 +1,139 @@
 import * as THREE from "three";
+import { skinnedLimb, buildShoe, buildHips } from "./bodymesh.js";
+import { makeTrouserTexture, makeLeatherTexture } from "./textures.js";
 
-const UPPER_ARM = 0.28;
-const FOREARM = 0.27;
+const THIGH = 0.46;
+const CALF = 0.42;
+const HALF_STANCE = 0.125;
 
-const CLOTH_TROUSERS = 0x3d2e1d;
-const CLOTH_JACKET = 0x2c2318;
-const SKIN = 0x8f6f4f;
-const SHOE = 0x0d0a07;
+const CLOTH_TROUSERS = 0x4a3927;
+const SHOE = 0x100c08;
 
-function limbMaterial(color) {
+// Elliptical cross-section profile down one leg (y down from the hip).
+// {y, rx, rz, zOff}: rx half-width, rz half-depth, zOff fore/aft centre shift
+// of the ring (toe points -z, so negative zOff = forward, positive = back).
+// The thigh is the most massive with a forward quad bulge (negative zOff); the
+// calf muscle bulges at the upper-back of the shin (positive zOff); everything
+// tapers to a slim ankle, then flares into a trouser cuff that overlaps the
+// shoe top. Muscle shapes are softened for trouser drape.
+const LEG_STATIONS = [
+    { y: 0, rx: 0.058, rz: 0.06, zOff: 0.0 },
+    { y: -0.05, rx: 0.066, rz: 0.069, zOff: -0.004 },
+    { y: -0.18, rx: 0.073, rz: 0.079, zOff: -0.01 },
+    { y: -THIGH + 0.05, rx: 0.07, rz: 0.075, zOff: -0.008 },
+    { y: -THIGH, rx: 0.064, rz: 0.07, zOff: 0.0 },
+    { y: -THIGH - 0.04, rx: 0.062, rz: 0.07, zOff: 0.006 },
+    { y: -THIGH - 0.15, rx: 0.06, rz: 0.075, zOff: 0.014 },
+    { y: -THIGH - CALF + 0.14, rx: 0.05, rz: 0.055, zOff: 0.006 },
+    { y: -THIGH - CALF + 0.05, rx: 0.043, rz: 0.047, zOff: 0.0 },
+    { y: -THIGH - CALF + 0.01, rx: 0.054, rz: 0.059, zOff: -0.006 },
+    { y: -THIGH - CALF, rx: 0.056, rz: 0.061, zOff: -0.008 }
+];
+
+function trouserMaterial() {
+    const tex = makeTrouserTexture();
     return new THREE.MeshStandardMaterial({
-        color: color, roughness: 0.85, metalness: 0.0
+        color: CLOTH_TROUSERS, roughness: 0.96, metalness: 0.0, map: tex
     });
 }
 
-function box(w, h, d, material) {
-    const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
-    mesh.frustumCulled = false;
-    return mesh;
+function shoeMaterial() {
+    const tex = makeLeatherTexture();
+    return new THREE.MeshStandardMaterial({
+        color: SHOE, roughness: 0.52, metalness: 0.0, map: tex
+    });
 }
 
-// One leg: hip pivot group -> thigh box -> knee pivot group -> shin box +
-// shoe. Pivots sit at the top of each segment so rotation.x swings them.
+// One leg: skinned thigh+calf tube with hip (upper) and knee (lower) bones,
+// a rigid shoe on an ankle group at the calf end. Rotation.x on the bones
+// swings them exactly like the old pivot groups.
 function buildLeg(side, trousers, shoes) {
-    const hip = new THREE.Group();
-    hip.position.set(side * 0.11, 0, 0);
+    const root = new THREE.Group();
+    root.position.set(side * HALF_STANCE, 0, 0);
 
-    const thigh = box(0.14, 0.46, 0.15, trousers);
-    thigh.position.y = -0.23;
-    hip.add(thigh);
+    const limb = skinnedLimb(LEG_STATIONS, -THIGH, trousers);
+    root.add(limb.mesh);
 
-    const knee = new THREE.Group();
-    knee.position.y = -0.46;
-    hip.add(knee);
+    const ankle = buildShoe(shoes);
+    ankle.position.y = -CALF;
+    limb.lower.add(ankle);
 
-    const shin = box(0.12, 0.42, 0.13, trousers);
-    shin.position.y = -0.21;
-    knee.add(shin);
-
-    const shoe = box(0.12, 0.09, 0.28, shoes);
-    shoe.position.set(0, -0.44, -0.07);
-    knee.add(shoe);
-
-    return { hip: hip, knee: knee };
+    return { root: root, hip: limb.upper, knee: limb.lower, ankle: ankle };
 }
 
-// One arm: shoulder pivot group -> upper-arm box -> elbow pivot group ->
-// forearm box -> hand box. Local -y runs down the limb at rest.
-function buildArm(side, jacket, skin) {
-    const shoulder = new THREE.Group();
-    shoulder.position.set(side * 0.19, -0.2, -0.02);
-
-    const upper = box(0.075, UPPER_ARM, 0.08, jacket);
-    upper.position.y = -UPPER_ARM / 2;
-    shoulder.add(upper);
-
-    const elbow = new THREE.Group();
-    elbow.position.y = -UPPER_ARM;
-    shoulder.add(elbow);
-
-    const forearm = box(0.065, FOREARM, 0.065, jacket);
-    forearm.position.y = -FOREARM / 2;
-    elbow.add(forearm);
-
-    const hand = box(0.07, 0.1, 0.042, skin);
-    hand.position.y = -FOREARM - 0.035;
-    elbow.add(hand);
-
-    return { shoulder: shoulder, elbow: elbow, hand: hand };
-}
-
-// Stylized low-poly first-person body. Legs and torso hang off the yaw node
-// (they turn with the player but not with the look pitch); arms hang off the
-// pitch node so they follow the view like FPS hands. All meshes are excluded
-// from raycasting by never being added to raycastTargets.
+// Stylized first-person body, CS-style: legs only, no torso or arms. They
+// hang off the yaw node (they turn with the player but not with the look
+// pitch) and are visible when looking down; a trouser hip yoke connects the
+// thigh tops so nothing floats. Walk cycle with foot roll and hip sway. All
+// meshes are frustumCulled = false and are never added to raycastTargets.
 export function createBody(player) {
-    const trousers = limbMaterial(CLOTH_TROUSERS);
-    const jacket = limbMaterial(CLOTH_JACKET);
-    const skin = limbMaterial(SKIN);
-    const shoes = limbMaterial(SHOE);
+    const trousers = trouserMaterial();
+    const shoes = shoeMaterial();
 
-    // Lower body, slightly behind the eye axis so it is visible when
-    // pitching down without clipping the near plane.
+    // Hip anchor, behind the eye axis so the legs read as receding forward
+    // when pitching down without clipping the near plane. Kept low so the
+    // thigh tops sit well below the near cone.
     const hips = new THREE.Group();
-    hips.position.set(0, 0.96, 0.14);
+    hips.position.set(0, 0.92, 0.16);
     player.rigYaw.add(hips);
 
-    const pelvis = box(0.3, 0.16, 0.19, trousers);
-    pelvis.position.y = 0.02;
-    hips.add(pelvis);
-
-    const chest = box(0.3, 0.3, 0.14, jacket);
-    chest.position.set(0, 0.24, 0.08);
-    hips.add(chest);
+    const yoke = buildHips(trousers, HALF_STANCE);
+    hips.add(yoke);
 
     const legs = [buildLeg(-1, trousers, shoes), buildLeg(1, trousers, shoes)];
     legs.forEach(function (leg) {
-        hips.add(leg.hip);
+        hips.add(leg.root);
     });
 
-    const arms = [buildArm(-1, jacket, skin), buildArm(1, jacket, skin)];
-    arms.forEach(function (arm) {
-        player.rigPitch.add(arm.shoulder);
+    // Idle stance: thighs lean slightly forward with a soft knee bend so the
+    // first-person down-view sees the legs receding rather than the thigh
+    // caps; a few degrees of out-toe and stance splay reads as natural.
+    const IDLE_HIP = 0.19;
+    const IDLE_KNEE = -0.13;
+    legs.forEach(function (leg, i) {
+        const side = i === 0 ? -1 : 1;
+        leg.root.rotation.z = side * 0.02;
+        leg.baseYaw = side * 0.06;
+        leg.root.rotation.y = leg.baseYaw;
+        leg.hip.rotation.x = IDLE_HIP;
+        leg.knee.rotation.x = IDLE_KNEE;
     });
-
-    // Rest pose: arms forward-down, forearms raised so the hands sit low
-    // in the view.
-    const rest = {
-        shoulderX: 0.7,
-        shoulderZ: 0.12,
-        elbowX: 1.35
-    };
-
-    // Per-arm IK override: null, or {target: Vector3 (rigPitch-local),
-    // blend: 0..1} set by the grab animation.
-    const ikState = [null, null];
-
-    const tmpDir = new THREE.Vector3();
-    const bendRef = new THREE.Vector3();
-    const bendAxis = new THREE.Vector3();
-    const bendDir = new THREE.Vector3();
-    const elbowPos = new THREE.Vector3();
-    const boneDir = new THREE.Vector3();
-    const qShoulder = new THREE.Quaternion();
-    const qForearm = new THREE.Quaternion();
-    const yAxisNeg = new THREE.Vector3(0, -1, 0);
-
-    // Analytic two-bone IK in rigPitch space. The elbow is placed
-    // explicitly: on the shoulder-target line at the law-of-cosines
-    // projection, offset perpendicular toward a down-and-out pole so the
-    // bend looks natural; the forearm then points exactly at the target.
-    function solveArm(arm, side, target) {
-        const a = UPPER_ARM;
-        const b = FOREARM + 0.07;
-        const shoulderPos = arm.shoulder.position;
-        tmpDir.copy(target).sub(shoulderPos);
-        const d = THREE.MathUtils.clamp(tmpDir.length(), 0.1, a + b - 0.01);
-        tmpDir.normalize();
-
-        const proj = (a * a + d * d - b * b) / (2 * d);
-        const height = Math.sqrt(Math.max(0, a * a - proj * proj));
-        bendRef.set(side * 0.6, -1, 0.15);
-        bendAxis.crossVectors(tmpDir, bendRef);
-        if (bendAxis.lengthSq() < 1e-6) {
-            bendAxis.set(1, 0, 0);
-        }
-        bendAxis.normalize();
-        bendDir.crossVectors(bendAxis, tmpDir).normalize();
-        elbowPos.copy(shoulderPos)
-            .addScaledVector(tmpDir, proj)
-            .addScaledVector(bendDir, height);
-
-        boneDir.copy(elbowPos).sub(shoulderPos).normalize();
-        qShoulder.setFromUnitVectors(yAxisNeg, boneDir);
-        arm.shoulder.quaternion.copy(qShoulder);
-
-        boneDir.copy(target).sub(elbowPos).normalize();
-        qForearm.setFromUnitVectors(yAxisNeg, boneDir);
-        arm.elbow.quaternion.copy(qShoulder).invert().multiply(qForearm);
-    }
-
-    function applyRest(arm, side, t, speedFactor) {
-        const sway = Math.sin(t * 1.7 + side) * 0.02 +
-            Math.sin(player.state.bobPhase + side * Math.PI) * 0.05 * speedFactor;
-        arm.shoulder.rotation.set(
-            rest.shoulderX + sway, 0, side * rest.shoulderZ);
-        arm.elbow.rotation.set(rest.elbowX, 0, side * 0.06);
-    }
 
     return {
-        arms: arms,
-
-        // side: 0 = left, 1 = right. target is rigPitch-local; blend 0..1.
-        setArmIK: function (side, target, blend) {
-            ikState[side] = blend > 0.001 ? { target: target, blend: blend } : null;
-        },
-
-        update: function (dt, t) {
+        update: function () {
             const speed = player.state.speedFactor;
             const phase = player.state.bobPhase;
 
+            hips.rotation.z = Math.sin(phase) * 0.04 * speed;
+            // While walking the pelvis rides a touch higher so the trailing
+            // foot clears the floor on toe-off, then bobs twice per stride:
+            // up when a leg is planted under it, down as the legs spread.
+            hips.position.y = 0.92 + 0.02 * speed -
+                (0.5 + 0.5 * Math.cos(phase * 2)) * 0.03 * speed;
+
             legs.forEach(function (leg, i) {
                 const legPhase = phase + i * Math.PI;
-                const swing = Math.sin(legPhase) * 0.55 * speed;
-                leg.hip.rotation.x = swing;
-                const lift = Math.max(0, Math.sin(legPhase + Math.PI * 0.55));
-                leg.knee.rotation.x = -lift * 0.85 * speed;
-            });
+                const s = Math.sin(legPhase);
+                const swing = s * 0.36 * speed;
+                // Blend the relaxed idle bend out as the stride ramps up.
+                const idleHip = IDLE_HIP * (1 - speed);
+                leg.hip.rotation.x = idleHip + swing;
 
-            arms.forEach(function (arm, i) {
-                const side = i === 0 ? -1 : 1;
-                const ik = ikState[i];
-                if (ik && ik.blend >= 1) {
-                    solveArm(arm, side, ik.target);
-                } else if (ik) {
-                    applyRest(arm, side, t, speed);
-                    const restShoulder = arm.shoulder.quaternion.clone();
-                    const restElbow = arm.elbow.quaternion.clone();
-                    solveArm(arm, side, ik.target);
-                    arm.shoulder.quaternion.slerpQuaternions(
-                        restShoulder, arm.shoulder.quaternion, ik.blend);
-                    arm.elbow.quaternion.slerpQuaternions(
-                        restElbow, arm.elbow.quaternion, ik.blend);
-                } else {
-                    applyRest(arm, side, t, speed);
-                }
+                // Knee flexes as the leg passes behind and lifts into the
+                // forward swing; a small floor of bend prevents a locked,
+                // hyperextended stance leg.
+                const lift = Math.max(0, Math.sin(legPhase + Math.PI * 0.35));
+                const kneeRot = IDLE_KNEE * (1 - speed) -
+                    (lift * 0.7 + 0.06) * speed;
+                leg.knee.rotation.x = kneeRot;
+
+                // Ankle: mostly counter the hip+knee so the sole stays level,
+                // with a toe-off push as the leg trails (leg back, s<0) and a
+                // slight dorsiflex for heel-strike as it swings forward.
+                const toeOff = Math.max(0, -s);
+                const heelStrike = Math.max(0, s);
+                leg.ankle.rotation.x = -(idleHip + swing + kneeRot) * 0.7 -
+                    toeOff * 0.16 * speed + heelStrike * 0.14 * speed;
             });
         }
     };
