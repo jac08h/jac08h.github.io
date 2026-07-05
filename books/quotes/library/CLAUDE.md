@@ -1,13 +1,17 @@
 # The Library — orientation for agents
 
-A **first-person walkable library** (three.js): double-sided bookshelf stacks,
-one aisle per year, WASD + mouse-look via pointer lock. Aim the center reticle
-at a spine within reach and click (or E): a low-poly arm reaches out (two-bone
-IK), the book slides off the shelf and flies to your face, and a **two-page
-reading overlay** opens — the quote laid out as real page text,
-marker-highlighted, surrounded by blurred illegible filler, auto-fit so it never
-scrolls. Closing the book animates it back into its slot. A stylized body is
-visible: hands low in view, legs when you look down, walk-cycle while moving.
+A **first-person walkable library** (three.js): a real room (walls, ceiling,
+architecture) with double-sided bookshelf stacks — each shelf FACE holds one
+year, so an aisle shows two consecutive years (one per side) — WASD +
+mouse-look via pointer lock. The player starts in a small vestibule; entering
+swings double doors open into the library with a short scripted walk-in before
+control is handed over. Aim the center reticle at a spine within reach and
+click (or E): the book slides off the shelf and flies to your face (no arm/
+hand IK — legs only), and a **two-page reading overlay** opens — the quote
+laid out as real page text, marker-highlighted, surrounded by blurred
+illegible filler, auto-fit so it never scrolls. Closing the book animates it
+back into its slot. A stylized body is visible: legs only (CS1.6-style — no
+torso, no arms), walk-cycle while moving, visible when you look down.
 
 Desktop-only: coarse-pointer / no-pointer-lock devices get the `#fallback`
 links instead of booting the renderer.
@@ -18,26 +22,44 @@ links instead of booting the renderer.
   aim label, teleport fade, HUD, year rail, fallback, overlay DOM. ES module
   with an import map pointing at `vendor/`. No build step.
 - `library.js` — entry point: fallback gate, renderer/composer (bloom), data
-  fetch, wiring, reticle picking + halo highlight, enter/pause flow, year-rail
+  fetch, wiring, reticle picking + halo highlight, enter/pause flow (vestibule
+  → scripted door-opening + walk-in sequence → free control), year-rail
   teleport, frame loop, `window.__library` test hooks.
-- `stacks.js` — the room: `STACKS` constants, double-sided units (two rotated
-  cases back-to-back, so books face ±x into the aisles), aisle year signs,
-  walls/floor/entry area with reading table, pendants, dust, collision AABBs,
-  spawn point.
+- `stacks.js` — the room layout: `STACKS` constants, double-sided units (two
+  rotated cases back-to-back, so books face ±x into the aisles), one year per
+  shelf face (aisle `i` = `years[2i]` left / `years[2i+1]` right), paired
+  year-plaque signs with side-pointing triangles, reading table, pendants,
+  dust, collision AABBs. Delegates room architecture to `room.js` and the
+  entry vestibule/doors to `entry.js`.
+- `room.js` — room architecture: floor, runner rug, ceiling (coffered beams),
+  all four walls with wainscot/trim/pilasters, sconces, framed pictures, wall
+  clock, fog tuning. `buildRoom(scene, floorTex, woodTex, bounds, doorway)` →
+  `{ colliders }`; cuts a clean opening in the +z wall when `doorway` is set.
+- `entry.js` — vestibule + double doors behind the +z wall.
+  `buildEntry(scene, woodTex, doorX, zWall, colliders)` →
+  `{ doorway, setOpen(k), spawn, insideSpawn }`; `setOpen` swings the doors
+  (0 closed → 1 open into the library) and swaps the closed-door collider for
+  open-panel colliders the first time it reaches 1.
 - `player.js` — pointer lock, WASD (+Shift run), circle-vs-AABB collision
   push-out (substepped in `nudge`), head bob, yaw/pitch rig
-  (`rigYaw` at the feet → `rigPitch` at eye height → camera).
-- `body.js` — low-poly legs/torso on `rigYaw`, arms on `rigPitch`, walk
-  cycle, analytic two-bone arm IK (`setArmIK`).
-- `grab.js` — grab state machine (idle → reaching → sliding → flying →
-  holding → returning); reparents the book group to the scene and restores
-  the exact parent/local transform on return; `openInstant`/instant close
-  for tests.
-- `books.js` — places spines per aisle face (a year's books split across the
-  two faces of its aisle) plus filler `InstancedMesh`.
+  (`rigYaw` at the feet → `rigPitch` at eye height → camera), `setEnabled(on)`
+  to freeze input during the scripted entry walk-in.
+- `body.js` — skinned legs only on `rigYaw` (no torso, no arms/hands): hip
+  yoke/pelvis, walk cycle with foot roll and hip sway driven by
+  `player.state.speedFactor` / `bobPhase`. Geometry builders (elliptical
+  two-bone limb tubes, pelvis, shoes) live in `bodymesh.js`.
+- `grab.js` — grab state machine (idle → sliding → flying → holding →
+  returning; no "reaching" — there's no arm to reach with); reparents the book
+  group to the scene and restores the exact parent/local transform on return;
+  `openInstant`/instant close for tests.
+- `books.js` — places one year's spines per shelf face plus filler
+  `InstancedMesh`.
 - `overlay.js` — the opened two-page spread. Highlight + blurred-filler
   layout and `fitType()` (shrinks font until no overflow) live here.
-- `textures.js` — procedural canvas textures + `leatherFor`/`hsl` helpers.
+- `textures.js` — procedural canvas textures (wood, floor, rug, spines, year
+  plaques with side-pointing triangle, trouser cloth, shoe leather, wall
+  plaster, wainscot panel, framed pictures, sconce glow) + `leatherFor`/`hsl`
+  helpers.
 - `vendor/` — pinned three.js bundle. **Committed via `git add -f`** past the
   repo's `vendor/` ignore rule; keep it that way so the view runs as checked
   out.
@@ -70,9 +92,17 @@ Test hooks on `window.__library` — **none may require pointer lock** (headless
 Chrome can refuse it); they drive the player via teleports instead:
 
 - `state()` → `{ready, books, entered, locked, player:{x,z,yaw,pitch},
-  activeYear, aimedBookId, grabState, overlayOpen}`
-- `enter()` — hide the intro gate (no lock)
-- `gotoYear(y)` — teleport to that year's aisle mouth
+  activeYear, aimedBookId, grabState, overlayOpen, doorsOpen, entering}`
+  (`activeYear` is the nearest shelf FACE's year, not the aisle's; `doorsOpen`
+  is 0..1, `entering` is true while the scripted walk-in sequence runs)
+- `enter()` — hide the intro gate (no lock), doors open instantly, player
+  teleported straight to `insideSpawn` — every pre-existing test flows through
+  this and expects immediate control
+- `enterAnimated()` — runs the real vestibule → door-swing → walk-in sequence
+  (no pointer lock required), for verifying the entry animation itself; poll
+  `state().entering` until it goes false
+- `gotoYear(y)` — teleport to the aisle mouth holding that year (on either
+  face)
 - `teleportTo(x, z, yaw, pitch)`, `nudge(dx, dz)` (substepped through the
   collision solver), `colliders()` (AABB list), `setKeys({KeyW:true, ...})`
   (drives real movement, walk cycle and head bob)
@@ -99,3 +129,11 @@ Gotchas learned the hard way:
 - Pointer lock re-acquisition after the overlay closes can be rejected by
   Chrome's cooldown — the pause veil ("click to resume") is the recovery
   path, never assume relock succeeded.
+- Chrome caches ES modules by URL: a plain `rodney open` or a `?cb=` query on
+  the top page does **not** bust it. After editing any `.js` module, run
+  `rodney clear-cache` then `rodney reload --hard`, or you'll screenshot/test
+  stale code.
+- If multiple agents run rodney concurrently against the same machine, the
+  default global session can be hijacked mid-test by another agent's
+  navigation. Isolate with `RODNEY_HOME=/some/unique/dir` per agent, or
+  serialize browser use.

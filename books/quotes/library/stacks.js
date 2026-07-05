@@ -3,11 +3,15 @@ import {
     makeWoodTexture, makeFloorTexture, makeRugTexture, makePlaqueTexture,
     makeGlowTexture, mulberry32
 } from "./textures.js";
+import { buildRoom } from "./room.js";
+import { buildEntry } from "./entry.js";
 
 // Stack-room layout constants (meters). Double-sided shelf units run along -z,
-// perpendicular to a main walkway at z ∈ [0, walkwayDepth]; one aisle per
-// year between consecutive units. An entry area with a reading table sits
-// beyond the walkway at higher z.
+// perpendicular to a main walkway at z ∈ [0, walkwayDepth]; each aisle holds
+// two years, one per facing shelf face (left face and right face), so a unit
+// is genuinely double-sided (one year on each of its two faces). An entry
+// area with a reading table sits beyond the walkway at higher z.
+
 export const STACKS = {
     unitLength: 4.6,
     unitThickness: 0.74,
@@ -104,12 +108,15 @@ function buildUnit(scene, woodTex, xCenter) {
     return faces;
 }
 
-// Brass-plaque year sign hanging over an aisle mouth, facing the entry.
-function buildAisleSign(scene, year, x) {
+// Brass-plaque year sign hanging over an aisle mouth, facing the entry. One
+// plaque per shelf face: shifted toward its face and drawn with a triangle
+// (side -1 left / +1 right) pointing at the shelf it labels.
+function buildAisleSign(scene, year, aisleX, side) {
+    const x = aisleX + side * 0.5;
     const sign = new THREE.Mesh(
-        new THREE.PlaneGeometry(1.05, 0.38),
+        new THREE.PlaneGeometry(0.88, 0.32),
         new THREE.MeshStandardMaterial({
-            map: makePlaqueTexture(year), roughness: 0.5, metalness: 0.3,
+            map: makePlaqueTexture(year, side), roughness: 0.5, metalness: 0.3,
             side: THREE.DoubleSide
         }));
     sign.position.set(x, 2.86, 0.3);
@@ -119,78 +126,12 @@ function buildAisleSign(scene, year, x) {
     const cordMat = new THREE.MeshStandardMaterial({ color: 0x0a0705, roughness: 0.9 });
     const cordLen = STACKS.ceiling - 3.05;
     const cordGeo = new THREE.CylinderGeometry(0.008, 0.008, cordLen, 5);
-    [-0.42, 0.42].forEach(function (dx) {
+    [-0.35, 0.35].forEach(function (dx) {
         const cord = new THREE.Mesh(cordGeo, cordMat);
         cord.position.set(x + dx, 3.05 + cordLen / 2, 0.3);
         scene.add(cord);
     });
     return sign;
-}
-
-function buildRoomShell(scene, floorTex, woodTex, bounds) {
-    const length = bounds.xMax - bounds.xMin;
-    const depth = bounds.zMax - bounds.zMin;
-    const xMid = (bounds.xMin + bounds.xMax) / 2;
-    const zMid = (bounds.zMin + bounds.zMax) / 2;
-
-    floorTex.repeat.set(Math.round(depth / 3.5), Math.round(length / 2.6));
-    const floor = new THREE.Mesh(
-        new THREE.PlaneGeometry(length, depth),
-        new THREE.MeshStandardMaterial({
-            map: floorTex, roughness: 0.32, metalness: 0.0
-        }));
-    floor.rotation.x = -Math.PI / 2;
-    floor.rotation.z = Math.PI / 2;
-    floor.position.set(xMid, 0, zMid);
-    scene.add(floor);
-
-    // Runner rug along the walkway.
-    const rug = new THREE.Mesh(
-        new THREE.PlaneGeometry(1.8, length - 2),
-        new THREE.MeshStandardMaterial({
-            map: makeRugTexture(), roughness: 0.94, metalness: 0.0
-        }));
-    rug.rotation.x = -Math.PI / 2;
-    rug.rotation.z = Math.PI / 2;
-    rug.position.set(xMid, 0.012, STACKS.walkwayDepth / 2 + 0.3);
-    scene.add(rug);
-
-    const ceilMat = new THREE.MeshStandardMaterial({
-        color: 0x140d07, roughness: 0.95
-    });
-    const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(length, depth), ceilMat);
-    ceiling.rotation.x = Math.PI / 2;
-    ceiling.rotation.z = Math.PI / 2;
-    ceiling.position.set(xMid, STACKS.ceiling, zMid);
-    scene.add(ceiling);
-
-    const wallMat = new THREE.MeshStandardMaterial({
-        color: 0x1a110a, roughness: 0.9
-    });
-
-    // Wall behind the stacks (-z) and the entry wall behind the table (+z).
-    const stackWall = new THREE.Mesh(
-        new THREE.PlaneGeometry(length, STACKS.ceiling), wallMat);
-    stackWall.position.set(xMid, STACKS.ceiling / 2, bounds.zMin);
-    scene.add(stackWall);
-
-    const entryWall = new THREE.Mesh(
-        new THREE.PlaneGeometry(length, STACKS.ceiling), wallMat);
-    entryWall.position.set(xMid, STACKS.ceiling / 2, bounds.zMax);
-    entryWall.rotation.y = Math.PI;
-    scene.add(entryWall);
-    const rail = new THREE.Mesh(
-        new THREE.BoxGeometry(length, 0.1, 0.06), woodMaterial(woodTex));
-    rail.position.set(xMid, 1.1, bounds.zMax - 0.04);
-    scene.add(rail);
-
-    [bounds.xMin, bounds.xMax].forEach(function (x) {
-        const endWall = new THREE.Mesh(
-            new THREE.PlaneGeometry(depth, STACKS.ceiling), wallMat);
-        endWall.position.set(x, STACKS.ceiling / 2, zMid);
-        endWall.rotation.y = x === bounds.xMin ? Math.PI / 2 : -Math.PI / 2;
-        scene.add(endWall);
-    });
 }
 
 // Reading table with a couple of stacked books and a small brass lamp.
@@ -345,11 +286,12 @@ function buildDust(scene, bounds) {
     };
 }
 
-// Builds the whole static stack room. One aisle per year: the aisle between
-// units i and i+1 is shelved with year years[i] on both facing sides.
-// Returns bay descriptors (two per year, one per aisle face), decorative
-// outer-face bays, the year signs (raycastable, userData.year), collision
-// AABBs, aisle descriptors and the player spawn.
+// Builds the whole static stack room. Each shelf FACE holds exactly one year:
+// aisle i has years[2i] on its left face and years[2i+1] (if present) on its
+// right face, so a unit is genuinely double-sided. Returns bay descriptors
+// (one per assigned year-face), decorative filler-only bays, the year signs
+// (raycastable, userData.year), collision AABBs, aisle descriptors and the
+// player spawn.
 export function buildStacks(scene, years) {
     const woodTex = makeWoodTexture();
     const floorTex = makeFloorTexture();
@@ -358,7 +300,8 @@ export function buildStacks(scene, years) {
     scene.background = new THREE.Color(0x0a0605);
     scene.add(new THREE.HemisphereLight(0x584736, 0x0e0906, 0.65));
 
-    const unitCount = years.length + 1;
+    const aisleCount = Math.ceil(years.length / 2);
+    const unitCount = aisleCount + 1;
     const lastUnitX = (unitCount - 1) * STACKS.pitch;
     const bounds = {
         xMin: -(STACKS.unitThickness / 2 + STACKS.aisleWidth),
@@ -384,38 +327,49 @@ export function buildStacks(scene, years) {
     const bays = [];
     const plaques = [];
     const aisles = [];
-    years.forEach(function (year, i) {
-        const aisleX = i * STACKS.pitch + STACKS.pitch / 2;
-        // Left face of the aisle: unit i facing +x; right face: unit i+1
-        // facing -x.
-        [unitFaces[i][1], unitFaces[i + 1][-1]].forEach(function (group, f) {
-            bays.push({
-                year: year, index: i, face: f, group: group,
-                width: STACKS.unitLength, aisleX: aisleX
-            });
-        });
-        plaques.push(buildAisleSign(scene, year, aisleX));
-        aisles.push({ year: year, x: aisleX, mouthZ: 1.2 });
-    });
-
-    // Outer faces of the two end units hold decorative filler only.
     const decorBays = [
+        // Outer faces of the two end units hold decorative filler only.
         { year: null, group: unitFaces[0][-1], width: STACKS.unitLength },
         { year: null, group: unitFaces[unitCount - 1][1], width: STACKS.unitLength }
     ];
 
-    buildRoomShell(scene, floorTex, woodTex, bounds);
+    for (let i = 0; i < aisleCount; i++) {
+        const aisleX = i * STACKS.pitch + STACKS.pitch / 2;
+        // Left face: unit i facing +x. Right face: unit i+1 facing -x.
+        const leftGroup = unitFaces[i][1];
+        const rightGroup = unitFaces[i + 1][-1];
+        const leftYear = years[2 * i];
+        const rightYear = years[2 * i + 1];
 
-    const wallThick = 0.5;
-    colliders.push(
-        { minX: bounds.xMin - wallThick, maxX: bounds.xMin,
-            minZ: bounds.zMin - 1, maxZ: bounds.zMax + 1 },
-        { minX: bounds.xMax, maxX: bounds.xMax + wallThick,
-            minZ: bounds.zMin - 1, maxZ: bounds.zMax + 1 },
-        { minX: bounds.xMin - 1, maxX: bounds.xMax + 1,
-            minZ: bounds.zMin - wallThick, maxZ: bounds.zMin },
-        { minX: bounds.xMin - 1, maxX: bounds.xMax + 1,
-            minZ: bounds.zMax, maxZ: bounds.zMax + wallThick });
+        bays.push({
+            year: leftYear, group: leftGroup,
+            width: STACKS.unitLength, aisleX: aisleX
+        });
+        plaques.push(buildAisleSign(scene, leftYear, aisleX, -1));
+
+        const aisle = { years: [leftYear], x: aisleX, mouthZ: 1.2 };
+        if (rightYear !== undefined) {
+            bays.push({
+                year: rightYear, group: rightGroup,
+                width: STACKS.unitLength, aisleX: aisleX
+            });
+            plaques.push(buildAisleSign(scene, rightYear, aisleX, 1));
+            aisle.years.push(rightYear);
+        } else {
+            // Odd year count: the last aisle's right face is decorative.
+            decorBays.push({
+                year: null, group: rightGroup, width: STACKS.unitLength
+            });
+        }
+        aisles.push(aisle);
+    }
+
+    const doorX = aisles[Math.min(1, aisles.length - 1)].x;
+    const entry = buildEntry(scene, woodTex, doorX, bounds.zMax, colliders);
+    const room = buildRoom(scene, floorTex, woodTex, bounds, entry.doorway);
+    room.colliders.forEach(function (c) {
+        colliders.push(c);
+    });
 
     const tableZ = STACKS.walkwayDepth + 2.6;
     const tableLamp = buildEntryFurniture(scene, woodTex, xMid, tableZ);
@@ -444,11 +398,9 @@ export function buildStacks(scene, years) {
 
     const updateDust = buildDust(scene, bounds);
 
-    const spawn = { x: xMid - 2.2, z: STACKS.walkwayDepth + 3.4, yaw: 0 };
-
     return {
         bays: bays, decorBays: decorBays, plaques: plaques, lamps: lamps,
         updateDust: updateDust, colliders: colliders, aisles: aisles,
-        spawn: spawn, bounds: bounds
+        spawn: entry.spawn, bounds: bounds, entry: entry
     };
 }
