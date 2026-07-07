@@ -305,15 +305,8 @@ export function buildRoom(scene, floorTex, woodTex, bounds, doorway) {
         }));
     rug.rotation.x = -Math.PI / 2;
     rug.rotation.z = Math.PI / 2;
-    const rugZ = STACKS.walkwayDepth / 2 + 0.3;
-    rug.position.set(xMid, 0.012, rugZ);
+    rug.position.set(xMid, 0.012, STACKS.walkwayDepth / 2 + 0.3);
     root.add(rug);
-    // Footstep audio uses this to muffle steps taken on the runner. The
-    // 1.8 x (length-2) plane is rotated so its width runs along z.
-    const rugBounds = {
-        minX: xMid - (length - 2) / 2, maxX: xMid + (length - 2) / 2,
-        minZ: rugZ - 0.9, maxZ: rugZ + 0.9
-    };
 
     buildCeiling(root, bounds, beamMat);
 
@@ -459,5 +452,5 @@ export function buildRoom(scene, floorTex, woodTex, bounds, doorway) {
             minZ: bounds.zMax, maxZ: bounds.zMax + wallThick });
     }
 
-    return { colliders: colliders, rugBounds: rugBounds };
+    return { colliders: colliders };
 }

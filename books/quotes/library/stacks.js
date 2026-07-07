@@ -428,7 +428,6 @@ export function buildStacks(scene, years) {
     return {
         bays: bays, decorBays: decorBays, plaques: plaques, lamps: lamps,
         updateDust: updateDust, colliders: colliders, aisles: aisles,
-        spawn: entry.spawn, bounds: bounds, entry: entry,
-        rugBounds: room.rugBounds
+        spawn: entry.spawn, bounds: bounds, entry: entry
     };
 }

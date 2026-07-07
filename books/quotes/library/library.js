@@ -10,7 +10,6 @@ import { createOverlay } from "./overlay.js";
 import { createPlayer } from "./player.js";
 import { createBody } from "./body.js";
 import { createGrab } from "./grab.js";
-import { createAudio } from "./audio.js";
 
 const REACH = 2.0;
 
@@ -20,7 +19,6 @@ const pauseEl = document.getElementById("pause");
 const fadeEl = document.getElementById("fade");
 const bootEl = document.getElementById("boot");
 const controlsHintEl = document.getElementById("controls-hint");
-const yearBannerEl = document.getElementById("year-banner");
 const reticleEl = document.getElementById("reticle");
 const aimLabelEl = document.getElementById("aim-label");
 const railEl = document.getElementById("year-rail");
@@ -68,7 +66,6 @@ composer.addPass(new OutputPass());
 // --- Boot -------------------------------------------------------------------
 
 const overlay = createOverlay();
-const audio = createAudio();
 let stacks = null;
 let player = null;
 let body = null;
@@ -213,7 +210,6 @@ function enter() {
     }, 600);
     document.body.classList.add("playing");
     player.lock();
-    audio.enable();
     showControlsHint();
     if (reducedMotion) {
         finishEnterInstant();
@@ -234,8 +230,6 @@ function onLockChange(locked) {
     }
     const paused = !locked && !overlay.isOpen();
     pauseEl.classList.toggle("visible", paused);
-    // Quiet the room while paused or reading; restore on relock.
-    audio.setMuted(!locked);
 }
 
 // Relock recovery. Chrome enforces a short cooldown after exiting pointer
@@ -287,24 +281,6 @@ function updateRail() {
             activeAisle !== null &&
                 activeAisle.years.indexOf(Number(btn.textContent)) !== -1);
     });
-}
-
-let bannerYear = null;
-let bannerTimer = null;
-
-// Flash the given year large and centre-screen, briefly, as a wayfinding cue.
-// No-op if it's already the year on show.
-function flashYearBanner(year) {
-    if (!yearBannerEl || year == null || year === bannerYear) {
-        return;
-    }
-    bannerYear = year;
-    yearBannerEl.textContent = year;
-    yearBannerEl.classList.add("flash");
-    window.clearTimeout(bannerTimer);
-    bannerTimer = window.setTimeout(function () {
-        yearBannerEl.classList.remove("flash");
-    }, 1100);
 }
 
 function nearestAisle() {
@@ -476,28 +452,6 @@ window.addEventListener("resize", function () {
 let lastFrameTime = performance.now();
 let elapsedTime = 0;
 let readyFlagged = false;
-// Footstep tracking: a step fires each time the walk cycle crosses a foot
-// plant (every half-stride of bobPhase) while actually moving.
-let lastFootIndex = 0;
-
-function overRug(x, z) {
-    const r = stacks && stacks.rugBounds;
-    return !!r && x >= r.minX && x <= r.maxX && z >= r.minZ && z <= r.maxZ;
-}
-
-function updateFootsteps() {
-    if (!player.state.enabled || enterSeq) {
-        lastFootIndex = Math.floor(player.state.bobPhase / Math.PI);
-        return;
-    }
-    const footIndex = Math.floor(player.state.bobPhase / Math.PI);
-    if (footIndex !== lastFootIndex && player.state.speedFactor > 0.2) {
-        const pos = player.rigYaw.position;
-        audio.step(overRug(pos.x, pos.z));
-    }
-    lastFootIndex = footIndex;
-}
-
 function animate() {
     window.__frames = (window.__frames || 0) + 1;
     const now = performance.now();
@@ -511,7 +465,6 @@ function animate() {
         grab.update(dt);
         body.update(dt, elapsedTime);
         stacks.updateDust(dt, elapsedTime);
-        updateFootsteps();
         updateAnticipation(dt);
 
         if (!overlay.isOpen() && grab.isIdle() && !enterSeq) {
@@ -522,11 +475,6 @@ function animate() {
         if (aisle !== activeAisle) {
             activeAisle = aisle;
             updateRail();
-        }
-        // Flash the year banner when the face the player faces changes, but
-        // only under real control (not during the scripted walk-in).
-        if (entered && !enterSeq) {
-            flashYearBanner(nearestFaceYear());
         }
     }
 
