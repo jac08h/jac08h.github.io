@@ -53,8 +53,13 @@ function makeRealBook(book, dims) {
     body.position.z = -BOOK_DEPTH / 2;
     group.add(body);
 
+    const spineMaps = makeSpineTexture(book, colors);
     const spine = new THREE.Mesh(unitPlane, new THREE.MeshStandardMaterial({
-        map: makeSpineTexture(book, colors), roughness: 0.55, metalness: 0.0
+        map: spineMaps.map,
+        emissive: 0xffffff,
+        emissiveMap: spineMaps.emissiveMap,
+        emissiveIntensity: 0.3,
+        roughness: 0.55, metalness: 0.0
     }));
     spine.scale.set(dims.th * 0.985, dims.ht * 0.985, 1);
     spine.position.z = 0.002;

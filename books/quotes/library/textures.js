@@ -161,11 +161,72 @@ export function makeRugTexture() {
     return tex;
 }
 
+const SPINE_TITLE_FONT = "bold 27px Georgia, serif";
+const SPINE_AUTHOR_FONT = "italic 19px Georgia, serif";
+const SPINE_GILT_BANDS = [[26, 3], [34, 2], [384 - 40, 2], [384 - 32, 3]];
+
+// Vertical text: title from the head, author right-aligned at the tail.
+// Drawn twice — onto the color map (with a crisp dark stroke for contrast)
+// and onto the emissive map (fill only, so the lettering self-illuminates).
+function drawSpineLettering(ctx, w, h, title, author, emissive) {
+    ctx.textBaseline = "middle";
+    ctx.save();
+    ctx.translate(w * 0.56, 52);
+    ctx.rotate(Math.PI / 2);
+    ctx.font = SPINE_TITLE_FONT;
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#e6cd9c";
+    if (!emissive) {
+        ctx.strokeStyle = "rgba(10, 6, 2, 0.75)";
+        ctx.lineWidth = 2.5;
+        ctx.lineJoin = "round";
+        ctx.strokeText(title, 0, 0);
+    }
+    ctx.fillText(title, 0, 0);
+    ctx.font = SPINE_AUTHOR_FONT;
+    ctx.textAlign = "right";
+    ctx.globalAlpha = emissive ? 0.7 : 0.9;
+    if (!emissive) {
+        ctx.strokeText(author, h - 52 - 56, 0);
+    }
+    ctx.fillText(author, h - 52 - 56, 0);
+    ctx.restore();
+    ctx.globalAlpha = 1;
+}
+
+function fitSpineTitle(ctx, book, h) {
+    ctx.save();
+    ctx.font = SPINE_AUTHOR_FONT;
+    const authorW = ctx.measureText(book.author).width;
+    ctx.font = SPINE_TITLE_FONT;
+    const titleMax = (h - 52 - 56) - authorW - 26;
+    let title = book.title;
+    while (title.length > 1 && ctx.measureText(title).width > titleMax) {
+        title = title.slice(0, -1);
+    }
+    if (title !== book.title) {
+        title = title.replace(/\s+$/, "") + "…";
+    }
+    const titleW = ctx.measureText(title).width;
+    ctx.restore();
+    return { title: title, titleW: titleW };
+}
+
+function spineCanvasTexture(canvas) {
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 16;
+    return tex;
+}
+
 // Book spine: leather gradient + grain + gilt bands + vertical title/author.
+// Returns { map, emissiveMap }: the emissive map carries only the lettering
+// and gilt bands, so titles stay readable independent of scene lighting.
 export function makeSpineTexture(book, colors) {
-    const w = 96, h = 384;
-    const canvas = makeCanvas(w, h);
+    const w = 96, h = 384, ss = 3;
+    const canvas = makeCanvas(w * ss, h * ss);
     const ctx = canvas.getContext("2d");
+    ctx.scale(ss, ss);
     const rng = mulberry32(Math.round(book.spine_seed * 100000) + 7);
 
     const grad = ctx.createLinearGradient(0, 0, w, 0);
@@ -189,49 +250,42 @@ export function makeSpineTexture(book, colors) {
         }
     }
 
+    const fitted = fitSpineTitle(ctx, book, h);
+
+    // Recessed title panel: a darker leather label behind the title so the
+    // gilt lettering keeps contrast even on the lightest spines.
+    const panelTop = 42;
+    const panelH = fitted.titleW + 20;
+    ctx.fillStyle = hsl(colors, -13, -6);
+    ctx.fillRect(5, panelTop, w - 10, panelH);
+    ctx.fillStyle = "rgba(216, 184, 120, 0.5)";
+    ctx.fillRect(5, panelTop, w - 10, 1.5);
+    ctx.fillRect(5, panelTop + panelH - 1.5, w - 10, 1.5);
+
     // Twin gilt band pairs near head and tail.
-    const gilt = "rgba(216, 184, 120, 0.85)";
-    [[26, 3], [34, 2], [h - 40, 2], [h - 32, 3]].forEach(function (band) {
-        ctx.fillStyle = gilt;
+    ctx.fillStyle = "rgba(216, 184, 120, 0.85)";
+    SPINE_GILT_BANDS.forEach(function (band) {
         ctx.fillRect(6, band[0], w - 12, band[1]);
     });
 
-    // Vertical text: title from the head, author right-aligned at the tail.
-    ctx.fillStyle = "#e6cd9c";
-    ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
-    ctx.shadowBlur = 3;
-    ctx.shadowOffsetY = 1;
-    ctx.textBaseline = "middle";
+    drawSpineLettering(ctx, w, h, fitted.title, book.author, false);
 
-    ctx.save();
-    ctx.translate(w * 0.56, 52);
-    ctx.rotate(Math.PI / 2);
-    ctx.font = "bold 27px Georgia, serif";
-    ctx.textAlign = "left";
-    const authorFont = "italic 19px Georgia, serif";
-    ctx.save();
-    ctx.font = authorFont;
-    const authorW = ctx.measureText(book.author).width;
-    ctx.restore();
-    const titleMax = (h - 52 - 56) - authorW - 26;
-    let title = book.title;
-    while (title.length > 1 && ctx.measureText(title).width > titleMax) {
-        title = title.slice(0, -1);
-    }
-    if (title !== book.title) {
-        title = title.replace(/\s+$/, "") + "…";
-    }
-    ctx.fillText(title, 0, 0);
-    ctx.font = authorFont;
-    ctx.textAlign = "right";
-    ctx.globalAlpha = 0.85;
-    ctx.fillText(book.author, h - 52 - 56, 0);
-    ctx.restore();
+    // Emissive companion: lettering + faint bands on black.
+    const glowCanvas = makeCanvas(w * ss, h * ss);
+    const gctx = glowCanvas.getContext("2d");
+    gctx.scale(ss, ss);
+    gctx.fillStyle = "#000000";
+    gctx.fillRect(0, 0, w, h);
+    gctx.fillStyle = "rgba(216, 184, 120, 0.3)";
+    SPINE_GILT_BANDS.forEach(function (band) {
+        gctx.fillRect(6, band[0], w - 12, band[1]);
+    });
+    drawSpineLettering(gctx, w, h, fitted.title, book.author, true);
 
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = 8;
-    return tex;
+    return {
+        map: spineCanvasTexture(canvas),
+        emissiveMap: spineCanvasTexture(glowCanvas)
+    };
 }
 
 // Brass year plaque. side (-1 left / +1 right, optional) adds a small
