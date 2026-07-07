@@ -3,9 +3,17 @@ import { leatherFor, makeSpineTexture, mulberry32 } from "./textures.js";
 import { STACKS } from "./stacks.js";
 
 const BOOK_DEPTH = 0.235;
+// Aim forgiveness: the invisible pick proxy is padded so thin spines don't
+// demand pixel-perfect aim. Thickness is widened and a floor is enforced;
+// height and reach depth get a little padding too.
+const PICK_MIN_THICKNESS = 0.11;
+const PICK_THICKNESS_PAD = 0.05;
+const PICK_HEIGHT_PAD = 0.04;
+const PICK_DEPTH = 0.34;
 
 const unitBox = new THREE.BoxGeometry(1, 1, 1);
 const unitPlane = new THREE.PlaneGeometry(1, 1);
+const pickMaterial = new THREE.MeshBasicMaterial({ visible: false });
 const coverMaterials = new Map();
 
 function coverMaterialFor(colors) {
@@ -52,7 +60,15 @@ function makeRealBook(book, dims) {
     spine.position.z = 0.002;
     group.add(spine);
 
-    return group;
+    // Invisible, fattened pick proxy — the raycast target. Wider than the
+    // spine and reaching a bit further into the aisle so aim is forgiving.
+    const pickTh = Math.max(PICK_MIN_THICKNESS, dims.th + PICK_THICKNESS_PAD);
+    const pick = new THREE.Mesh(unitBox, pickMaterial);
+    pick.scale.set(pickTh, dims.ht + PICK_HEIGHT_PAD, PICK_DEPTH);
+    pick.position.z = PICK_DEPTH / 2 - BOOK_DEPTH;
+    group.add(pick);
+
+    return { group: group, pick: pick };
 }
 
 // Fills one shelf row: interleaves this row's real books among fillers with
@@ -128,7 +144,8 @@ export function buildBooks(scene, bays, decorBays, booksData) {
             rowReals = overflow.concat(rowReals);
             overflow = fillRow(innerW, rowReals, rng,
                 function onReal(book, dims, x) {
-                    const group = makeRealBook(book, dims);
+                    const built = makeRealBook(book, dims);
+                    const group = built.group;
                     group.position.set(x, rowY + dims.ht / 2, bookFrontZ);
                     bay.group.add(group);
                     const record = { book: book, bay: bay, group: group };
@@ -136,7 +153,7 @@ export function buildBooks(scene, bays, decorBays, booksData) {
                         child.userData.record = record;
                     });
                     records.push(record);
-                    raycastTargets.push(group.children[0]);
+                    raycastTargets.push(built.pick);
                 },
                 function onFiller(th, ht, x, lean) {
                     fillers.push({
