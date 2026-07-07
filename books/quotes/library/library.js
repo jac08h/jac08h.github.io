@@ -178,7 +178,7 @@ function start(booksData) {
     player.teleport(stacks.spawn.x, stacks.spawn.z, stacks.spawn.yaw, 0);
     player.onLockChange(onLockChange);
     body = createBody(player);
-    grab = createGrab(scene, camera, player, overlay, onBookReturned);
+    grab = createGrab(scene, camera, player, overlay, onBookReturned, siblingsForBook);
 
     activeAisle = stacks.aisles[0];
     buildYearRail(years);
@@ -494,6 +494,18 @@ function findRecord(id) {
     return records.find(function (r) {
         return r.book.id === id;
     }) || null;
+}
+
+// The books sharing a year with `book`, in shelf order (records are ordered
+// by bay/row/position). Lets the overlay flip between same-year books.
+function siblingsForBook(book) {
+    return records
+        .filter(function (r) {
+            return r.book.year === book.year;
+        })
+        .map(function (r) {
+            return r.book;
+        });
 }
 
 function aimAtRecord(record) {

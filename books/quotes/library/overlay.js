@@ -63,6 +63,10 @@ export function createOverlay() {
     const closeBtn = document.getElementById("close-btn");
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
+    const bookNavEl = document.getElementById("book-nav");
+    const bookPrevBtn = document.getElementById("book-prev-btn");
+    const bookNextBtn = document.getElementById("book-next-btn");
+    const bookPosEl = document.getElementById("book-position");
     const pageIndicatorEl = document.getElementById("page-indicator");
     const pageFlow = document.getElementById("page-flow");
     const headLeft = document.getElementById("head-left");
@@ -75,6 +79,10 @@ export function createOverlay() {
     let currentBook = null;
     let currentQuoteIndex = 0;
     let onClosed = null;
+    // Same-year books the reader can flip between without leaving the overlay,
+    // plus the current book's position within that list.
+    let siblings = [];
+    let siblingIndex = 0;
 
     // Build the flowing page content for the current quote: leading filler,
     // then the highlighted quote (possibly spilling onto the right page),
@@ -178,6 +186,25 @@ export function createOverlay() {
             .replace(/>/g, "&gt;");
     }
 
+    // Briefly fade/slide the page while swapping its content, so quote and
+    // book changes read as a page turn rather than an instant replace. The
+    // `swap` callback runs at the midpoint, once the old page is hidden.
+    let turning = false;
+    function turnPage(swap) {
+        if (turning) {
+            swap();
+            return;
+        }
+        turning = true;
+        pageFlow.classList.add("turning");
+        window.setTimeout(function () {
+            swap();
+            fitType();
+            pageFlow.classList.remove("turning");
+            turning = false;
+        }, 180);
+    }
+
     function paginate(delta) {
         if (!currentBook) {
             return;
@@ -186,14 +213,18 @@ export function createOverlay() {
         if (next < 0 || next >= currentBook.quotes.length) {
             return;
         }
-        currentQuoteIndex = next;
-        renderQuote();
+        turnPage(function () {
+            currentQuoteIndex = next;
+            renderQuote();
+        });
     }
 
-    function open(book, closedCallback) {
+    // Point the overlay at `book` and refresh the whole spread (edge colour,
+    // caption, running heads, first quote). Used both on open and when the
+    // reader flips to a sibling book.
+    function showBook(book) {
         currentBook = book;
         currentQuoteIndex = 0;
-        onClosed = closedCallback || null;
 
         const c = leatherFor(book);
         bookEl.style.setProperty("--edge", hsl(c, -14));
@@ -202,6 +233,16 @@ export function createOverlay() {
         captionAuthor.textContent = book.author + " · " + book.year;
 
         renderQuote();
+        updateBookNav();
+    }
+
+    function open(book, closedCallback, siblingBooks) {
+        siblings = Array.isArray(siblingBooks) && siblingBooks.length
+            ? siblingBooks : [book];
+        siblingIndex = Math.max(0, siblings.indexOf(book));
+        onClosed = closedCallback || null;
+
+        showBook(book);
 
         stageEl.hidden = false;
         stageEl.setAttribute("aria-hidden", "false");
@@ -215,6 +256,35 @@ export function createOverlay() {
         });
 
         closeBtn.focus();
+    }
+
+    // Flip to the previous/next book of the same year, wrapping is disabled so
+    // the reader can tell they've reached the ends. Resets to that book's
+    // first quote.
+    function flipBook(delta) {
+        if (!currentBook || siblings.length < 2) {
+            return;
+        }
+        const next = siblingIndex + delta;
+        if (next < 0 || next >= siblings.length) {
+            return;
+        }
+        siblingIndex = next;
+        turnPage(function () {
+            showBook(siblings[siblingIndex]);
+        });
+    }
+
+    function updateBookNav() {
+        if (siblings.length > 1) {
+            bookNavEl.hidden = false;
+            bookPrevBtn.disabled = siblingIndex === 0;
+            bookNextBtn.disabled = siblingIndex === siblings.length - 1;
+            bookPosEl.textContent =
+                (siblingIndex + 1) + " / " + siblings.length + " · " + currentBook.year;
+        } else {
+            bookNavEl.hidden = true;
+        }
     }
 
     function close() {
@@ -243,6 +313,12 @@ export function createOverlay() {
     nextBtn.addEventListener("click", function () {
         paginate(1);
     });
+    bookPrevBtn.addEventListener("click", function () {
+        flipBook(-1);
+    });
+    bookNextBtn.addEventListener("click", function () {
+        flipBook(1);
+    });
     closeBtn.addEventListener("click", close);
     backdropEl.addEventListener("click", close);
 
@@ -262,6 +338,12 @@ export function createOverlay() {
             paginate(-1);
         } else if (event.key === "ArrowRight") {
             paginate(1);
+        } else if (event.key === "ArrowUp") {
+            event.preventDefault();
+            flipBook(-1);
+        } else if (event.key === "ArrowDown") {
+            event.preventDefault();
+            flipBook(1);
         }
     });
 

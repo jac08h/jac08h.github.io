@@ -18,7 +18,7 @@ function easeInOut(k) {
 // close. The book group is reparented to the scene while it travels; its
 // original parent and local transform are stored so the return puts it back
 // exactly.
-export function createGrab(scene, camera, player, overlay, onReturned) {
+export function createGrab(scene, camera, player, overlay, onReturned, siblingsFor) {
     let state = "idle";
     let t = 0;
     let record = null;
@@ -103,7 +103,8 @@ export function createGrab(scene, camera, player, overlay, onReturned) {
             return;
         }
         overlayOpened = true;
-        overlay.open(record.book, onOverlayClosed);
+        const sibs = siblingsFor ? siblingsFor(record.book) : null;
+        overlay.open(record.book, onOverlayClosed, sibs);
         player.unlock();
     }
 
