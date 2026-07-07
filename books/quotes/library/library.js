@@ -8,7 +8,6 @@ import { buildStacks, STACKS } from "./stacks.js";
 import { buildBooks } from "./books.js";
 import { createOverlay } from "./overlay.js";
 import { createPlayer } from "./player.js";
-import { createBody } from "./body.js";
 import { createGrab } from "./grab.js";
 
 const REACH = 2.0;
@@ -68,7 +67,6 @@ composer.addPass(new OutputPass());
 const overlay = createOverlay();
 let stacks = null;
 let player = null;
-let body = null;
 let grab = null;
 let records = [];
 let raycastTargets = [];
@@ -177,7 +175,6 @@ function start(booksData) {
     player = createPlayer(scene, camera, canvas, stacks.colliders, reducedMotion);
     player.teleport(stacks.spawn.x, stacks.spawn.z, stacks.spawn.yaw, 0);
     player.onLockChange(onLockChange);
-    body = createBody(player);
     grab = createGrab(scene, camera, player, overlay, onBookReturned, siblingsForBook);
 
     activeAisle = stacks.aisles[0];
@@ -463,7 +460,6 @@ function animate() {
         player.update(dt);
         updateEnterSequence(dt);
         grab.update(dt);
-        body.update(dt, elapsedTime);
         stacks.updateDust(dt, elapsedTime);
         updateAnticipation(dt);
 

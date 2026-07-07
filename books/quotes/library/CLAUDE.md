@@ -7,11 +7,11 @@ mouse-look via pointer lock. The player starts in a small vestibule; entering
 swings double doors open into the library with a short scripted walk-in before
 control is handed over. Aim the center reticle at a spine within reach and
 click (or E): the book slides off the shelf and flies to your face (no arm/
-hand IK — legs only), and a **two-page reading overlay** opens — the quote
-laid out as real page text, marker-highlighted, surrounded by blurred
-illegible filler, auto-fit so it never scrolls. Closing the book animates it
-back into its slot. A stylized body is visible: legs only (CS1.6-style — no
-torso, no arms), walk-cycle while moving, visible when you look down.
+hand IK), and a **two-page reading overlay** opens — the quote laid out as
+real page text, marker-highlighted, surrounded by blurred illegible filler,
+auto-fit so it never scrolls. Closing the book animates it back into its slot.
+No visible player body — the camera is a disembodied first-person view; the
+walk still drives head bob and stride-timed sway.
 
 Desktop-only: coarse-pointer / no-pointer-lock devices get the `#fallback`
 links instead of booting the renderer.
@@ -47,10 +47,6 @@ links instead of booting the renderer.
   push-out (substepped in `nudge`), head bob, yaw/pitch rig
   (`rigYaw` at the feet → `rigPitch` at eye height → camera), `setEnabled(on)`
   to freeze input during the scripted entry walk-in.
-- `body.js` — skinned legs only on `rigYaw` (no torso, no arms/hands): hip
-  yoke/pelvis, walk cycle with foot roll and hip sway driven by
-  `player.state.speedFactor` / `bobPhase`. Geometry builders (elliptical
-  two-bone limb tubes, pelvis, shoes) live in `bodymesh.js`.
 - `grab.js` — grab state machine (idle → sliding → flying → holding →
   returning; no "reaching" — there's no arm to reach with); reparents the book
   group to the scene and restores the exact parent/local transform on return;
