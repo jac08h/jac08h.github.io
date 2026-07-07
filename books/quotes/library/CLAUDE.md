@@ -18,13 +18,20 @@ links instead of booting the renderer.
 
 ## Files
 
-- `index.html` — canvas, intro "click to enter" gate, pause veil, reticle +
-  aim label, teleport fade, HUD, year rail, fallback, overlay DOM. ES module
-  with an import map pointing at `vendor/`. No build step.
+- `index.html` — canvas, boot fade veil, minimal "click to look around" enter
+  pill, transient controls hint, pause veil, reticle + aim label, transient
+  year banner, teleport fade, HUD, year rail, fallback, overlay DOM (incl.
+  same-year book-nav). ES module with an import map pointing at `vendor/`. No
+  build step.
 - `library.js` — entry point: fallback gate, renderer/composer (bloom), data
-  fetch, wiring, reticle picking + halo highlight, enter/pause flow (vestibule
-  → scripted door-opening + walk-in sequence → free control), year-rail
-  teleport, frame loop, `window.__library` test hooks.
+  fetch, wiring, reticle picking + halo highlight + grab anticipation, footstep
+  triggering, enter/pause flow (vestibule → scripted door-opening + walk-in
+  sequence → free control) with robust relock recovery, boot fade, year-rail
+  teleport + year-banner wayfinding, same-year sibling resolution, frame loop,
+  `window.__library` test hooks.
+- `audio.js` — procedural WebAudio: footsteps synced to the walk cycle
+  (muffled on the rug) + ambient room tone and clock tick. Unlocked on the
+  entry gesture, muted while paused/reading.
 - `stacks.js` — the room layout: `STACKS` constants, double-sided units (two
   rotated cases back-to-back, so books face ±x into the aisles), one year per
   shelf face (aisle `i` = `years[2i]` left / `years[2i+1]` right), paired
