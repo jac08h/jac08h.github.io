@@ -20,6 +20,7 @@ const pauseEl = document.getElementById("pause");
 const fadeEl = document.getElementById("fade");
 const bootEl = document.getElementById("boot");
 const controlsHintEl = document.getElementById("controls-hint");
+const yearBannerEl = document.getElementById("year-banner");
 const reticleEl = document.getElementById("reticle");
 const aimLabelEl = document.getElementById("aim-label");
 const railEl = document.getElementById("year-rail");
@@ -288,6 +289,24 @@ function updateRail() {
     });
 }
 
+let bannerYear = null;
+let bannerTimer = null;
+
+// Flash the given year large and centre-screen, briefly, as a wayfinding cue.
+// No-op if it's already the year on show.
+function flashYearBanner(year) {
+    if (!yearBannerEl || year == null || year === bannerYear) {
+        return;
+    }
+    bannerYear = year;
+    yearBannerEl.textContent = year;
+    yearBannerEl.classList.add("flash");
+    window.clearTimeout(bannerTimer);
+    bannerTimer = window.setTimeout(function () {
+        yearBannerEl.classList.remove("flash");
+    }, 1100);
+}
+
 function nearestAisle() {
     const x = player.rigYaw.position.x;
     let best = stacks.aisles[0];
@@ -503,6 +522,11 @@ function animate() {
         if (aisle !== activeAisle) {
             activeAisle = aisle;
             updateRail();
+        }
+        // Flash the year banner when the face the player faces changes, but
+        // only under real control (not during the scripted walk-in).
+        if (entered && !enterSeq) {
+            flashYearBanner(nearestFaceYear());
         }
     }
 

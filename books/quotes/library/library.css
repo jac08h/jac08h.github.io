@@ -229,6 +229,46 @@ body {
     border-color: var(--gilt-solid);
 }
 
+.year-rail button.active::before {
+    content: "";
+    position: absolute;
+    left: -0.7rem;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    margin-top: -2.5px;
+    border-radius: 50%;
+    background: var(--gilt-solid);
+    box-shadow: 0 0 8px var(--glow);
+}
+
+.year-rail button {
+    position: relative;
+}
+
+/* Transient large year label, flashed centre-screen when the reader crosses
+   into a new aisle — a strong, glanceable "you are in <year>" cue. */
+.year-banner {
+    position: fixed;
+    left: 50%;
+    top: 34%;
+    transform: translate(-50%, -50%) scale(0.9);
+    z-index: 6;
+    font-family: Georgia, serif;
+    font-size: clamp(3rem, 9vw, 6rem);
+    letter-spacing: 0.16em;
+    color: var(--gilt-solid);
+    text-shadow: 0 0 40px var(--glow), 0 4px 24px rgba(0, 0, 0, 0.7);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.22, 0.8, 0.3, 1);
+}
+
+.year-banner.flash {
+    opacity: 0.92;
+    transform: translate(-50%, -50%) scale(1);
+}
+
 /* Fallback (no WebGL / no JS) */
 .fallback {
     position: fixed;
