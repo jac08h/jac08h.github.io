@@ -461,16 +461,17 @@ body.playing #scene {
     z-index: 1;
 }
 
-/* The two pages: a left and a right column, each independently filled to its
-   full height with filler (overflow clipped) so no page ever looks half-empty.
-   The quote is dropped into one page (or split across the gutter) at build
-   time. */
+/* The two pages: one continuous text flow laid out as two newspaper-style
+   columns, so it fills the left page top-to-bottom and then continues at the
+   top of the right page — strictly consecutive, with the gutter falling
+   between the columns. Overflow is clipped so no page ever looks half-empty. */
 .page-flow {
     position: absolute;
     inset: clamp(2.6rem, 6vh, 3.6rem) clamp(2.2rem, 4.5vw, 4rem);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    column-count: 2;
     column-gap: clamp(2.4rem, 6vw, 5rem);
+    column-fill: auto;
+    overflow: hidden;
     font-family: Georgia, "Times New Roman", serif;
     font-size: 1.2rem;
     line-height: 1.62;
@@ -478,12 +479,6 @@ body.playing #scene {
     hyphens: auto;
     color: var(--ink);
     z-index: 2;
-}
-
-.page-col {
-    position: relative;
-    height: 100%;
-    overflow: hidden;
 }
 
 /* Filler text — present but explicitly not meant to be read. */
@@ -494,7 +489,9 @@ body.playing #scene {
     user-select: none;
 }
 
-/* The actual quote: crisp ink, marker-highlighted, the eye's anchor. */
+/* The actual quote: crisp ink, marker-highlighted, the eye's anchor. It may
+   break across the gutter (end of left column → top of right) so the flow
+   stays consecutive. */
 .page-flow .quote {
     color: var(--ink);
     font-weight: 500;

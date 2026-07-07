@@ -137,99 +137,71 @@ export function createOverlay() {
             "</span>";
     }
 
-    // Lay out the two pages independently. Each page is filled with far more
-    // filler than fits (overflow is clipped by .page-col) so no page ever
-    // looks half-empty. The quote is dropped into a randomly chosen page — left,
-    // right, or split across the gutter — at a random vertical position, so it
-    // isn't always in the same spot. fitType then shrinks the type until the
+    // Lay out both pages as one continuous flow: leading filler, then the
+    // highlighted quote, then trailing filler. CSS multi-column (column-fill:
+    // auto) fills the left page top-to-bottom and continues onto the right, so
+    // the text is always strictly consecutive — the quote may straddle the
+    // gutter naturally. A random block of leading filler places the quote at a
+    // random vertical position; both pages are over-filled (overflow clipped)
+    // so neither ever looks half-empty. fitType then shrinks the type until the
     // quote itself is fully on screen.
     function layoutSpread(quote, rng) {
-        // Enough words to overflow a page at the largest type size.
-        const FILL = 150;
+        // Enough words to overflow both columns at the largest type size.
+        const FILL = 300;
         const len = quote.length;
-        const leftCol = document.createElement("div");
-        const rightCol = document.createElement("div");
-        leftCol.className = "page-col";
-        rightCol.className = "page-col";
 
-        // How far down the quote sits within its page: a random block of
-        // leading filler, shrunk as the quote grows so long quotes still fit
-        // below it. Trailing filler after the quote likewise shrinks with
-        // length (it only fills the page tail).
+        // How far down the quote sits: a random block of leading filler,
+        // shrunk as the quote grows so long quotes still fit below it.
         let leadMax;
-        let trail;
         if (len < 300) {
-            leadMax = 30; trail = FILL;
+            leadMax = 60;
         } else if (len < 900) {
-            leadMax = 16; trail = FILL;
+            leadMax = 34;
         } else if (len < 1800) {
-            leadMax = 6; trail = 20;
+            leadMax = 14;
         } else {
-            leadMax = 2; trail = 0;
+            leadMax = 4;
         }
-        const lead = 3 + Math.floor(rng() * leadMax);
-        const trailAfter = function () {
-            return trail > 0 ? fillerSpan(rng, trail) : "";
-        };
-        const roll = rng();
+        const lead = 4 + Math.floor(rng() * leadMax);
 
-        if (roll < 0.42) {
-            // Quote lives on the left page; right page is pure filler.
-            leftCol.innerHTML =
-                fillerSpan(rng, lead) + quoteSpan(quote) + trailAfter();
-            rightCol.innerHTML = fillerSpan(rng, FILL);
-        } else if (roll < 0.84) {
-            // Quote lives on the right page; left page is pure filler.
-            leftCol.innerHTML = fillerSpan(rng, FILL);
-            rightCol.innerHTML =
-                fillerSpan(rng, lead) + quoteSpan(quote) + trailAfter();
-        } else {
-            // Quote spans the gutter: it starts low on the left page and
-            // continues onto the right. A single flow can't cross two divs, so
-            // we let the left page carry the quote near its bottom and the
-            // right page continue with more of the highlighted flow.
-            const words = quote.split(/\s+/);
-            const cut = Math.floor(words.length * (0.4 + rng() * 0.2));
-            const part1 = words.slice(0, cut).join(" ");
-            const part2 = words.slice(cut).join(" ");
-            leftCol.innerHTML =
-                fillerSpan(rng, 20 + Math.floor(rng() * 20)) + quoteSpan(part1);
-            rightCol.innerHTML =
-                quoteSpan(part2) + fillerSpan(rng, FILL);
-        }
-
-        pageFlow.innerHTML = "";
-        pageFlow.appendChild(leftCol);
-        pageFlow.appendChild(rightCol);
+        pageFlow.innerHTML =
+            fillerSpan(rng, lead) + quoteSpan(quote) + fillerSpan(rng, FILL);
         fitType();
     }
 
-    // Shrink the type until every highlighted quote line is fully within its
-    // page (filler is allowed to overflow and clip). Measures each .quote span
-    // against its page column's box.
+    // Shrink the type until the highlighted quote is fully within the spread —
+    // i.e. it hasn't been pushed off the bottom of the right column (filler is
+    // allowed to overflow and clip). With column-fill: auto the quote flows
+    // left column → right column; it overflows only once the right column is
+    // full, so we just check the quote span's box against the .page-flow box.
     function fitType() {
-        const cols = pageFlow.querySelectorAll(".page-col");
-        if (!cols.length || cols[0].clientHeight <= 0) {
+        if (pageFlow.clientHeight <= 0) {
             return;
         }
         let size = 1.55;
         pageFlow.style.fontSize = size + "rem";
         let guard = 0;
-        while (quoteOverflows(cols) && size > 0.6 && guard < 40) {
+        while (quoteOverflows() && size > 0.6 && guard < 40) {
             size -= 0.05;
             pageFlow.style.fontSize = size + "rem";
             guard += 1;
         }
     }
 
-    // True if any quote span extends past the bottom of its page column.
-    function quoteOverflows(cols) {
-        for (let i = 0; i < cols.length; i++) {
-            const box = cols[i].getBoundingClientRect();
-            const quotes = cols[i].querySelectorAll(".quote");
-            for (let q = 0; q < quotes.length; q++) {
-                const r = quotes[q].getBoundingClientRect();
-                if (r.bottom > box.bottom + 1 || r.top < box.top - 1) {
+    // True if the highlighted quote spilled past the two visible columns. With
+    // column-fill: auto, text that doesn't fit flows into further (clipped)
+    // columns off to the right, so any quote line-fragment whose box extends
+    // past the right edge of the spread means the quote didn't fit — the
+    // union getBoundingClientRect can't see this, so we test the per-line
+    // client rects. (The bottom check catches the single-column mobile case.)
+    function quoteOverflows() {
+        const box = pageFlow.getBoundingClientRect();
+        const quotes = pageFlow.querySelectorAll(".quote");
+        for (let q = 0; q < quotes.length; q++) {
+            const rects = quotes[q].getClientRects();
+            for (let i = 0; i < rects.length; i++) {
+                if (rects[i].right > box.right + 1 ||
+                    rects[i].bottom > box.bottom + 1) {
                     return true;
                 }
             }
