@@ -24,14 +24,10 @@ links instead of booting the renderer.
   same-year book-nav). ES module with an import map pointing at `vendor/`. No
   build step.
 - `library.js` — entry point: fallback gate, renderer/composer (bloom), data
-  fetch, wiring, reticle picking + halo highlight + grab anticipation, footstep
-  triggering, enter/pause flow (vestibule → scripted door-opening + walk-in
-  sequence → free control) with robust relock recovery, boot fade, year-rail
-  teleport + year-banner wayfinding, same-year sibling resolution, frame loop,
-  `window.__library` test hooks.
-- `audio.js` — procedural WebAudio: footsteps synced to the walk cycle
-  (muffled on the rug) + ambient room tone and clock tick. Unlocked on the
-  entry gesture, muted while paused/reading.
+  fetch, wiring, reticle picking + halo highlight + grab anticipation,
+  enter/pause flow (vestibule → scripted door-opening + walk-in sequence → free
+  control) with robust relock recovery, boot fade, year-rail teleport,
+  same-year sibling resolution, frame loop, `window.__library` test hooks.
 - `stacks.js` — the room layout: `STACKS` constants, double-sided units (two
   rotated cases back-to-back, so books face ±x into the aisles), one year per
   shelf face (aisle `i` = `years[2i]` left / `years[2i+1]` right), paired
