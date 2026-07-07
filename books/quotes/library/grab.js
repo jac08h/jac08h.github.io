@@ -1,9 +1,12 @@
 import * as THREE from "three";
 
-const SLIDE_TIME = 0.28;
-const FLY_TIME = 0.55;
+const SLIDE_TIME = 0.22;
+const FLY_TIME = 0.4;
 const RETURN_TIME = 0.65;
 const SLIDE_DIST = 0.26;
+// Start the overlay opening before the book fully arrives, so its fade
+// overlaps the tail of the flight and the quote reads sooner after the click.
+const OPEN_AT = 0.62;
 
 function easeInOut(k) {
     const c = THREE.MathUtils.clamp(k, 0, 1);
@@ -21,6 +24,7 @@ export function createGrab(scene, camera, player, overlay, onReturned) {
     let record = null;
     let restore = null;
     let instant = false;
+    let overlayOpened = false;
 
     const faceNormal = new THREE.Vector3();
     const slideStart = new THREE.Vector3();
@@ -91,8 +95,14 @@ export function createGrab(scene, camera, player, overlay, onReturned) {
         t = 0;
     }
 
+    // Reveal the reading overlay and free the mouse. Called once, either
+    // partway through the flight (so the fade overlaps arrival) or, for the
+    // instant test path, immediately.
     function openOverlay() {
-        state = "holding";
+        if (overlayOpened) {
+            return;
+        }
+        overlayOpened = true;
         overlay.open(record.book, onOverlayClosed);
         player.unlock();
     }
@@ -112,6 +122,7 @@ export function createGrab(scene, camera, player, overlay, onReturned) {
             }
             record = rec;
             instant = false;
+            overlayOpened = false;
             player.setEnabled(false);
             detach();
             slideStart.copy(record.group.position);
@@ -128,12 +139,14 @@ export function createGrab(scene, camera, player, overlay, onReturned) {
             }
             record = rec;
             instant = true;
+            overlayOpened = false;
             player.setEnabled(false);
             player.rigYaw.updateMatrixWorld(true);
             detach();
             computeHoldPose();
             record.group.position.copy(holdPos);
             record.group.quaternion.copy(holdQuat);
+            state = "holding";
             openOverlay();
             return true;
         },
@@ -160,8 +173,11 @@ export function createGrab(scene, camera, player, overlay, onReturned) {
                 record.group.position.lerpVectors(flyStartPos, holdPos, k);
                 record.group.quaternion.slerpQuaternions(
                     flyStartQuat, holdQuat, k);
-                if (t >= FLY_TIME) {
+                if (t / FLY_TIME >= OPEN_AT) {
                     openOverlay();
+                }
+                if (t >= FLY_TIME) {
+                    state = "holding";
                 }
             } else if (state === "holding") {
                 computeHoldPose();

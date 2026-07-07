@@ -307,6 +307,12 @@ const raycaster = new THREE.Raycaster();
 raycaster.far = REACH;
 const centerNdc = new THREE.Vector2(0, 0);
 let aimed = null;
+// Grab anticipation: the currently-aimed book eases a couple of cm out of
+// the shelf (along its local +z) so a click feels like finishing a motion
+// already begun. We store its resting local z the first time it's nudged.
+const ANTICIPATE_OUT = 0.018;
+let anticipated = null;
+let anticipateRestZ = 0;
 
 const halo = new THREE.Mesh(
     new THREE.BoxGeometry(1, 1, 1),
@@ -349,7 +355,34 @@ function setAimed(record) {
     }
 }
 
+// Snap the anticipated book back to its resting slot z and forget it. Must
+// run before a grab reparents the book, so the stored offset never leaks.
+function releaseAnticipation() {
+    if (anticipated) {
+        anticipated.group.position.z = anticipateRestZ;
+        anticipated = null;
+    }
+}
+
+function updateAnticipation(dt) {
+    const target = (aimed && grab.isIdle() && !overlay.isOpen()) ? aimed : null;
+    if (target !== anticipated) {
+        releaseAnticipation();
+        if (target) {
+            anticipated = target;
+            anticipateRestZ = target.group.position.z;
+        }
+    }
+    if (anticipated) {
+        const k = 1 - Math.exp(-dt * 12);
+        const goal = anticipateRestZ + ANTICIPATE_OUT;
+        anticipated.group.position.z +=
+            (goal - anticipated.group.position.z) * k;
+    }
+}
+
 function grabRecord(record) {
+    releaseAnticipation();
     if (grab.begin(record)) {
         setAimed(null);
     }
@@ -429,6 +462,7 @@ function animate() {
         body.update(dt, elapsedTime);
         stacks.updateDust(dt, elapsedTime);
         updateFootsteps();
+        updateAnticipation(dt);
 
         if (!overlay.isOpen() && grab.isIdle() && !enterSeq) {
             setAimed(pickCenter());
