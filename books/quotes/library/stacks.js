@@ -328,7 +328,11 @@ export function buildStacks(scene, years) {
     const bounds = {
         xMin: -(STACKS.unitThickness / 2 + STACKS.aisleWidth),
         xMax: lastUnitX + STACKS.unitThickness / 2 + STACKS.aisleWidth,
-        zMin: -STACKS.unitLength - 0.2,
+        // Leave a walkable corridor behind the shelves so you can cross between
+        // aisles at the back rather than having to walk all the way out to the
+        // main walkway. The unit colliders end at z ≈ -unitLength, so this gap
+        // between the shelf backs and the -z wall is free of collision.
+        zMin: -STACKS.unitLength - 1.4,
         zMax: STACKS.walkwayDepth + STACKS.entryDepth
     };
     const xMid = (bounds.xMin + bounds.xMax) / 2;
