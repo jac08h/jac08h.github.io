@@ -277,6 +277,41 @@ export function makePlaqueTexture(year, side) {
     return tex;
 }
 
+// Emissive companion for the year plaque: the glowing year text and inner
+// frame on black, so the plaque self-lights as gentle wayfinding without a
+// per-plaque light. Same geometry as makePlaqueTexture so it registers.
+export function makePlaqueEmissive(year, side) {
+    const w = 256, h = 96;
+    const canvas = makeCanvas(w, h);
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = "rgba(255, 210, 140, 0.5)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(14, 14, w - 28, h - 28);
+    ctx.fillStyle = "#ffdca2";
+    ctx.font = "44px Georgia, serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.shadowColor = "rgba(255, 200, 120, 0.7)";
+    ctx.shadowBlur = 8;
+    ctx.fillText(String(year).split("").join(" "), w / 2, h / 2 + 2);
+    if (side) {
+        const tipX = side < 0 ? 26 : w - 26;
+        const baseX = side < 0 ? 44 : w - 44;
+        ctx.beginPath();
+        ctx.moveTo(tipX, h / 2);
+        ctx.lineTo(baseX, h / 2 - 11);
+        ctx.lineTo(baseX, h / 2 + 11);
+        ctx.closePath();
+        ctx.fill();
+    }
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 8;
+    return tex;
+}
+
 // Trouser cloth: dark warm weave with fine diagonal thread streaks and a few
 // soft vertical fold shadows. Tiled along the leg tube; muted so it never
 // reads louder than the library wood.
