@@ -43,6 +43,24 @@ body {
 }
 
 /* Intro / loading veil */
+/* Boot fade: a black veil over the first procedural frames, faded out on
+   ready so the scene doesn't pop in mid-build. */
+.boot {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: #050302;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.boot.gone {
+    opacity: 0;
+}
+
+/* Entry: no full-screen splash — just a small pill capturing the one click
+   pointer lock requires. The canvas shows through behind it. */
 .intro {
     position: fixed;
     inset: 0;
@@ -50,10 +68,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    background: #050302;
-    transition: opacity 2.2s ease;
+    background: transparent;
     cursor: pointer;
+    transition: opacity 0.5s ease;
 }
 
 .intro.fading {
@@ -65,33 +82,54 @@ body {
     display: none;
 }
 
-.intro-title {
-    font-size: clamp(2.6rem, 7vw, 4.4rem);
-    font-weight: normal;
+.intro-pill {
+    padding: 0.7rem 1.5rem;
+    border-radius: 999px;
+    background: rgba(10, 6, 4, 0.62);
+    border: 1px solid rgba(198, 160, 92, 0.4);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 40px var(--glow);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    animation: pill-pulse 2.4s ease-in-out infinite;
+}
+
+.intro-pill-text {
+    font-size: 0.92rem;
     letter-spacing: 0.14em;
-    margin: 0;
     color: var(--text);
-    text-shadow: 0 0 34px var(--glow);
+    text-transform: uppercase;
 }
 
-.intro-sub {
-    margin: 0.9rem 0 0;
-    font-style: italic;
-    color: var(--text-dim);
-    letter-spacing: 0.06em;
+@keyframes pill-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.03); opacity: 1; }
 }
 
-.intro-hint {
-    margin: 2.6rem 0 0;
-    font-size: 0.82rem;
-    letter-spacing: 0.14em;
-    color: rgba(201, 178, 153, 0.55);
+/* Transient controls hint shown just after entering, then auto-fades. */
+.controls-hint {
+    position: fixed;
+    left: 50%;
+    bottom: clamp(4.5rem, 12vh, 7rem);
+    transform: translateX(-50%);
+    z-index: 6;
+    padding: 0.5rem 1.1rem;
+    border-radius: 999px;
+    background: rgba(10, 6, 4, 0.5);
+    border: 1px solid rgba(198, 160, 92, 0.22);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    color: rgba(201, 178, 153, 0.85);
+    white-space: nowrap;
+    max-width: 92vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
     opacity: 0;
-    animation: hint-in 1.6s ease 1.2s forwards;
+    transition: opacity 0.6s ease;
 }
 
-@keyframes hint-in {
-    to { opacity: 1; }
+.controls-hint.visible {
+    opacity: 1;
 }
 
 /* HUD chrome */
@@ -266,9 +304,12 @@ body {
     inset: 0;
     z-index: 15;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: rgba(5, 3, 2, 0.55);
+    gap: 0.5rem;
+    text-align: center;
+    background: rgba(5, 3, 2, 0.62);
     backdrop-filter: blur(2px);
     opacity: 0;
     pointer-events: none;
@@ -282,9 +323,20 @@ body {
 }
 
 .pause-text {
+    margin: 0;
+    font-size: 1.4rem;
     font-style: italic;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.16em;
+    color: var(--text);
+    text-transform: uppercase;
+}
+
+.pause-sub {
+    margin: 0;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
     color: var(--text-dim);
+    animation: pill-pulse 2.4s ease-in-out infinite;
 }
 
 .fade {
