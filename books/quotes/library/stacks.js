@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import {
     makeWoodTexture, makeFloorTexture, makeRugTexture, makePlaqueTexture,
-    makeGlowTexture, mulberry32
+    makePlaqueEmissive, makeGlowTexture, mulberry32
 } from "./textures.js";
 import { buildRoom } from "./room.js";
 import { buildEntry } from "./entry.js";
@@ -117,6 +117,8 @@ function buildAisleSign(scene, year, aisleX, side) {
         new THREE.PlaneGeometry(0.88, 0.32),
         new THREE.MeshStandardMaterial({
             map: makePlaqueTexture(year, side), roughness: 0.5, metalness: 0.3,
+            emissive: 0xffce8f, emissiveIntensity: 0.9,
+            emissiveMap: makePlaqueEmissive(year, side),
             side: THREE.DoubleSide
         }));
     sign.position.set(x, 2.86, 0.3);
@@ -245,15 +247,27 @@ function buildLadder(scene, woodTex, x, z) {
     scene.add(group);
 }
 
-function buildDust(scene, bounds) {
+function buildDust(scene, bounds, cones) {
     const count = window.matchMedia("(pointer: coarse)").matches ? 110 : 340;
     const rng = mulberry32(51);
     const positions = new Float32Array(count * 3);
     const velocities = [];
+    // Two thirds of the motes cluster in a tight column under a lamp so the
+    // light pools read as visible shafts; the rest drift through the room at
+    // large so the air is never empty between the cones.
+    const coneShare = cones && cones.length ? 0.66 : 0;
     for (let i = 0; i < count; i++) {
-        positions[i * 3] = bounds.xMin + rng() * (bounds.xMax - bounds.xMin);
-        positions[i * 3 + 1] = 0.2 + rng() * 3.8;
-        positions[i * 3 + 2] = bounds.zMin + rng() * (bounds.zMax - bounds.zMin);
+        if (rng() < coneShare) {
+            const cone = cones[Math.floor(rng() * cones.length)];
+            const rad = 0.55;
+            positions[i * 3] = cone.x + (rng() - 0.5) * rad;
+            positions[i * 3 + 1] = 0.4 + rng() * (cone.y - 0.4);
+            positions[i * 3 + 2] = cone.z + (rng() - 0.5) * rad;
+        } else {
+            positions[i * 3] = bounds.xMin + rng() * (bounds.xMax - bounds.xMin);
+            positions[i * 3 + 1] = 0.2 + rng() * 3.8;
+            positions[i * 3 + 2] = bounds.zMin + rng() * (bounds.zMax - bounds.zMin);
+        }
         velocities.push({
             x: (rng() - 0.5) * 0.035,
             y: 0.008 + rng() * 0.03,
@@ -296,9 +310,17 @@ export function buildStacks(scene, years) {
     const woodTex = makeWoodTexture();
     const floorTex = makeFloorTexture();
 
-    scene.fog = new THREE.FogExp2(0x0a0605, 0.05);
+    scene.fog = new THREE.FogExp2(0x0a0605, 0.038);
     scene.background = new THREE.Color(0x0a0605);
-    scene.add(new THREE.HemisphereLight(0x584736, 0x0e0906, 0.65));
+    // Global fill: lifts the floor, aisles and the player's own legs out of
+    // near-black everywhere, not just near the point lamps. Sky pushed toward
+    // a cool neutral, ground kept warm but no longer crushed to black.
+    scene.add(new THREE.HemisphereLight(0x8a94a6, 0x2a1f14, 2.1));
+    // Soft downward fill so the area right under the camera (floor + legs) is
+    // readable when looking down, without washing out the candlelit mood.
+    const floorFill = new THREE.DirectionalLight(0xffe9cf, 0.35);
+    floorFill.position.set(0, 6, 2);
+    scene.add(floorFill);
 
     const aisleCount = Math.ceil(years.length / 2);
     const unitCount = aisleCount + 1;
@@ -396,7 +418,12 @@ export function buildStacks(scene, years) {
     const lamps = buildPendants(scene, pendantPositions);
     lamps.push(tableLamp);
 
-    const updateDust = buildDust(scene, bounds);
+    // Feed the pendant positions in as dust cones (bulbY = 3.12 in
+    // buildPendants) so motes gather in the light pools as shafts.
+    const dustCones = pendantPositions.map(function (p) {
+        return { x: p.x, y: 3.12, z: p.z };
+    });
+    const updateDust = buildDust(scene, bounds, dustCones);
 
     return {
         bays: bays, decorBays: decorBays, plaques: plaques, lamps: lamps,
