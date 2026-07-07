@@ -18,6 +18,8 @@ const canvas = document.getElementById("scene");
 const introEl = document.getElementById("intro");
 const pauseEl = document.getElementById("pause");
 const fadeEl = document.getElementById("fade");
+const bootEl = document.getElementById("boot");
+const controlsHintEl = document.getElementById("controls-hint");
 const reticleEl = document.getElementById("reticle");
 const aimLabelEl = document.getElementById("aim-label");
 const railEl = document.getElementById("year-rail");
@@ -188,15 +190,30 @@ function start(booksData) {
 
 // --- Enter / pause flow -------------------------------------------------------
 
+let hintTimer = null;
+
+// Reveal the transient controls hint after entering, then auto-fade it.
+function showControlsHint() {
+    if (!controlsHintEl) {
+        return;
+    }
+    controlsHintEl.classList.add("visible");
+    window.clearTimeout(hintTimer);
+    hintTimer = window.setTimeout(function () {
+        controlsHintEl.classList.remove("visible");
+    }, 4500);
+}
+
 function enter() {
     entered = true;
     introEl.classList.add("fading");
     window.setTimeout(function () {
         introEl.classList.add("gone");
-    }, 900);
+    }, 600);
     document.body.classList.add("playing");
     player.lock();
     audio.enable();
+    showControlsHint();
     if (reducedMotion) {
         finishEnterInstant();
     } else {
@@ -220,16 +237,30 @@ function onLockChange(locked) {
     audio.setMuted(!locked);
 }
 
-pauseEl.addEventListener("click", function () {
-    player.lock();
-});
+// Relock recovery. Chrome enforces a short cooldown after exiting pointer
+// lock, during which a request is silently rejected — which would leave the
+// veil up with a dead mouse. Retry once after the cooldown so a single click
+// reliably resumes; the veil only hides once onLockChange sees a real lock.
+function requestResume() {
+    player.lock().then(function () {
+        if (!player.state.locked) {
+            window.setTimeout(function () {
+                if (!player.state.locked && !overlay.isOpen()) {
+                    player.lock();
+                }
+            }, 1300);
+        }
+    });
+}
+
+pauseEl.addEventListener("click", requestResume);
 
 canvas.addEventListener("click", function () {
     if (!started || !entered || overlay.isOpen()) {
         return;
     }
     if (!player.state.locked) {
-        player.lock();
+        requestResume();
     }
 });
 
@@ -480,6 +511,10 @@ function animate() {
     if (started && !readyFlagged) {
         readyFlagged = true;
         window.__LIBRARY_READY = true;
+        // Fade the boot veil off the first real frame.
+        if (bootEl) {
+            bootEl.classList.add("gone");
+        }
     }
     requestAnimationFrame(animate);
 }
