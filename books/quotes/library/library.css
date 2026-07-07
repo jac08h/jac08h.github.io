@@ -461,21 +461,29 @@ body.playing #scene {
     z-index: 1;
 }
 
-/* The flowing text: two CSS columns = the two pages, split at the gutter. */
+/* The two pages: a left and a right column, each independently filled to its
+   full height with filler (overflow clipped) so no page ever looks half-empty.
+   The quote is dropped into one page (or split across the gutter) at build
+   time. */
 .page-flow {
     position: absolute;
     inset: clamp(2.6rem, 6vh, 3.6rem) clamp(2.2rem, 4.5vw, 4rem);
-    column-count: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     column-gap: clamp(2.4rem, 6vw, 5rem);
-    column-fill: balance;
     font-family: Georgia, "Times New Roman", serif;
     font-size: 1.2rem;
     line-height: 1.62;
     text-align: justify;
     hyphens: auto;
     color: var(--ink);
-    overflow: hidden;
     z-index: 2;
+}
+
+.page-col {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
 }
 
 /* Filler text — present but explicitly not meant to be read. */

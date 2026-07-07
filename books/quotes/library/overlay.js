@@ -119,64 +119,122 @@ export function createOverlay() {
         }
     }
 
-    // Fill the two-column flow with filler + highlighted quote, then shrink the
-    // type until the whole spread fits with no overflow (no scrolling).
-    function layoutSpread(quote, rng) {
-        const len = quote.length;
+    // A run of blurred filler as an inline span.
+    function fillerSpan(rng, words) {
+        return '<span class="filler">' + escapeHtml(fillerParagraph(rng, words)) +
+            " </span>";
+    }
 
-        // Filler amount shrinks as the quote grows, so the quote stays the
-        // centre of attention and the spread never overflows.
-        let leadWords;
-        let trailWords;
-        if (len < 300) {
-            leadWords = 34;
-            trailWords = 46;
-        } else if (len < 900) {
-            leadWords = 18;
-            trailWords = 26;
-        } else if (len < 1800) {
-            leadWords = 8;
-            trailWords = 10;
-        } else {
-            leadWords = 3;
-            trailWords = 0;
-        }
-        const lead = fillerParagraph(rng, leadWords);
-        const trail = trailWords > 0 ? fillerParagraph(rng, trailWords) : "";
-
+    // The highlighted quote as a span (each source paragraph its own line).
+    function quoteSpan(quote) {
         const paras = quote.split(/\n+/).filter(function (p) {
             return p.trim().length > 0;
         });
-
-        const html =
-            '<span class="filler">' + escapeHtml(lead) + " </span>" +
-            '<span class="quote">' +
+        return '<span class="quote">' +
             paras.map(function (p) {
                 return '<span class="quote-line">' + escapeHtml(p) + "</span>";
             }).join(" ") +
-            "</span>" +
-            (trail ? '<span class="filler"> ' + escapeHtml(trail) + "</span>" : "");
+            "</span>";
+    }
 
-        pageFlow.innerHTML = html;
+    // Lay out the two pages independently. Each page is filled with far more
+    // filler than fits (overflow is clipped by .page-col) so no page ever
+    // looks half-empty. The quote is dropped into a randomly chosen page — left,
+    // right, or split across the gutter — at a random vertical position, so it
+    // isn't always in the same spot. fitType then shrinks the type until the
+    // quote itself is fully on screen.
+    function layoutSpread(quote, rng) {
+        // Enough words to overflow a page at the largest type size.
+        const FILL = 150;
+        const len = quote.length;
+        const leftCol = document.createElement("div");
+        const rightCol = document.createElement("div");
+        leftCol.className = "page-col";
+        rightCol.className = "page-col";
+
+        // How far down the quote sits within its page: a random block of
+        // leading filler, shrunk as the quote grows so long quotes still fit
+        // below it. Trailing filler after the quote likewise shrinks with
+        // length (it only fills the page tail).
+        let leadMax;
+        let trail;
+        if (len < 300) {
+            leadMax = 30; trail = FILL;
+        } else if (len < 900) {
+            leadMax = 16; trail = FILL;
+        } else if (len < 1800) {
+            leadMax = 6; trail = 20;
+        } else {
+            leadMax = 2; trail = 0;
+        }
+        const lead = 3 + Math.floor(rng() * leadMax);
+        const trailAfter = function () {
+            return trail > 0 ? fillerSpan(rng, trail) : "";
+        };
+        const roll = rng();
+
+        if (roll < 0.42) {
+            // Quote lives on the left page; right page is pure filler.
+            leftCol.innerHTML =
+                fillerSpan(rng, lead) + quoteSpan(quote) + trailAfter();
+            rightCol.innerHTML = fillerSpan(rng, FILL);
+        } else if (roll < 0.84) {
+            // Quote lives on the right page; left page is pure filler.
+            leftCol.innerHTML = fillerSpan(rng, FILL);
+            rightCol.innerHTML =
+                fillerSpan(rng, lead) + quoteSpan(quote) + trailAfter();
+        } else {
+            // Quote spans the gutter: it starts low on the left page and
+            // continues onto the right. A single flow can't cross two divs, so
+            // we let the left page carry the quote near its bottom and the
+            // right page continue with more of the highlighted flow.
+            const words = quote.split(/\s+/);
+            const cut = Math.floor(words.length * (0.4 + rng() * 0.2));
+            const part1 = words.slice(0, cut).join(" ");
+            const part2 = words.slice(cut).join(" ");
+            leftCol.innerHTML =
+                fillerSpan(rng, 20 + Math.floor(rng() * 20)) + quoteSpan(part1);
+            rightCol.innerHTML =
+                quoteSpan(part2) + fillerSpan(rng, FILL);
+        }
+
+        pageFlow.innerHTML = "";
+        pageFlow.appendChild(leftCol);
+        pageFlow.appendChild(rightCol);
         fitType();
     }
 
-    // Binary-ish shrink: start at a length-based guess, step down until the
-    // content height no longer exceeds the column height.
+    // Shrink the type until every highlighted quote line is fully within its
+    // page (filler is allowed to overflow and clip). Measures each .quote span
+    // against its page column's box.
     function fitType() {
-        const cap = pageFlow.clientHeight;
-        if (cap <= 0) {
+        const cols = pageFlow.querySelectorAll(".page-col");
+        if (!cols.length || cols[0].clientHeight <= 0) {
             return;
         }
         let size = 1.55;
         pageFlow.style.fontSize = size + "rem";
-        // scrollHeight > clientHeight means the columns overflowed their box.
         let guard = 0;
-        while (pageFlow.scrollHeight > cap + 1 && size > 0.6 && guard < 40) {
+        while (quoteOverflows(cols) && size > 0.6 && guard < 40) {
             size -= 0.05;
             pageFlow.style.fontSize = size + "rem";
             guard += 1;
         }
+    }
+
+    // True if any quote span extends past the bottom of its page column.
+    function quoteOverflows(cols) {
+        for (let i = 0; i < cols.length; i++) {
+            const box = cols[i].getBoundingClientRect();
+            const quotes = cols[i].querySelectorAll(".quote");
+            for (let q = 0; q < quotes.length; q++) {
+                const r = quotes[q].getBoundingClientRect();
+                if (r.bottom > box.bottom + 1 || r.top < box.top - 1) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     function escapeHtml(str) {
