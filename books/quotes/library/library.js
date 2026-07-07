@@ -10,6 +10,7 @@ import { createOverlay } from "./overlay.js";
 import { createPlayer } from "./player.js";
 import { createBody } from "./body.js";
 import { createGrab } from "./grab.js";
+import { createAudio } from "./audio.js";
 
 const REACH = 2.0;
 
@@ -64,6 +65,7 @@ composer.addPass(new OutputPass());
 // --- Boot -------------------------------------------------------------------
 
 const overlay = createOverlay();
+const audio = createAudio();
 let stacks = null;
 let player = null;
 let body = null;
@@ -194,6 +196,7 @@ function enter() {
     }, 900);
     document.body.classList.add("playing");
     player.lock();
+    audio.enable();
     if (reducedMotion) {
         finishEnterInstant();
     } else {
@@ -213,6 +216,8 @@ function onLockChange(locked) {
     }
     const paused = !locked && !overlay.isOpen();
     pauseEl.classList.toggle("visible", paused);
+    // Quiet the room while paused or reading; restore on relock.
+    audio.setMuted(!locked);
 }
 
 pauseEl.addEventListener("click", function () {
@@ -388,6 +393,27 @@ window.addEventListener("resize", function () {
 let lastFrameTime = performance.now();
 let elapsedTime = 0;
 let readyFlagged = false;
+// Footstep tracking: a step fires each time the walk cycle crosses a foot
+// plant (every half-stride of bobPhase) while actually moving.
+let lastFootIndex = 0;
+
+function overRug(x, z) {
+    const r = stacks && stacks.rugBounds;
+    return !!r && x >= r.minX && x <= r.maxX && z >= r.minZ && z <= r.maxZ;
+}
+
+function updateFootsteps() {
+    if (!player.state.enabled || enterSeq) {
+        lastFootIndex = Math.floor(player.state.bobPhase / Math.PI);
+        return;
+    }
+    const footIndex = Math.floor(player.state.bobPhase / Math.PI);
+    if (footIndex !== lastFootIndex && player.state.speedFactor > 0.2) {
+        const pos = player.rigYaw.position;
+        audio.step(overRug(pos.x, pos.z));
+    }
+    lastFootIndex = footIndex;
+}
 
 function animate() {
     window.__frames = (window.__frames || 0) + 1;
@@ -402,6 +428,7 @@ function animate() {
         grab.update(dt);
         body.update(dt, elapsedTime);
         stacks.updateDust(dt, elapsedTime);
+        updateFootsteps();
 
         if (!overlay.isOpen() && grab.isIdle() && !enterSeq) {
             setAimed(pickCenter());

@@ -4,6 +4,7 @@ import { STACKS } from "./stacks.js";
 const WALK_SPEED = 2.0;
 const RUN_SPEED = 3.4;
 const LOOK_SENSITIVITY = 0.0022;
+const LOOK_SMOOTH_RATE = 22;
 const PITCH_LIMIT = 1.48;
 
 const KEY_DIRS = {
@@ -36,6 +37,10 @@ export function createPlayer(scene, camera, canvas, colliders, reducedMotion) {
     const vel = new THREE.Vector2();
     const keys = {};
     let lockHint = null;
+    // Pending unconsumed mouse motion, drained a fraction per frame so the
+    // look eases toward the target instead of snapping on every raw event.
+    let pendingYaw = 0;
+    let pendingPitch = 0;
 
     function applyLook() {
         rigYaw.rotation.y = state.yaw;
@@ -53,12 +58,25 @@ export function createPlayer(scene, camera, canvas, colliders, reducedMotion) {
         if (!state.locked || !state.enabled) {
             return;
         }
-        state.yaw -= event.movementX * LOOK_SENSITIVITY;
-        state.pitch = THREE.MathUtils.clamp(
-            state.pitch - event.movementY * LOOK_SENSITIVITY,
-            -PITCH_LIMIT, PITCH_LIMIT);
-        applyLook();
+        // Buffer the raw delta; step() drains it with easing each frame.
+        pendingYaw -= event.movementX * LOOK_SENSITIVITY;
+        pendingPitch -= event.movementY * LOOK_SENSITIVITY;
     });
+
+    // Ease the accumulated look toward the target so fast mouse jitter reads
+    // smooth. A high rate keeps it responsive (near 1:1 over a frame) while
+    // still filtering single-event spikes.
+    function applyLookSmoothing(dt) {
+        const k = 1 - Math.exp(-dt * LOOK_SMOOTH_RATE);
+        const dy = pendingYaw * k;
+        const dp = pendingPitch * k;
+        pendingYaw -= dy;
+        pendingPitch -= dp;
+        state.yaw += dy;
+        state.pitch = THREE.MathUtils.clamp(
+            state.pitch + dp, -PITCH_LIMIT, PITCH_LIMIT);
+        applyLook();
+    }
 
     document.addEventListener("keydown", function (event) {
         if (KEY_DIRS[event.code]) {
@@ -87,9 +105,23 @@ export function createPlayer(scene, camera, canvas, colliders, reducedMotion) {
         });
     });
 
+    // Removes the component of `vel` pointing into a surface with outward
+    // normal (nx, nz), leaving the tangential part so contact slides along
+    // the wall instead of dead-stopping. No-op when already moving away.
+    function slideVelocity(nx, nz) {
+        const into = vel.x * nx + vel.y * nz;
+        if (into < 0) {
+            vel.x -= into * nx;
+            vel.y -= into * nz;
+        }
+    }
+
     // Pushes (x, z) out of every collider it overlaps, treating the player
     // as a circle of STACKS.playerRadius. Two passes settle corner contacts.
-    function resolveCollisions(pos) {
+    // Each push also cancels the inward velocity component (via slideVelocity)
+    // so diagonal contact slides along the wall. `keepVel` skips that for
+    // teleports/nudges where velocity is already zeroed.
+    function resolveCollisions(pos, keepVel) {
         const r = STACKS.playerRadius;
         for (let pass = 0; pass < 2; pass++) {
             colliders.forEach(function (box) {
@@ -105,20 +137,26 @@ export function createPlayer(scene, camera, canvas, colliders, reducedMotion) {
                     const dist = Math.sqrt(distSq);
                     pos.x = cx + (dx / dist) * r;
                     pos.z = cz + (dz / dist) * r;
+                    if (!keepVel) {
+                        slideVelocity(dx / dist, dz / dist);
+                    }
                 } else {
                     // Centre is inside the box: push out along the axis of
                     // least penetration.
                     const outs = [
-                        { d: pos.x - box.minX + r, x: box.minX - r, z: pos.z },
-                        { d: box.maxX - pos.x + r, x: box.maxX + r, z: pos.z },
-                        { d: pos.z - box.minZ + r, x: pos.x, z: box.minZ - r },
-                        { d: box.maxZ - pos.z + r, x: pos.x, z: box.maxZ + r }
+                        { d: pos.x - box.minX + r, x: box.minX - r, z: pos.z, nx: -1, nz: 0 },
+                        { d: box.maxX - pos.x + r, x: box.maxX + r, z: pos.z, nx: 1, nz: 0 },
+                        { d: pos.z - box.minZ + r, x: pos.x, z: box.minZ - r, nx: 0, nz: -1 },
+                        { d: box.maxZ - pos.z + r, x: pos.x, z: box.maxZ + r, nx: 0, nz: 1 }
                     ];
                     outs.sort(function (a, b) {
                         return a.d - b.d;
                     });
                     pos.x = outs[0].x;
                     pos.z = outs[0].z;
+                    if (!keepVel) {
+                        slideVelocity(outs[0].nx, outs[0].nz);
+                    }
                 }
             });
         }
@@ -138,19 +176,24 @@ export function createPlayer(scene, camera, canvas, colliders, reducedMotion) {
 
         rigYaw.position.x += vel.x * dt;
         rigYaw.position.z += vel.y * dt;
-        resolveCollisions(rigYaw.position);
+        resolveCollisions(rigYaw.position, false);
 
         const speed = Math.sqrt(vel.x * vel.x + vel.y * vel.y);
         state.speedFactor = Math.min(1, speed / WALK_SPEED);
         if (speed > 0.15 && !reducedMotion) {
             state.bobPhase += speed * dt * 2.6;
             rigPitch.position.y = STACKS.eyeHeight +
-                Math.sin(state.bobPhase * 2) * 0.035 * state.speedFactor;
+                Math.sin(state.bobPhase * 2) * 0.028 * state.speedFactor;
             rigPitch.position.x = Math.sin(state.bobPhase) * 0.02 * state.speedFactor;
+            // A tiny counter-roll on the sway phase adds body weight to the
+            // stride without reading as nausea.
+            rigPitch.rotation.z =
+                Math.sin(state.bobPhase) * 0.006 * state.speedFactor;
         } else {
             rigPitch.position.y +=
                 (STACKS.eyeHeight - rigPitch.position.y) * Math.min(1, dt * 8);
             rigPitch.position.x += (0 - rigPitch.position.x) * Math.min(1, dt * 8);
+            rigPitch.rotation.z += (0 - rigPitch.rotation.z) * Math.min(1, dt * 8);
         }
     }
 
@@ -163,8 +206,11 @@ export function createPlayer(scene, camera, canvas, colliders, reducedMotion) {
         update: function (dt) {
             if (!state.enabled) {
                 state.speedFactor = 0;
+                pendingYaw = 0;
+                pendingPitch = 0;
                 return;
             }
+            applyLookSmoothing(dt);
             let forward = 0;
             let strafe = 0;
             Object.keys(KEY_DIRS).forEach(function (code) {
@@ -178,7 +224,7 @@ export function createPlayer(scene, camera, canvas, colliders, reducedMotion) {
 
         teleport: function (x, z, yaw, pitch) {
             rigYaw.position.set(x, 0, z);
-            resolveCollisions(rigYaw.position);
+            resolveCollisions(rigYaw.position, true);
             if (yaw !== undefined) {
                 state.yaw = yaw;
             }
@@ -197,7 +243,7 @@ export function createPlayer(scene, camera, canvas, colliders, reducedMotion) {
             for (let i = 0; i < steps; i++) {
                 rigYaw.position.x += dx / steps;
                 rigYaw.position.z += dz / steps;
-                resolveCollisions(rigYaw.position);
+                resolveCollisions(rigYaw.position, true);
             }
         },
 
