@@ -594,6 +594,59 @@ body.playing #scene {
     padding: 0.05rem 0.45rem;
 }
 
+/* Book-to-book navigation (same year) inside the reading overlay. */
+.book-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    pointer-events: auto;
+}
+
+.book-nav[hidden] {
+    display: none;
+}
+
+.book-nav-btn {
+    font: inherit;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    color: var(--gilt);
+    background: rgba(20, 14, 8, 0.5);
+    border: 1px solid rgba(198, 160, 92, 0.45);
+    border-radius: 3px;
+    padding: 0.12rem 0.55rem;
+    cursor: pointer;
+    transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.book-nav-btn:hover:not(:disabled) {
+    background: rgba(198, 160, 92, 0.22);
+}
+
+.book-nav-btn:disabled {
+    opacity: 0.32;
+    cursor: default;
+}
+
+.book-nav-pos {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    min-width: 5.5rem;
+    text-align: center;
+}
+
+/* Page-turn: the flowing text lifts and fades while its content is swapped,
+   then settles back — a quick, non-blocking turn between quotes or books. */
+.page-flow {
+    transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.page-flow.turning {
+    opacity: 0;
+    transform: translateX(-1.4%) skewY(-0.4deg);
+}
+
 .close-btn {
     position: fixed;
     top: 1.4rem;
