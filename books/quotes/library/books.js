@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { leatherFor, makeSpineTexture, mulberry32 } from "./textures.js";
 import { STACKS } from "./stacks.js";
 
-const BOOK_DEPTH = 0.235;
+export const BOOK_DEPTH = 0.235;
 // Aim forgiveness: the invisible pick proxy is padded so thin spines don't
 // demand pixel-perfect aim. Thickness is widened and a floor is enforced;
 // height and reach depth get a little padding too.
@@ -73,7 +73,7 @@ function makeRealBook(book, dims) {
     pick.position.z = PICK_DEPTH / 2 - BOOK_DEPTH;
     group.add(pick);
 
-    return { group: group, pick: pick };
+    return { group: group, pick: pick, colors: colors };
 }
 
 // Fills one shelf row: interleaves this row's real books among fillers with
@@ -147,13 +147,22 @@ export function buildBooks(scene, bays, decorBays, booksData) {
             let rowReals = reals.slice(offset, offset + counts[r]);
             offset += counts[r];
             rowReals = overflow.concat(rowReals);
+            let rowRecord = null;
             overflow = fillRow(innerW, rowReals, rng,
                 function onReal(book, dims, x) {
                     const built = makeRealBook(book, dims);
                     const group = built.group;
                     group.position.set(x, rowY + dims.ht / 2, bookFrontZ);
                     bay.group.add(group);
-                    const record = { book: book, bay: bay, group: group };
+                    const record = {
+                        book: book, bay: bay, group: group, dims: dims,
+                        colors: built.colors,
+                        prevOnShelf: rowRecord, nextOnShelf: null
+                    };
+                    if (rowRecord) {
+                        rowRecord.nextOnShelf = record;
+                    }
+                    rowRecord = record;
                     group.traverse(function (child) {
                         child.userData.record = record;
                     });

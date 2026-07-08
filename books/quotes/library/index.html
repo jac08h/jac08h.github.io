@@ -19,7 +19,7 @@
     <div class="vignette" aria-hidden="true"></div>
 
     <div id="reticle" class="reticle" aria-hidden="true"></div>
-    <div id="aim-label" class="aim-label" aria-hidden="true"></div>
+    <div id="aim-label" class="aim-bubble" aria-hidden="true"></div>
     <div id="fade" class="fade" aria-hidden="true"></div>
 
     <div id="boot" class="boot" aria-hidden="true"></div>
@@ -47,7 +47,11 @@
         </nav>
     </header>
 
-    <nav id="year-rail" class="hud year-rail" aria-label="Shelves by year"></nav>
+    <div id="radar" class="hud radar" aria-label="Room map">
+        <canvas id="radar-canvas" width="520" height="520"></canvas>
+    </div>
+
+    <div id="esc-hint" class="esc-hint" aria-hidden="true">Esc &mdash; pause</div>
 
     <div id="fallback" class="fallback" hidden>
         <h1>The Library</h1>

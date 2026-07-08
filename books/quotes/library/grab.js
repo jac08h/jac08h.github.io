@@ -47,16 +47,27 @@ export function createGrab(scene, camera, player, overlay, onReturned, siblingsF
         holdQuat.multiply(holdTilt);
     }
 
-    function detach() {
+    // `restPose`, when given, is the book's true shelf-local {position,
+    // quaternion} (pre-detach local frame) to return to on close — used when
+    // the book is mid- or fully popped at grab time, so the return animation
+    // still targets the exact unpopped slot rather than wherever the pop
+    // left it. The fly animation itself starts from the group's current
+    // (possibly popped) transform, captured by the caller before this runs.
+    function detach(restPose) {
         const group = record.group;
         group.updateMatrixWorld(true);
         restore = {
             parent: group.parent,
-            position: group.position.clone(),
-            quaternion: group.quaternion.clone()
+            position: restPose ? restPose.position.clone() : group.position.clone(),
+            quaternion: restPose ? restPose.quaternion.clone() : group.quaternion.clone()
         };
-        faceNormal.set(0, 0, 1)
-            .applyQuaternion(group.getWorldQuaternion(new THREE.Quaternion()));
+        // Face normal for the initial slide-out is derived from the true
+        // shelf rest pose (not the current, possibly tilted, popped pose)
+        // so the slide direction matches what an ungrabbed book would use.
+        const restWorldQuat = restPose
+            ? group.parent.getWorldQuaternion(new THREE.Quaternion()).multiply(restPose.quaternion)
+            : group.getWorldQuaternion(new THREE.Quaternion());
+        faceNormal.set(0, 0, 1).applyQuaternion(restWorldQuat);
         scene.attach(group);
     }
 
@@ -117,7 +128,12 @@ export function createGrab(scene, camera, player, overlay, onReturned, siblingsF
             return state === "idle";
         },
 
-        begin: function (rec) {
+        // `restPose`: optional {position, quaternion} in the pre-detach
+        // local frame — the true shelf slot to return to. Pass this when the
+        // book may currently be sitting in a popped (or mid-retract) pose,
+        // so the fly-out starts from wherever it visually is right now while
+        // the close animation still lands it flush in its slot.
+        begin: function (rec, restPose) {
             if (state !== "idle" || overlay.isOpen()) {
                 return false;
             }
@@ -125,7 +141,7 @@ export function createGrab(scene, camera, player, overlay, onReturned, siblingsF
             instant = false;
             overlayOpened = false;
             player.setEnabled(false);
-            detach();
+            detach(restPose);
             slideStart.copy(record.group.position);
             state = "sliding";
             t = 0;
@@ -134,7 +150,7 @@ export function createGrab(scene, camera, player, overlay, onReturned, siblingsF
 
         // Test path: skip the animation, put the book straight into the
         // hold pose and open the overlay.
-        openInstant: function (rec) {
+        openInstant: function (rec, restPose) {
             if (state !== "idle" || overlay.isOpen()) {
                 return false;
             }
@@ -143,7 +159,7 @@ export function createGrab(scene, camera, player, overlay, onReturned, siblingsF
             overlayOpened = false;
             player.setEnabled(false);
             player.rigYaw.updateMatrixWorld(true);
-            detach();
+            detach(restPose);
             computeHoldPose();
             record.group.position.copy(holdPos);
             record.group.quaternion.copy(holdQuat);

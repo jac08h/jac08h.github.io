@@ -144,6 +144,10 @@ function buildCeiling(parent, bounds, beamMat) {
     const xMid = (bounds.xMin + bounds.xMax) / 2;
     const zMid = (bounds.zMin + bounds.zMax) / 2;
 
+    // PlaneGeometry(length, depth) has local +x = length, local +y = depth.
+    // A plain rotation.x = PI/2 lays local-x along world-x and local-y along
+    // world-z (normal facing -y, down into the room), matching `bounds`
+    // exactly — see the matching comment on the floor above.
     const base = new THREE.Mesh(
         new THREE.PlaneGeometry(length, depth),
         new THREE.MeshStandardMaterial({
@@ -151,7 +155,6 @@ function buildCeiling(parent, bounds, beamMat) {
             emissive: 0x1c1206, emissiveIntensity: 1.0
         }));
     base.rotation.x = Math.PI / 2;
-    base.rotation.z = Math.PI / 2;
     base.position.set(xMid, ceiling, zMid);
     parent.add(base);
 
@@ -286,15 +289,18 @@ export function buildRoom(scene, floorTex, woodTex, bounds, doorway) {
         color: 0x6a4e2c, roughness: 0.5, metalness: 0.5
     });
 
-    // Floor (inherited role): repeat/rotation exactly as the old shell.
-    floorTex.repeat.set(Math.round(depth / 3.5), Math.round(length / 2.6));
+    // Floor: PlaneGeometry(length, depth) has local +x = length, local +y =
+    // depth. A plain rotation.x = -PI/2 lays local-x along world-x and
+    // local-y along world-z, so the plane's extents line up with `bounds`
+    // exactly. repeat.x tiles along local-x (world-x, extent `length`),
+    // repeat.y along local-y (world-z, extent `depth`).
+    floorTex.repeat.set(Math.round(length / 3.5), Math.round(depth / 2.6));
     const floor = new THREE.Mesh(
         new THREE.PlaneGeometry(length, depth),
         new THREE.MeshStandardMaterial({
             map: floorTex, roughness: 0.32, metalness: 0.0
         }));
     floor.rotation.x = -Math.PI / 2;
-    floor.rotation.z = Math.PI / 2;
     floor.position.set(xMid, 0, zMid);
     root.add(floor);
 
