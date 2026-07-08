@@ -3,7 +3,7 @@ import { STACKS } from "./stacks.js";
 
 const WALK_SPEED = 2.0;
 const RUN_SPEED = 3.4;
-const LOOK_SENSITIVITY = 0.0022;
+const LOOK_SENSITIVITY = 0.0022 * 0.6;
 const LOOK_SMOOTH_RATE = 22;
 const PITCH_LIMIT = 1.48;
 

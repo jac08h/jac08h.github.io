@@ -180,70 +180,65 @@ body {
     border-color: var(--gilt);
 }
 
-/* Year rail */
-.year-rail {
-    right: 1.4rem;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.28rem;
-}
-
-.year-rail button {
-    background: none;
-    border: none;
-    color: rgba(201, 178, 153, 0.5);
-    font-family: Georgia, serif;
-    font-size: 0.85rem;
-    letter-spacing: 0.22em;
-    padding: 0.18rem 0.2rem;
-    cursor: pointer;
-    transition: color 0.25s ease, text-shadow 0.25s ease, transform 0.25s ease;
-}
-
-.year-rail button::after {
-    content: "";
-    display: inline-block;
-    width: 0.9rem;
-    margin-left: 0.55rem;
-    border-top: 1px solid rgba(198, 160, 92, 0.35);
-    vertical-align: middle;
-    transition: width 0.25s ease, border-color 0.25s ease;
-}
-
-.year-rail button:hover,
-.year-rail button:focus-visible {
-    color: var(--text);
-}
-
-.year-rail button.active {
-    color: var(--gilt-solid);
-    text-shadow: 0 0 14px var(--glow);
-    transform: translateX(-4px);
-}
-
-.year-rail button.active::after {
-    width: 1.6rem;
-    border-color: var(--gilt-solid);
-}
-
-.year-rail button.active::before {
-    content: "";
-    position: absolute;
-    left: -0.7rem;
-    top: 50%;
-    width: 5px;
-    height: 5px;
-    margin-top: -2.5px;
+/* Radar: circular top-down mini-map of the room, bottom-left — a brass
+   instrument scope. A plain DOM/canvas overlay (not three.js) redrawn from
+   the main frame loop. North-up: it never rotates with the player; while
+   walking it stays player-centred and zoomed close, and eases out to frame
+   the whole room when paused. */
+.radar {
+    left: 1.1rem;
+    bottom: 1.1rem;
+    width: 264px;
+    height: 264px;
+    padding: 6px;
     border-radius: 50%;
-    background: var(--gilt-solid);
-    box-shadow: 0 0 8px var(--glow);
+    background: radial-gradient(circle at 50% 40%, rgba(26, 17, 10, 0.78), rgba(5, 3, 2, 0.86));
+    border: 1px solid rgba(198, 160, 92, 0.85);
+    box-shadow:
+        0 0 0 3px rgba(22, 13, 7, 0.9),
+        0 0 0 4.5px rgba(198, 160, 92, 0.45),
+        0 12px 32px rgba(0, 0, 0, 0.55),
+        0 0 22px rgba(198, 160, 92, 0.14),
+        inset 0 0 26px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 
-.year-rail button {
-    position: relative;
+.radar canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+
+/* When the pointer isn't locked (paused / not yet entered), the radar's year
+   labels and aisle mouths become clickable teleport targets. */
+.radar.interactive canvas {
+    cursor: pointer;
+}
+
+/* Persistent Esc hint, shown for the whole time the reading overlay is open
+   (unlike .controls-hint, which is transient). */
+.esc-hint {
+    position: fixed;
+    right: 1.4rem;
+    bottom: 1.4rem;
+    z-index: 12;
+    padding: 0.5rem 1.1rem;
+    border-radius: 999px;
+    background: rgba(10, 6, 4, 0.5);
+    border: 1px solid rgba(198, 160, 92, 0.22);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    color: rgba(201, 178, 153, 0.85);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.esc-hint.visible {
+    opacity: 1;
 }
 
 /* Fallback (no WebGL / no JS) */
@@ -291,29 +286,36 @@ body {
     box-shadow: 0 0 10px var(--glow);
 }
 
-.aim-label {
+/* Aim bubble: a prominent tooltip near the reticle whose background is set
+   inline (from JS) to the aimed book's own leather color, with the text
+   color chosen for contrast against it — reads as a little book-colored
+   speech bubble rather than a plain label. */
+.aim-bubble {
     position: fixed;
     z-index: 4;
     left: 50%;
-    top: calc(50% + 2rem);
-    transform: translateX(-50%);
-    max-width: 340px;
-    padding: 0.32rem 0.85rem;
+    top: calc(50% + 2.4rem);
+    transform: translateX(-50%) translateY(-4px) scale(0.96);
+    max-width: 380px;
+    padding: 0.55rem 1.15rem;
     text-align: center;
     font-style: italic;
-    font-size: 0.85rem;
-    letter-spacing: 0.05em;
+    font-size: 1.05rem;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
     color: var(--text);
     background: rgba(10, 6, 3, 0.72);
-    border: 1px solid rgba(198, 160, 92, 0.35);
-    border-radius: 4px;
+    border: 1px solid rgba(198, 160, 92, 0.45);
+    border-radius: 999px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 0, 0, 0.25) inset;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.15s ease;
+    transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease, color 0.15s ease;
 }
 
-.aim-label.visible {
+.aim-bubble.visible {
     opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
 }
 
 .pause {

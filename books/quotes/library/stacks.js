@@ -116,7 +116,7 @@ function buildAisleSign(scene, year, aisleX, side) {
     const sign = new THREE.Mesh(
         new THREE.PlaneGeometry(0.88, 0.32),
         new THREE.MeshStandardMaterial({
-            map: makePlaqueTexture(year, side), roughness: 0.5, metalness: 0.3,
+            map: makePlaqueTexture(year, side), roughness: 0.85, metalness: 0.0,
             emissive: 0xffce8f, emissiveIntensity: 0.9,
             emissiveMap: makePlaqueEmissive(year, side),
             side: THREE.DoubleSide
