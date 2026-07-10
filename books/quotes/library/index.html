@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Library — Book Quotes</title>
+    <link rel="stylesheet" href="library.css">
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "./vendor/three.module.min.js",
+            "three/addons/": "./vendor/addons/"
+        }
+    }
+    </script>
+</head>
+<body>
+    <canvas id="scene" tabindex="0" aria-label="First-person 3D library. Click to enter, walk with W A S D, aim at a book and click to pick it up."></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <div id="reticle" class="reticle" aria-hidden="true"></div>
+    <div id="aim-label" class="aim-bubble" aria-hidden="true"></div>
+    <div id="fade" class="fade" aria-hidden="true"></div>
+
+    <div id="boot" class="boot" aria-hidden="true"></div>
+
+    <div id="intro" class="intro">
+        <div class="intro-pill">
+            <span class="intro-pill-text">click to look around</span>
+        </div>
+    </div>
+
+    <div id="controls-hint" class="controls-hint" aria-hidden="true">
+        W&thinsp;A&thinsp;S&thinsp;D to walk &middot; aim at a book &amp; click &middot; Esc frees the mouse
+    </div>
+
+    <div id="pause" class="pause">
+        <p class="pause-text">paused</p>
+        <p class="pause-sub">click anywhere to resume</p>
+        <a id="pause-home" class="pause-home" href="/">← back to home</a>
+    </div>
+
+    <header class="hud hud-header">
+        <nav class="hud-nav" aria-label="Music">
+            <button id="mute-btn" class="mute-btn" aria-label="Mute music" aria-pressed="false">
+                <span class="mute-on" aria-hidden="true">♪</span>
+                <span class="mute-off" aria-hidden="true">♪̸</span>
+            </button>
+        </nav>
+    </header>
+
+    <audio id="bg-music" src="nocturne.mp3" loop preload="auto"></audio>
+
+    <div id="esc-hint" class="esc-hint" aria-hidden="true">Esc &mdash; pause &middot; M &mdash; mute</div>
+
+    <div id="fallback" class="fallback" hidden>
+        <h1>The Library</h1>
+        <p id="fallback-reason">This view needs WebGL, which your browser could not provide.</p>
+        <p><a href="/books/quotes/all">Browse the alphabetical index</a> or the
+            <a href="/books/quotes/float/">floating quotes</a> instead.</p>
+    </div>
+    <noscript>
+        <div class="fallback">
+            <h1>The Library</h1>
+            <p>This view needs JavaScript.
+                <a href="/books/quotes/all">Browse the alphabetical index</a> instead.</p>
+        </div>
+    </noscript>
+
+    <div id="paper-view" class="paper-view" hidden aria-hidden="true">
+        <button id="paper-close" class="close-btn paper-close" aria-label="Put down the note">✕</button>
+        <div class="paper-card" role="dialog" aria-modal="true" aria-label="A note">
+            <p id="paper-text" class="paper-text"></p>
+        </div>
+    </div>
+
+    <div id="backdrop" class="backdrop" hidden></div>
+
+    <div id="stage" class="stage" hidden aria-hidden="true">
+        <button id="close-btn" class="close-btn" aria-label="Close book">✕</button>
+
+        <button id="prev-btn" class="nav-arrow nav-prev" aria-label="Previous quote">
+            <span aria-hidden="true">‹</span>
+        </button>
+
+        <div id="book" class="book" role="dialog" aria-modal="true" aria-label="Opened book">
+            <div class="running-head running-head-left" id="head-left"></div>
+            <div class="running-head running-head-right" id="head-right"></div>
+            <div class="page-flow" id="page-flow"></div>
+            <div class="page-number page-number-left" id="pageno-left"></div>
+            <div class="page-number page-number-right" id="pageno-right"></div>
+            <div class="gutter" aria-hidden="true"></div>
+            <div class="page-shade" aria-hidden="true"></div>
+        </div>
+
+        <button id="next-btn" class="nav-arrow nav-next" aria-label="Next quote">
+            <span aria-hidden="true">›</span>
+        </button>
+
+        <div class="book-caption" id="book-caption">
+            <span class="caption-title" id="caption-title"></span>
+            <span class="caption-author" id="caption-author"></span>
+            <span class="caption-indicator" id="page-indicator"></span>
+            <div class="book-nav" id="book-nav" hidden>
+                <button id="book-prev-btn" class="book-nav-btn" aria-label="Previous book this year">‹ book</button>
+                <span class="book-nav-pos" id="book-position"></span>
+                <button id="book-next-btn" class="book-nav-btn" aria-label="Next book this year">book ›</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="library.js"></script>
+</body>
+</html>
