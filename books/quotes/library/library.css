@@ -143,18 +143,11 @@ body {
     left: 0;
     right: 0;
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
+    align-items: center;
+    justify-content: flex-end;
     padding: 1.1rem 1.6rem;
     pointer-events: none;
     background: linear-gradient(180deg, rgba(5, 3, 2, 0.55), transparent);
-}
-
-.hud-title {
-    letter-spacing: 0.18em;
-    font-size: 0.95rem;
-    color: var(--text-dim);
-    text-transform: uppercase;
 }
 
 .hud-nav {
@@ -163,21 +156,36 @@ body {
     pointer-events: auto;
 }
 
-.hud-nav a {
+.mute-btn {
+    pointer-events: auto;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
     color: var(--text-dim);
-    text-decoration: none;
-    font-size: 0.82rem;
-    font-style: italic;
-    letter-spacing: 0.08em;
-    border-bottom: 1px solid rgba(198, 160, 92, 0.25);
-    padding-bottom: 2px;
-    transition: color 0.2s ease, border-color 0.2s ease;
+    font-size: 1rem;
+    line-height: 1;
+    align-self: center;
+    transition: color 0.2s ease;
 }
 
-.hud-nav a:hover,
-.hud-nav a:focus {
+.mute-btn:hover,
+.mute-btn:focus-visible {
     color: var(--text);
-    border-color: var(--gilt);
+    outline: none;
+}
+
+.mute-btn .mute-off {
+    display: none;
+}
+
+.mute-btn.muted .mute-on {
+    display: none;
+}
+
+.mute-btn.muted .mute-off {
+    display: inline;
+    opacity: 0.55;
 }
 
 /* Radar: circular top-down mini-map of the room, bottom-left — a brass
@@ -358,6 +366,29 @@ body {
     animation: pill-pulse 2.4s ease-in-out infinite;
 }
 
+/* Subtle gilt link on the pause veil that navigates back to the site root.
+   Its own click stops propagation (in library.js) so it isn't swallowed by
+   the veil's click-to-resume handler. */
+.pause-home {
+    margin-top: 1.4rem;
+    font-size: 0.82rem;
+    font-style: italic;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(198, 160, 92, 0.3);
+    padding-bottom: 2px;
+    pointer-events: auto;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.pause-home:hover,
+.pause-home:focus-visible {
+    color: var(--text);
+    border-color: var(--gilt);
+    outline: none;
+}
+
 .fade {
     position: fixed;
     inset: 0;
@@ -376,6 +407,82 @@ body.playing #scene {
     cursor: none;
 }
 
+
+/* ==========================================================================
+   Paper note — plain, fully legible reading card (no blurred filler)
+   ========================================================================== */
+
+.paper-view {
+    position: fixed;
+    inset: 0;
+    z-index: 16;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1rem;
+    background: rgba(4, 2, 1, 0);
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease, background 0.4s ease, backdrop-filter 0.4s ease;
+}
+
+.paper-view[hidden] {
+    display: none;
+}
+
+.paper-view.open {
+    opacity: 1;
+    pointer-events: auto;
+    background: rgba(4, 2, 1, 0.82);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+.paper-card {
+    position: relative;
+    width: min(88vw, 640px);
+    padding: clamp(2.4rem, 6vw, 4rem) clamp(2rem, 6vw, 4.5rem);
+    background:
+        radial-gradient(120% 100% at 50% 0%, #fbf5e6 0%, #f4ecd8 55%, #e9ddc0 100%);
+    border-radius: 5px;
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.7),
+        0 2px 0 rgba(255, 255, 255, 0.25) inset,
+        0 0 0 1px rgba(0, 0, 0, 0.35);
+    transform: scale(0.94) translateY(18px);
+    transition: transform 0.5s cubic-bezier(0.22, 0.8, 0.3, 1);
+}
+
+.paper-view.open .paper-card {
+    transform: scale(1) translateY(0);
+}
+
+.paper-text {
+    margin: 0;
+    text-align: center;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.3rem, 3.6vw, 1.9rem);
+    line-height: 1.5;
+    color: #2b2318;
+}
+
+.paper-close {
+    z-index: 17;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .paper-view {
+        transition: opacity 0.2s ease, background 0.2s ease;
+    }
+
+    .paper-card,
+    .paper-view.open .paper-card {
+        transform: none;
+        transition: none;
+    }
+}
 
 /* ==========================================================================
    Reading overlay — opened two-page book spread

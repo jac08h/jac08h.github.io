@@ -312,8 +312,7 @@ export function makePlaqueTexture(year, side) {
     ctx.font = "44px Georgia, serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.shadowColor = "rgba(255, 200, 120, 0.5)";
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = 0;
     ctx.fillText(String(year).split("").join(" "), w / 2, h / 2 + 2);
     if (side) {
         const tipX = side < 0 ? 26 : w - 26;
@@ -347,8 +346,7 @@ export function makePlaqueEmissive(year, side) {
     ctx.font = "44px Georgia, serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.shadowColor = "rgba(255, 200, 120, 0.7)";
-    ctx.shadowBlur = 8;
+    ctx.shadowBlur = 0;
     ctx.fillText(String(year).split("").join(" "), w / 2, h / 2 + 2);
     if (side) {
         const tipX = side < 0 ? 26 : w - 26;

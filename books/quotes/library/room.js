@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import {
-    makeRugTexture, makeWallTexture, makePanelTexture, makePictureTexture,
-    makeSconceTexture, mulberry32
+    makeRugTexture, makeWallTexture, makePanelTexture,
+    makeSconceTexture
 } from "./textures.js";
 import { STACKS } from "./stacks.js";
 
@@ -212,23 +212,10 @@ function buildSconce(parent, x, z, faceYaw, sconceTex, brassMat) {
     parent.add(group);
 }
 
-// Framed picture: a mount plane + a thin frame box, hung flat on a wall.
-function buildPicture(parent, x, y, z, faceYaw, w, h, tex, frameMat) {
-    const group = new THREE.Group();
-    const frame = new THREE.Mesh(
-        new THREE.BoxGeometry(w + 0.12, h + 0.12, 0.06), frameMat);
-    group.add(frame);
-    const art = new THREE.Mesh(
-        new THREE.PlaneGeometry(w, h),
-        new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85 }));
-    art.position.z = 0.035;
-    group.add(art);
-    group.position.set(x, y, z);
-    group.rotation.y = faceYaw;
-    parent.add(group);
-}
-
-// Round brass wall clock for the entry wall.
+// Round brass wall clock for the entry wall. Hands pivot at the clock centre
+// (each in its own group, with the hand box offset up by half its length) and
+// are driven to the real local time; returns an `update` that re-points them so
+// the clock stays live. 12 o'clock is up (+y); clockwise is -rotation.z.
 function buildClock(parent, x, y, z, faceYaw, brassMat) {
     const group = new THREE.Group();
     const rim = new THREE.Mesh(
@@ -239,19 +226,55 @@ function buildClock(parent, x, y, z, faceYaw, brassMat) {
         new THREE.MeshStandardMaterial({ color: 0x1a140d, roughness: 0.6 }));
     face.position.z = 0.01;
     group.add(face);
-    const handMat = new THREE.MeshStandardMaterial({
-        color: 0xc8a866, roughness: 0.4, metalness: 0.7
+
+    // Hour tick marks around the dial.
+    const tickMat = new THREE.MeshStandardMaterial({
+        color: 0xb59a68, roughness: 0.5, metalness: 0.5
     });
-    const hourH = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.15, 0.01), handMat);
-    hourH.position.set(0, 0.06, 0.03);
-    group.add(hourH);
-    const minH = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.22, 0.01), handMat);
-    minH.position.set(0.05, 0.05, 0.03);
-    minH.rotation.z = -1.1;
-    group.add(minH);
+    for (let i = 0; i < 12; i++) {
+        const a = (i / 12) * Math.PI * 2;
+        const tick = new THREE.Mesh(
+            new THREE.BoxGeometry(0.012, i % 3 === 0 ? 0.05 : 0.03, 0.008), tickMat);
+        const r = 0.245;
+        tick.position.set(Math.sin(a) * r, Math.cos(a) * r, 0.02);
+        tick.rotation.z = -a;
+        group.add(tick);
+    }
+
+    const handMat = new THREE.MeshStandardMaterial({
+        color: 0xd8bd7f, roughness: 0.4, metalness: 0.7
+    });
+    function makeHand(width, len, zoff) {
+        const pivot = new THREE.Group();
+        const bar = new THREE.Mesh(
+            new THREE.BoxGeometry(width, len, 0.01), handMat);
+        bar.position.set(0, len / 2, zoff);
+        pivot.add(bar);
+        group.add(pivot);
+        return pivot;
+    }
+    const hourH = makeHand(0.022, 0.15, 0.03);
+    const minH = makeHand(0.015, 0.22, 0.035);
+    const hub = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.02, 0.02, 0.02, 12), brassMat);
+    hub.rotation.x = Math.PI / 2;
+    hub.position.z = 0.045;
+    group.add(hub);
+
+    function update() {
+        const now = new Date();
+        const h = now.getHours() % 12;
+        const m = now.getMinutes();
+        const s = now.getSeconds();
+        minH.rotation.z = -Math.PI * 2 * ((m + s / 60) / 60);
+        hourH.rotation.z = -Math.PI * 2 * ((h + m / 60) / 12);
+    }
+    update();
+
     group.position.set(x, y, z);
     group.rotation.y = faceYaw;
     parent.add(group);
+    return update;
 }
 
 export function buildRoom(scene, floorTex, woodTex, bounds, doorway) {
@@ -284,9 +307,6 @@ export function buildRoom(scene, floorTex, woodTex, bounds, doorway) {
     });
     const brassMat = new THREE.MeshStandardMaterial({
         color: 0x8a6836, roughness: 0.4, metalness: 0.8
-    });
-    const frameMat = new THREE.MeshStandardMaterial({
-        color: 0x6a4e2c, roughness: 0.5, metalness: 0.5
     });
 
     // Floor: PlaneGeometry(length, depth) has local +x = length, local +y =
@@ -390,28 +410,9 @@ export function buildRoom(scene, floorTex, woodTex, bounds, doorway) {
         buildSconce(root, bounds.xMax - 0.12, z, -Math.PI / 2, sconceTex, brassMat);
     });
 
-    // Framed pictures on the entry wall (flanking the doorway if present).
-    const picRng = mulberry32(91);
-    const picY = 2.4;
-    const picSpots = [];
-    const picStep = 4.6;
-    for (let x = bounds.xMin + 2.4; x < bounds.xMax - 1.5; x += picStep) {
-        if (doorway && Math.abs(x - doorway.x) < doorway.width / 2 + 0.9) {
-            continue;
-        }
-        if (Math.abs(x - clockX) < 1.3) {
-            continue;
-        }
-        picSpots.push(x);
-    }
-    picSpots.forEach(function (x) {
-        const w = 0.7 + picRng() * 0.4;
-        const h = 0.9 + picRng() * 0.4;
-        buildPicture(root, x, picY, bounds.zMax - 0.04, Math.PI, w, h,
-            makePictureTexture(x * 1000), frameMat);
-    });
 
-    buildClock(root, clockX, 2.9, bounds.zMax - 0.05, Math.PI, brassMat);
+    const updateClock = buildClock(root, clockX, 2.9, bounds.zMax - 0.05, Math.PI,
+        brassMat);
 
     // Warm fog + background: reduced density so walls read at room distances
     // while aisle depths still fade. Background warmed to sit under the plaster.
@@ -458,5 +459,5 @@ export function buildRoom(scene, floorTex, woodTex, bounds, doorway) {
             minZ: bounds.zMax, maxZ: bounds.zMax + wallThick });
     }
 
-    return { colliders: colliders };
+    return { colliders: colliders, updateClock: updateClock };
 }
