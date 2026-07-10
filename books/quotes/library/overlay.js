@@ -140,49 +140,101 @@ export function createOverlay() {
     // Lay out both pages as one continuous flow: leading filler, then the
     // highlighted quote, then trailing filler. CSS multi-column (column-fill:
     // auto) fills the left page top-to-bottom and continues onto the right, so
-    // the text is always strictly consecutive — the quote may straddle the
-    // gutter naturally. A random block of leading filler places the quote at a
-    // random vertical position; both pages are over-filled (overflow clipped)
-    // so neither ever looks half-empty. fitType then shrinks the type until the
-    // quote itself is fully on screen.
+    // the text is always strictly consecutive — the quote straddles the gutter
+    // naturally. The quote is ALWAYS made to fit within the two visible columns
+    // (fitType shrinks the type until it does), so it can never spill onto a
+    // third page — there is nothing to "page through". A block of leading
+    // filler places the quote's start; when the quote is long enough to reach
+    // the right page, the type is grown so the quote itself extends down to the
+    // bottom of the right column rather than ending high with blank space
+    // beneath. Trailing filler tops off whatever remains so no page looks
+    // half-empty.
     function layoutSpread(quote, rng) {
         // Enough words to overflow both columns at the largest type size.
         const FILL = 300;
         const len = quote.length;
 
-        // How far down the quote sits: a random block of leading filler,
-        // shrunk as the quote grows so long quotes still fit below it.
+        // How far down the quote starts: a block of leading filler. Short/medium
+        // quotes may get a large "right-page start" lead (filler fills the whole
+        // left column so the quote begins in the right column); the lead shrinks
+        // as the quote grows so a long quote always has room to fit below it.
+        // A right-page start is only offered when the quote is short enough that,
+        // even confined to the single right column, it still fits — otherwise it
+        // starts on the left so it can use both columns.
         let leadMax;
-        if (len < 300) {
-            leadMax = 60;
-        } else if (len < 900) {
-            leadMax = 34;
-        } else if (len < 1800) {
-            leadMax = 14;
+        let rightMin;
+        let rightMax;
+        if (len < 220) {
+            leadMax = 55;
+            rightMin = 115;
+            rightMax = 200;
+        } else if (len < 520) {
+            leadMax = 30;
+            rightMin = 115;
+            rightMax = 150;
+        } else if (len < 1400) {
+            leadMax = 12;
+            rightMin = 0;
+            rightMax = 0;
         } else {
             leadMax = 4;
+            rightMin = 0;
+            rightMax = 0;
         }
-        const lead = 4 + Math.floor(rng() * leadMax);
 
-        pageFlow.innerHTML =
-            fillerSpan(rng, lead) + quoteSpan(quote) + fillerSpan(rng, FILL);
-        fitType();
+        // ~45% of eligible (short) quotes start on the right page.
+        const wantRight = rightMax > 0 && rng() < 0.45;
+        const initialLead = wantRight
+            ? rightMin + Math.floor(rng() * (rightMax - rightMin))
+            : 4 + Math.floor(rng() * leadMax);
+
+        // Try the chosen lead; if fitType can't get the quote to fit within the
+        // two columns (an over-large lead pushed it off the bottom of the right
+        // column even at min type), pull the lead back and re-lay-out. The quote
+        // is NEVER allowed to overflow the two pages — correctness beats where it
+        // starts, so a lead that can't fit is abandoned down to 4.
+        let lead = initialLead;
+        let guard = 0;
+        while (true) {
+            pageFlow.innerHTML =
+                fillerSpan(rng, lead) + quoteSpan(quote) + fillerSpan(rng, FILL);
+            fitType();
+            if (!quoteOverflows() || lead <= 4 || guard >= 10) {
+                break;
+            }
+            lead = Math.max(4, Math.floor(lead * 0.6));
+            guard += 1;
+        }
     }
 
-    // Shrink the type until the highlighted quote is fully within the spread —
-    // i.e. it hasn't been pushed off the bottom of the right column (filler is
-    // allowed to overflow and clip). With column-fill: auto the quote flows
-    // left column → right column; it overflows only once the right column is
-    // full, so we just check the quote span's box against the .page-flow box.
+    // Size the type to the LARGEST value at which the highlighted quote still
+    // fits fully within the two visible columns. This does two jobs at once:
+    // it guarantees the quote never spills onto a third page (so there is never
+    // anything to "page through"), and it makes the quote fill as much of the
+    // spread as it can — a short quote gets large type, and a quote long enough
+    // to reach the right page is grown until it extends down toward the bottom
+    // of the right column instead of ending high with blank space beneath.
+    //
+    // With column-fill: auto the quote flows left column → right column and
+    // overflows only once the right column is full, so quoteOverflows() checks
+    // the quote's boxes against the .page-flow box. We binary-search the font
+    // size in [MIN, MAX] for the largest non-overflowing size.
+    const FIT_MIN = 0.62;
+    const FIT_MAX = 1.9;
+    const FIT_STEP = 0.03;
     function fitType() {
         if (pageFlow.clientHeight <= 0) {
             return;
         }
-        let size = 1.55;
+        // Coarse-to-fine: start high and step down to the first size that fits,
+        // then that size is the largest fitting one on the grid. Starting at the
+        // max means short quotes settle at large type; long ones step down until
+        // they fit both columns.
+        let size = FIT_MAX;
         pageFlow.style.fontSize = size + "rem";
         let guard = 0;
-        while (quoteOverflows() && size > 0.6 && guard < 40) {
-            size -= 0.05;
+        while (quoteOverflows() && size > FIT_MIN && guard < 60) {
+            size -= FIT_STEP;
             pageFlow.style.fontSize = size + "rem";
             guard += 1;
         }

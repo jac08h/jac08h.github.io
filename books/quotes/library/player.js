@@ -87,6 +87,9 @@ export function createPlayer(scene, camera, canvas, colliders, reducedMotion) {
         }
         if (event.code === "ShiftLeft" || event.code === "ShiftRight") {
             keys.shift = true;
+            if (state.locked) {
+                event.preventDefault();
+            }
         }
     });
 

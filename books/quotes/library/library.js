@@ -23,6 +23,11 @@ const aimLabelEl = document.getElementById("aim-label");
 const radarEl = document.getElementById("radar");
 const radarCanvas = document.getElementById("radar-canvas");
 const escHintEl = document.getElementById("esc-hint");
+const musicEl = document.getElementById("bg-music");
+const muteBtn = document.getElementById("mute-btn");
+const paperViewEl = document.getElementById("paper-view");
+const paperTextEl = document.getElementById("paper-text");
+const paperCloseEl = document.getElementById("paper-close");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
 
@@ -48,7 +53,11 @@ try {
     throw err;
 }
 
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+// Cap the render resolution below the display's full DPR: the scene + the
+// multi-pass UnrealBloom blur are fragment-bound, so on a HiDPI panel rendering
+// at 2× is the main source of frame lag. 1.5× keeps edges clean (antialias is
+// on and bloom is a soft blur) while cutting fragment/bloom work by ~40%.
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.3;
@@ -72,6 +81,7 @@ let player = null;
 let grab = null;
 let records = [];
 let raycastTargets = [];
+let occluders = [];
 let activeAisle = null;
 let started = false;
 let entered = false;
@@ -173,6 +183,13 @@ function start(booksData) {
     const built = buildBooks(scene, stacks.bays, stacks.decorBays, booksData);
     records = built.records;
     raycastTargets = built.raycastTargets;
+    occluders = stacks.occluders || [];
+    // The paper sheet on the reading table joins the pick targets so it can be
+    // aimed like a book; picking it opens the plain-text note panel instead of
+    // the blurred book overlay.
+    if (stacks.paper) {
+        raycastTargets.push(stacks.paper.pick);
+    }
 
     player = createPlayer(scene, camera, canvas, stacks.colliders, reducedMotion);
     player.teleport(stacks.spawn.x, stacks.spawn.z, stacks.spawn.yaw, 0);
@@ -180,7 +197,8 @@ function start(booksData) {
     grab = createGrab(scene, camera, player, overlay, onBookReturned, siblingsForBook);
 
     activeAisle = stacks.aisles[0];
-    initRadar();
+    // Radar HUD disabled for now — hidden via CSS and not drawn per frame. The
+    // radar code is left in place so it can be switched back on later.
     started = true;
 }
 
@@ -200,8 +218,60 @@ function showControlsHint() {
     }, 4500);
 }
 
+// Background music. Autoplay-with-sound is blocked until a user gesture, so
+// playback is kicked off from enter() (fired by the intro click). It follows
+// the game's pause state and can be muted from the HUD; the choice is
+// remembered across visits.
+const MUSIC_VOLUME = 0.28;
+let muted = window.localStorage.getItem("library-muted") === "1";
+
+if (musicEl) {
+    musicEl.volume = MUSIC_VOLUME;
+    musicEl.muted = muted;
+}
+
+function syncMuteButton() {
+    if (!muteBtn) {
+        return;
+    }
+    muteBtn.setAttribute("aria-pressed", muted ? "true" : "false");
+    muteBtn.setAttribute("aria-label", muted ? "Unmute music" : "Mute music");
+    muteBtn.classList.toggle("muted", muted);
+}
+
+function playMusic() {
+    if (musicEl) {
+        musicEl.play().catch(function () {});
+    }
+}
+
+function toggleMute() {
+    muted = !muted;
+    window.localStorage.setItem("library-muted", muted ? "1" : "0");
+    if (musicEl) {
+        musicEl.muted = muted;
+    }
+    syncMuteButton();
+}
+
+if (muteBtn) {
+    syncMuteButton();
+    muteBtn.addEventListener("click", function () {
+        toggleMute();
+        muteBtn.blur();
+    });
+}
+
+// M toggles mute from anywhere in the walkable view (mirrors the HUD button).
+document.addEventListener("keydown", function (event) {
+    if (event.code === "KeyM" && !event.repeat) {
+        toggleMute();
+    }
+});
+
 function enter() {
     entered = true;
+    playMusic();
     introEl.classList.add("fading");
     window.setTimeout(function () {
         introEl.classList.add("gone");
@@ -228,6 +298,13 @@ function onLockChange(locked) {
     }
     const paused = !locked && !overlay.isOpen();
     pauseEl.classList.toggle("visible", paused);
+    if (musicEl) {
+        if (paused) {
+            musicEl.pause();
+        } else {
+            playMusic();
+        }
+    }
 }
 
 // Relock recovery. Chrome enforces a short cooldown after exiting pointer
@@ -247,6 +324,15 @@ function requestResume() {
 }
 
 pauseEl.addEventListener("click", requestResume);
+
+// The pause-screen "back to home" link must navigate rather than be swallowed
+// by the pause veil's click-to-resume handler.
+const pauseHomeEl = document.getElementById("pause-home");
+if (pauseHomeEl) {
+    pauseHomeEl.addEventListener("click", function (event) {
+        event.stopPropagation();
+    });
+}
 
 canvas.addEventListener("click", function () {
     if (!started || !entered || overlay.isOpen()) {
@@ -314,7 +400,7 @@ function teleportToYear(year, withFade) {
 // visible as a click-to-teleport target.
 const radarCtx = radarCanvas ? radarCanvas.getContext("2d") : null;
 let radarLastDraw = 0;
-const RADAR_INTERVAL = 1 / 18;
+const RADAR_INTERVAL = 1 / 12;
 // World units from scope centre to rim in the walking (zoomed) framing.
 const RADAR_WALK_RADIUS = 5.4;
 // Eased view transform: world-space centre + canvas px per world unit.
@@ -468,36 +554,53 @@ function drawRadar(force) {
     ctx.lineTo(dx1 + 5, ry1 - 10);
     ctx.stroke();
 
+    // Carpet runner rug (drawn UNDER the shelf bars): a deep-red strip laid
+    // along world x, matching room.js's rug — plane 1.8 (z) × (length-2) (x),
+    // centred at (xMid, walkwayDepth/2 + 0.3). Subtle and low-opacity so it
+    // reads as a rug without dominating.
+    const roomLength = b.xMax - b.xMin;
+    const roomXMid = (b.xMin + b.xMax) / 2;
+    const rugXLen = roomLength - 2;
+    const rugZ = STACKS.walkwayDepth / 2 + 0.3;
+    const rugX0 = radarX(roomXMid - rugXLen / 2);
+    const rugX1 = radarX(roomXMid + rugXLen / 2);
+    const rugY0 = radarY(rugZ - 0.9);
+    const rugY1 = radarY(rugZ + 0.9);
+    ctx.fillStyle = "rgba(122, 30, 26, 0.34)";
+    radarRoundRect(ctx, rugX0, rugY0, rugX1 - rugX0, rugY1 - rugY0,
+        Math.min((rugY1 - rugY0) / 2, 8));
+    ctx.fill();
+
     // Shelf units as rounded bars: each spans unitThickness wide (x) by
-    // unitLength deep (z ∈ [-unitLength, 0]), centred at x = i * pitch.
-    // Only the unit hosting the shelf FACE the player is nearest to lights
-    // up (mirrors nearestFaceYear()).
+    // unitLength deep (z ∈ [-unitLength, 0]), centred at x = i * pitch. All
+    // units are drawn uniformly; no "active" shelf is emphasised.
     const unitCount = stacks.aisles.length + 1;
-    let activeUnitX = null;
-    if (activeAisle && player) {
-        const faceSide = activeAisle.years.length > 1 &&
-            player.rigYaw.position.x > activeAisle.x ? 1 : -1;
-        activeUnitX = activeAisle.x + faceSide * STACKS.pitch / 2;
-    }
     for (let i = 0; i < unitCount; i++) {
         const ux = i * STACKS.pitch;
         const bx = radarX(ux - STACKS.unitThickness / 2);
         const bw = STACKS.unitThickness * s;
         const by = radarY(-STACKS.unitLength);
         const bh = STACKS.unitLength * s;
-        const isActiveUnit = activeUnitX !== null &&
-            Math.abs(ux - activeUnitX) < 1e-6;
-        ctx.save();
-        if (isActiveUnit) {
-            ctx.shadowColor = "rgba(235, 196, 124, 0.8)";
-            ctx.shadowBlur = 12;
-        }
-        ctx.fillStyle = isActiveUnit
-            ? "rgba(235, 196, 124, 0.9)" : "rgba(198, 160, 92, 0.42)";
+        ctx.fillStyle = "rgba(198, 160, 92, 0.42)";
         radarRoundRect(ctx, bx, by, bw, bh, Math.min(bw / 2, 6));
         ctx.fill();
-        ctx.restore();
     }
+
+    // Reading table: a solid brown block at (xMid, tableZ), top 1.7 (x) ×
+    // 0.95 (z), drawn on top of the rug so it reads as furniture.
+    const tableZ = STACKS.walkwayDepth + 2.6;
+    const tblX0 = radarX(roomXMid - 0.85);
+    const tblX1 = radarX(roomXMid + 0.85);
+    const tblY0 = radarY(tableZ - 0.475);
+    const tblY1 = radarY(tableZ + 0.475);
+    ctx.save();
+    ctx.fillStyle = "rgba(120, 82, 44, 0.92)";
+    radarRoundRect(ctx, tblX0, tblY0, tblX1 - tblX0, tblY1 - tblY0, 4);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(60, 40, 20, 0.8)";
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.restore();
 
     // Year labels: horizontal pills inside each aisle, the left face's year
     // above mid-depth and the right face's below, each with a small nib
@@ -508,34 +611,29 @@ function drawRadar(force) {
     ctx.font = "600 " + fontPx.toFixed(1) + "px Georgia, serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    const activeYear = started && player ? nearestFaceYear() : null;
     stacks.aisles.forEach(function (aisle) {
         const ax = radarX(aisle.x);
         aisle.years.forEach(function (year, faceIdx) {
             const side = faceIdx === 0 ? -1 : 1;
             const ay = radarY(-STACKS.unitLength / 2 + side * 0.95);
-            const active = year === activeYear;
             const text = String(year);
             const pw = ctx.measureText(text).width + fontPx * 1.05;
             const ph = fontPx + 9;
-            ctx.fillStyle = active
-                ? "rgba(52, 36, 16, 0.92)" : "rgba(12, 8, 5, 0.7)";
+            ctx.fillStyle = "rgba(12, 8, 5, 0.7)";
             radarRoundRect(ctx, ax - pw / 2, ay - ph / 2, pw, ph, ph / 2);
             ctx.fill();
-            ctx.strokeStyle = active
-                ? "rgba(235, 196, 124, 0.95)" : "rgba(198, 160, 92, 0.32)";
-            ctx.lineWidth = active ? 2 : 1;
+            ctx.strokeStyle = "rgba(198, 160, 92, 0.32)";
+            ctx.lineWidth = 1;
             ctx.stroke();
             const nibX = ax + side * (pw / 2);
-            ctx.fillStyle = active
-                ? "rgba(235, 196, 124, 0.95)" : "rgba(198, 160, 92, 0.55)";
+            ctx.fillStyle = "rgba(198, 160, 92, 0.55)";
             ctx.beginPath();
             ctx.moveTo(nibX + side * 8, ay);
             ctx.lineTo(nibX - side * 2, ay - 6);
             ctx.lineTo(nibX - side * 2, ay + 6);
             ctx.closePath();
             ctx.fill();
-            ctx.fillStyle = active ? "#f2dcab" : "rgba(214, 192, 162, 0.85)";
+            ctx.fillStyle = "rgba(214, 192, 162, 0.85)";
             ctx.fillText(text, ax, ay + 1);
             radarHitTargets.push({
                 x: ax, y: ay, r: Math.max(22, pw / 2 + 6), year: year
@@ -671,8 +769,16 @@ function pickCenter() {
     }
     player.rigYaw.updateMatrixWorld(true);
     raycaster.setFromCamera(centerNdc, camera);
-    const hits = raycaster.intersectObjects(raycastTargets, false);
-    return hits.length > 0 ? hits[0].object.userData.record : null;
+    // Raycast against pick proxies AND the solid shelf occluders in one pass,
+    // then only accept the nearest hit if it is a pickable target (carries a
+    // record). If the closest thing along the aim ray is shelf wood, the book
+    // behind it is hidden and must not be pickable.
+    const hits = raycaster.intersectObjects(
+        raycastTargets.concat(occluders), false);
+    if (hits.length === 0) {
+        return null;
+    }
+    return hits[0].object.userData.record || null;
 }
 
 // Relative luminance (sRGB) of an HSL leather color, used to pick a readable
@@ -690,7 +796,13 @@ function setAimed(record) {
         return;
     }
     aimed = record;
-    if (record) {
+    if (record && record.isPaper) {
+        aimLabelEl.textContent = "a note";
+        aimLabelEl.style.background = "rgba(10, 6, 3, 0.72)";
+        aimLabelEl.style.color = "#f6ecd9";
+        reticleEl.classList.add("aiming");
+        aimLabelEl.classList.add("visible");
+    } else if (record) {
         aimLabelEl.textContent = record.book.author + " — " + record.book.title;
         if (record.colors) {
             const c = record.colors;
@@ -891,6 +1003,12 @@ function updateAnticipation(dt) {
 }
 
 function grabRecord(record) {
+    if (record && record.isPaper) {
+        dropPopEntry(record);
+        setAimed(null);
+        openPaper();
+        return;
+    }
     const restPose = restPoseFor(record);
     dropPopEntry(record);
     if (grab.begin(record, restPose)) {
@@ -905,6 +1023,71 @@ function onBookReturned() {
         player.lock();
     }
 }
+
+// --- Paper note (plain-text pickup, no blurred overlay) -----------------------
+// Picking up the table's paper sheet opens a simple full-screen reading card
+// with the note's plain, fully legible text — bypassing overlay.js's blurred
+// book layout entirely. Open/close mirror the book overlay's feel (backdrop
+// blur, fade) and free / re-lock the pointer the same way.
+
+let paperOpen = false;
+
+function openPaper() {
+    if (paperOpen || !stacks || !stacks.paper) {
+        return;
+    }
+    paperOpen = true;
+    if (paperTextEl) {
+        paperTextEl.textContent = stacks.paper.record.book.quotes[0];
+    }
+    player.setEnabled(false);
+    player.unlock();
+    if (paperViewEl) {
+        paperViewEl.hidden = false;
+        paperViewEl.setAttribute("aria-hidden", "false");
+        // Force a reflow so the .open transition runs from the hidden state.
+        void paperViewEl.offsetWidth;
+        paperViewEl.classList.add("open");
+    }
+}
+
+function closePaper() {
+    if (!paperOpen) {
+        return;
+    }
+    paperOpen = false;
+    if (paperViewEl) {
+        paperViewEl.classList.remove("open");
+        paperViewEl.setAttribute("aria-hidden", "true");
+        window.setTimeout(function () {
+            if (!paperOpen) {
+                paperViewEl.hidden = true;
+            }
+        }, 420);
+    }
+    player.setEnabled(true);
+    canvas.focus({ preventScroll: true });
+    if (entered) {
+        player.lock();
+    }
+}
+
+if (paperCloseEl) {
+    paperCloseEl.addEventListener("click", function (event) {
+        event.stopPropagation();
+        closePaper();
+    });
+}
+
+if (paperViewEl) {
+    paperViewEl.addEventListener("click", closePaper);
+}
+
+document.addEventListener("keydown", function (event) {
+    if (paperOpen && event.code === "Escape") {
+        closePaper();
+    }
+});
 
 canvas.addEventListener("mousedown", function (event) {
     if (!started || overlay.isOpen() || !player.state.locked || enterSeq) {
@@ -935,6 +1118,7 @@ window.addEventListener("resize", function () {
 
 let lastFrameTime = performance.now();
 let elapsedTime = 0;
+let lastClockUpdate = -1;
 let readyFlagged = false;
 function animate() {
     window.__frames = (window.__frames || 0) + 1;
@@ -950,8 +1134,10 @@ function animate() {
         stacks.updateDust(dt, elapsedTime);
         updateAnticipation(dt);
 
-        if (!overlay.isOpen() && grab.isIdle() && !enterSeq) {
+        if (!overlay.isOpen() && grab.isIdle() && !enterSeq && !paperOpen) {
             setAimed(pickCenter());
+        } else if (paperOpen && aimed) {
+            setAimed(null);
         }
         if (escHintEl) {
             escHintEl.classList.toggle("visible", player.state.locked);
@@ -961,8 +1147,12 @@ function animate() {
         if (aisle !== activeAisle) {
             activeAisle = aisle;
         }
-        drawRadar(false);
-        updateRadarInteractivity();
+
+        // Keep the wall clock on real time (once a second is plenty).
+        if (stacks.updateClock && elapsedTime - lastClockUpdate >= 1) {
+            lastClockUpdate = elapsedTime;
+            stacks.updateClock();
+        }
     }
 
     composer.render();
@@ -1120,6 +1310,26 @@ window.__library = {
     },
     closeBook: function () {
         overlay.close();
+    },
+    aimAtPaper: function () {
+        if (!stacks || !stacks.paper) {
+            return false;
+        }
+        aimAtRecord(stacks.paper.record);
+        return aimed === stacks.paper.record;
+    },
+    openPaper: function () {
+        if (stacks && stacks.paper) {
+            openPaper();
+            return true;
+        }
+        return false;
+    },
+    closePaper: function () {
+        closePaper();
+    },
+    paperOpen: function () {
+        return paperOpen;
     },
     screenPointFor: function (id) {
         const record = findRecord(id);

@@ -37,21 +37,21 @@
     <div id="pause" class="pause">
         <p class="pause-text">paused</p>
         <p class="pause-sub">click anywhere to resume</p>
+        <a id="pause-home" class="pause-home" href="/">← back to home</a>
     </div>
 
     <header class="hud hud-header">
-        <span class="hud-title">The Library</span>
-        <nav class="hud-nav" aria-label="Other views">
-            <a href="/books/quotes/float/">floating quotes</a>
-            <a href="/books/quotes/all">index</a>
+        <nav class="hud-nav" aria-label="Music">
+            <button id="mute-btn" class="mute-btn" aria-label="Mute music" aria-pressed="false">
+                <span class="mute-on" aria-hidden="true">♪</span>
+                <span class="mute-off" aria-hidden="true">♪̸</span>
+            </button>
         </nav>
     </header>
 
-    <div id="radar" class="hud radar" aria-label="Room map">
-        <canvas id="radar-canvas" width="520" height="520"></canvas>
-    </div>
+    <audio id="bg-music" src="nocturne.mp3" loop preload="auto"></audio>
 
-    <div id="esc-hint" class="esc-hint" aria-hidden="true">Esc &mdash; pause</div>
+    <div id="esc-hint" class="esc-hint" aria-hidden="true">Esc &mdash; pause &middot; M &mdash; mute</div>
 
     <div id="fallback" class="fallback" hidden>
         <h1>The Library</h1>
@@ -66,6 +66,13 @@
                 <a href="/books/quotes/all">Browse the alphabetical index</a> instead.</p>
         </div>
     </noscript>
+
+    <div id="paper-view" class="paper-view" hidden aria-hidden="true">
+        <button id="paper-close" class="close-btn paper-close" aria-label="Put down the note">✕</button>
+        <div class="paper-card" role="dialog" aria-modal="true" aria-label="A note">
+            <p id="paper-text" class="paper-text"></p>
+        </div>
+    </div>
 
     <div id="backdrop" class="backdrop" hidden></div>
 

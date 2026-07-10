@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import {
     makeWoodTexture, makeFloorTexture, makeRugTexture, makePlaqueTexture,
-    makePlaqueEmissive, makeGlowTexture, mulberry32
+    makeGlowTexture, mulberry32
 } from "./textures.js";
 import { buildRoom } from "./room.js";
 import { buildEntry } from "./entry.js";
@@ -34,8 +34,10 @@ function woodMaterial(tex, tint = 0xffffff, roughness = 0.78) {
 }
 
 // One bookcase face: plinth, sides, back panel, shelf planks, frieze, top
-// trim. Local coords: +z faces the aisle, x runs along the shelf.
-function buildCase(width, woodTex) {
+// trim. Local coords: +z faces the aisle, x runs along the shelf. Solid parts
+// are marked `userData.occluder` so an aim ray must clear them to pick a book
+// behind — books seen through wood aren't pickable.
+function buildCase(width, woodTex, occluders) {
     const group = new THREE.Group();
     const mat = woodMaterial(woodTex);
     const darkMat = new THREE.MeshStandardMaterial({
@@ -46,16 +48,22 @@ function buildCase(width, woodTex) {
     const back = new THREE.Mesh(
         new THREE.PlaneGeometry(width, STACKS.caseTop + 0.2), darkMat);
     back.position.set(0, (STACKS.caseTop + 0.2) / 2, -d / 2 + 0.01);
+    back.userData.occluder = true;
+    occluders.push(back);
     group.add(back);
 
     const plinth = new THREE.Mesh(new THREE.BoxGeometry(width, 0.24, d + 0.06), mat);
     plinth.position.set(0, 0.12, 0.02);
+    plinth.userData.occluder = true;
+    occluders.push(plinth);
     group.add(plinth);
 
     [-1, 1].forEach(function (s) {
         const side = new THREE.Mesh(
             new THREE.BoxGeometry(0.09, STACKS.caseTop + 0.06, d), mat);
         side.position.set(s * (width / 2 - 0.045), (STACKS.caseTop + 0.06) / 2, 0);
+        side.userData.occluder = true;
+        occluders.push(side);
         group.add(side);
     });
 
@@ -63,6 +71,8 @@ function buildCase(width, woodTex) {
         const plank = new THREE.Mesh(
             new THREE.BoxGeometry(width - 0.1, 0.05, d - 0.02), mat);
         plank.position.set(0, y - 0.026, 0);
+        plank.userData.occluder = true;
+        occluders.push(plank);
         group.add(plank);
     });
 
@@ -70,10 +80,14 @@ function buildCase(width, woodTex) {
     const frieze = new THREE.Mesh(
         new THREE.BoxGeometry(width - 0.1, 0.56, d - 0.04), mat);
     frieze.position.set(0, STACKS.caseTop - 0.32, 0);
+    frieze.userData.occluder = true;
+    occluders.push(frieze);
     group.add(frieze);
 
     const top = new THREE.Mesh(new THREE.BoxGeometry(width + 0.14, 0.16, d + 0.1), mat);
     top.position.set(0, STACKS.caseTop + 0.04, 0.02);
+    top.userData.occluder = true;
+    occluders.push(top);
     group.add(top);
 
     return group;
@@ -82,12 +96,12 @@ function buildCase(width, woodTex) {
 // One double-sided stack unit centred on x = xCenter, spanning
 // z ∈ [-unitLength, 0]: two cases back-to-back (one per aisle face) plus a
 // walkway-facing end cap. Returns the two case groups keyed by face sign.
-function buildUnit(scene, woodTex, xCenter) {
+function buildUnit(scene, woodTex, xCenter, occluders) {
     const faceOffset = STACKS.unitThickness / 2 - STACKS.caseDepth / 2;
     const faces = {};
 
     [1, -1].forEach(function (sign) {
-        const group = buildCase(STACKS.unitLength, woodTex);
+        const group = buildCase(STACKS.unitLength, woodTex, occluders);
         group.rotation.y = sign * Math.PI / 2;
         group.position.set(xCenter + sign * faceOffset, 0, -STACKS.unitLength / 2);
         scene.add(group);
@@ -99,6 +113,8 @@ function buildUnit(scene, woodTex, xCenter) {
         new THREE.BoxGeometry(STACKS.unitThickness + 0.04, STACKS.caseTop + 0.2, 0.14),
         capMat);
     cap.position.set(xCenter, (STACKS.caseTop + 0.2) / 2, 0.02);
+    cap.userData.occluder = true;
+    occluders.push(cap);
     scene.add(cap);
     const capTrim = new THREE.Mesh(
         new THREE.BoxGeometry(STACKS.unitThickness + 0.16, 0.16, 0.24), capMat);
@@ -108,21 +124,40 @@ function buildUnit(scene, woodTex, xCenter) {
     return faces;
 }
 
-// Brass-plaque year sign hanging over an aisle mouth, facing the entry. One
-// plaque per shelf face: shifted toward its face and drawn with a triangle
-// (side -1 left / +1 right) pointing at the shelf it labels.
+// Brass-plaque year sign hanging over an aisle mouth. Built as two single-sided
+// planes back-to-back rather than one double-sided plane: a double-sided plane
+// shows the SAME texture on both faces, so the year reads mirror-reversed from
+// behind. Instead the front plane faces +z and the back plane is rotated 180°
+// about y so its own copy of the texture reads correctly (not mirrored) from -z.
+// The back plane's 180° rotation flips left↔right, so its texture is drawn with
+// the OPPOSITE `side` (-side) — that way the pointing triangle still lands on
+// the same physical shelf face when viewed from behind.
 function buildAisleSign(scene, year, aisleX, side) {
     const x = aisleX + side * 0.5;
-    const sign = new THREE.Mesh(
-        new THREE.PlaneGeometry(0.88, 0.32),
-        new THREE.MeshStandardMaterial({
-            map: makePlaqueTexture(year, side), roughness: 0.85, metalness: 0.0,
-            emissive: 0xffce8f, emissiveIntensity: 0.9,
-            emissiveMap: makePlaqueEmissive(year, side),
-            side: THREE.DoubleSide
-        }));
+    const geo = new THREE.PlaneGeometry(0.88, 0.32);
+    // No emissiveMap: the glowing-digit emissive map + scene bloom was what
+    // haloed the numbers. A low flat emissive tint keeps the whole plaque gently
+    // self-lit for wayfinding in the dark, but stays below the bloom threshold
+    // so the digits read crisp with no glow.
+    function faceMaterial(texSide) {
+        return new THREE.MeshStandardMaterial({
+            map: makePlaqueTexture(year, texSide), roughness: 0.85, metalness: 0.0,
+            emissive: 0x3a2a14, emissiveIntensity: 1.0,
+            side: THREE.FrontSide
+        });
+    }
+
+    const sign = new THREE.Group();
+    const front = new THREE.Mesh(geo, faceMaterial(side));
+    sign.add(front);
+    const back = new THREE.Mesh(geo, faceMaterial(-side));
+    back.rotation.y = Math.PI;
+    back.position.z = -0.004;
+    sign.add(back);
     sign.position.set(x, 2.86, 0.3);
     sign.userData.year = year;
+    front.userData.year = year;
+    back.userData.year = year;
     scene.add(sign);
 
     const cordMat = new THREE.MeshStandardMaterial({ color: 0x0a0705, roughness: 0.9 });
@@ -180,7 +215,47 @@ function buildEntryFurniture(scene, woodTex, x, z) {
     const lamp = new THREE.PointLight(0xffc588, 4, 5, 2);
     lamp.position.set(x + 0.45, 0.795 + 0.3, z - 0.12);
     scene.add(lamp);
-    return lamp;
+
+    const paper = buildPaperSheet(scene, x, z);
+    return { lamp: lamp, paper: paper };
+}
+
+// A single sheet of paper lying flat on the tabletop, front-centre and clear
+// of the book stack (x-0.45) and lamp (x+0.45). It is aim-able and pickable:
+// a fattened invisible pick proxy carries a paper "record" (isPaper) so the
+// picking pipeline treats it like a book, but the reader shows plain legible
+// text instead of the blurred book overlay. The tabletop top is at y ≈ 0.795.
+function buildPaperSheet(scene, x, z) {
+    const group = new THREE.Group();
+    const paperMat = new THREE.MeshStandardMaterial({
+        color: 0xf3ecd8, roughness: 0.85, metalness: 0.0,
+        emissive: 0xf3ecd8, emissiveIntensity: 0.14
+    });
+    const sheet = new THREE.Mesh(new THREE.BoxGeometry(0.21, 0.006, 0.297), paperMat);
+    sheet.position.set(0, 0.003, 0);
+    group.add(sheet);
+
+    const pickMat = new THREE.MeshBasicMaterial({ visible: false });
+    const pick = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.34, 0.42), pickMat);
+    pick.position.set(0, 0.17, 0);
+    group.add(pick);
+
+    group.position.set(x, 0.795, z + 0.28);
+    group.rotation.y = -0.12;
+    scene.add(group);
+
+    const record = {
+        isPaper: true,
+        book: {
+            author: "", title: "", year: null, id: "__paper__",
+            quotes: ["Collection of quotes from books I've read. One quote per book."]
+        },
+        group: group, dims: { ht: 0.297 }, colors: null
+    };
+    group.traverse(function (child) {
+        child.userData.record = record;
+    });
+    return { record: record, pick: pick };
 }
 
 function buildPendants(scene, positions) {
@@ -219,7 +294,15 @@ function buildPendants(scene, positions) {
         halo.position.set(p.x, bulbY, p.z);
         scene.add(halo);
 
-        const light = new THREE.PointLight(0xffb46a, 14, 10, 2);
+        // Only every other pendant carries a real PointLight (fragment cost
+        // scales with pixels × lights). The unlit ones still read as fixtures:
+        // the emissive bulb + bloom halo glow regardless. Lit pendants are a
+        // touch brighter and reach a touch farther to cover their dark
+        // neighbours' floor.
+        if (p.lit === false) {
+            return;
+        }
+        const light = new THREE.PointLight(0xffb46a, 17, 12, 2);
         light.position.set(p.x, bulbY - 0.05, p.z);
         scene.add(light);
         lamps.push(light);
@@ -339,9 +422,10 @@ export function buildStacks(scene, years) {
 
     const unitFaces = [];
     const colliders = [];
+    const occluders = [];
     for (let i = 0; i < unitCount; i++) {
         const ux = i * STACKS.pitch;
-        unitFaces.push(buildUnit(scene, woodTex, ux));
+        unitFaces.push(buildUnit(scene, woodTex, ux, occluders));
         colliders.push({
             minX: ux - STACKS.unitThickness / 2,
             maxX: ux + STACKS.unitThickness / 2,
@@ -398,7 +482,9 @@ export function buildStacks(scene, years) {
     });
 
     const tableZ = STACKS.walkwayDepth + 2.6;
-    const tableLamp = buildEntryFurniture(scene, woodTex, xMid, tableZ);
+    const furniture = buildEntryFurniture(scene, woodTex, xMid, tableZ);
+    const tableLamp = furniture.lamp;
+    const paper = furniture.paper;
     colliders.push({
         minX: xMid - 0.95, maxX: xMid + 0.95,
         minZ: tableZ - 0.58, maxZ: tableZ + 0.58
@@ -410,13 +496,17 @@ export function buildStacks(scene, years) {
         minZ: 0.1, maxZ: 0.9
     });
 
-    const pendantPositions = aisles.map(function (a) {
-        return { x: a.x, z: -STACKS.unitLength / 2 };
+    // One pendant fixture per aisle, but only alternate aisles get a real
+    // PointLight (the rest glow via emissive bulb + bloom). With an odd aisle
+    // count this lights both end aisles; the lit ones are boosted in
+    // buildPendants to cover the dark neighbours between them.
+    const pendantPositions = aisles.map(function (a, i) {
+        return { x: a.x, z: -STACKS.unitLength / 2, lit: i % 2 === 0 };
     });
     const span = bounds.xMax - bounds.xMin;
     [0.28, 0.72].forEach(function (f) {
         pendantPositions.push({
-            x: bounds.xMin + span * f, z: STACKS.walkwayDepth / 2 + 0.4
+            x: bounds.xMin + span * f, z: STACKS.walkwayDepth / 2 + 0.4, lit: true
         });
     });
     const lamps = buildPendants(scene, pendantPositions);
@@ -432,6 +522,7 @@ export function buildStacks(scene, years) {
     return {
         bays: bays, decorBays: decorBays, plaques: plaques, lamps: lamps,
         updateDust: updateDust, colliders: colliders, aisles: aisles,
-        spawn: entry.spawn, bounds: bounds, entry: entry
+        spawn: entry.spawn, bounds: bounds, entry: entry,
+        occluders: occluders, paper: paper, updateClock: room.updateClock
     };
 }

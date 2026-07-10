@@ -282,14 +282,12 @@ export function buildEntry(scene, woodTex, doorX, zWall, colliders) {
         doorGroups.push({ pivot: pivot, hingeSign: hingeSign });
     });
 
-    // Warm lantern so the closed doors read clearly before opening, plus a
-    // low fill point light right at the doors to lift them out of pure black.
-    const vestLight = new THREE.PointLight(0xffc07a, 24, 7, 2);
+    // Warm lantern so the closed doors read clearly before opening. A single
+    // point light carries the vestibule; the emissive door gilt + bloom lift
+    // the panels out of black without a second dedicated fill.
+    const vestLight = new THREE.PointLight(0xffc07a, 26, 7.5, 2);
     vestLight.position.set(doorX, 2.55, zWall + VESTIBULE.depth * 0.5);
     scene.add(vestLight);
-    const doorFill = new THREE.PointLight(0xffcaa0, 5, 3.4, 2);
-    doorFill.position.set(doorX, 1.4, zWall + 0.75);
-    scene.add(doorFill);
 
     // --- Colliders ----------------------------------------------------------
     const wallThick = 0.4;
