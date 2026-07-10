@@ -5,3 +5,8 @@ _site
 .bundle
 vendor/
 notes.md
+
+# Scratch / experiment dirs and runtime locks
+zzz/
+library_opus48/
+.claude/scheduled_tasks.lock
