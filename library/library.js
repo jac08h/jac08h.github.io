@@ -88,7 +88,7 @@ let entered = false;
 
 // Scripted walk-in sequence state. Phases: "beat" (short pause) → "doors"
 // (ease open) → "walk" (scripted stride from spawn to insideSpawn), then done.
-const ENTER_TIMING = { beat: 0.3, doors: 1.4, walk: 1.9 };
+const ENTER_TIMING = { beat: 0.3, doors: 0.9, walk: 1.2 };
 let enterSeq = null;
 let doorsOpen = 0;
 
@@ -296,7 +296,7 @@ function onLockChange(locked) {
     if (!entered) {
         return;
     }
-    const paused = !locked && !overlay.isOpen();
+    const paused = !locked && !overlay.isOpen() && !paperOpen;
     pauseEl.classList.toggle("visible", paused);
     if (musicEl) {
         if (paused) {
@@ -1084,8 +1084,13 @@ if (paperViewEl) {
 }
 
 document.addEventListener("keydown", function (event) {
-    if (paperOpen && event.code === "Escape") {
+    if (event.code !== "Escape") {
+        return;
+    }
+    if (paperOpen) {
         closePaper();
+    } else if (pauseEl.classList.contains("visible")) {
+        requestResume();
     }
 });
 
