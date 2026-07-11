@@ -2,6 +2,8 @@
 Organized by year of publication.
 
 ### 2026
+* **Quotes Library**
+    * Upgrading the [book collection](/books/quotes) into an [interactive in-browser 3D library](/library/).
 
 * **ChatbotChambers**
     * A web app where two chatbots talk to each other while you watch.
