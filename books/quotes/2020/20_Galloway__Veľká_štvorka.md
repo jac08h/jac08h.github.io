@@ -3,7 +3,7 @@
 Buďťe pánom svojej kariéry a vezmite za ňu zodpovednosť.
 Ľudia vám budú hovoriť, aby ste "nasledovali svoje sny", to je však ďaľšia hlúposť.
 Ja by som napríklad chcel byť quarterback futbalového tímu New York Jets.
-Som vysoký, viem dobre hádzať, som celkom dobrým lídrom a páčilo vy sa mi vlastniť autorizované predajne automobilov, keď mi doslúžia kolená.
+Som vysoký, viem dobre hádzať, som celkom dobrým lídrom a páčilo by sa mi vlastniť autorizované predajne automobilov, keď mi doslúžia kolená.
 Má to však háčik - ako som zistil na UCLA, som mizerne pohybovo nadaný.
 Ľudia, ktorí vás presviedčajú, aby ste nasledovali svoje sny, už bohatnúť nepotrebujú.
 

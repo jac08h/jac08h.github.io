@@ -1,9 +1,9 @@
 ## Kašparu - O radostiach ľudskej duše
 
-Nie je ťažké vyznať lásku, ťažké je milovat,
-nie je ťaťké splodiť dieťa, ťažšie je o dieťa sa postarať,
+Nie je ťažké vyznať lásku, ťažké je milovať,
+nie je ťažké splodiť dieťa, ťažšie je o dieťa sa postarať,
 nie je ťažké oženiť sa, ťažké je byť ženatý,
-nie je ťažké vydať sa, ťažke je byť vydatou,
+nie je ťažké vydať sa, ťažké je byť vydatou,
 nie je ťažké dať slovo, ťažšie je slovo dodržať,
 nie je ťažké nadchnúť, ťažšie je nadšenie udržať,
 nie je ťažké hrať, ťažšie je prijať prehru,
