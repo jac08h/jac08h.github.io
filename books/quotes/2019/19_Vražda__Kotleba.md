@@ -7,13 +7,13 @@ Sen o "bielom Slovensku", vybudovanom v duchu Tisovho slovenského štátu a pod
 Nijako zásadne ho neokresala ani funkcia župana či poslanca.
 
 Zároveň vždy vystupoval ako odporca demokracie.
-Stavovský štát možno zmizo zo základných dokumentov jeho strany.
-A desiatky jeho kamrátov a príbuzných, ktorá získali miesta na župe či v parlamente, nepochybne prišli na chuť výhodám dnešného zriadenia.
+Stavovský štát možno zmizol zo základných dokumentov jeho strany.
+A desiatky jeho kamarátov a príbuzných, ktorí získali miesta na župe či v parlamente, nepochybne prišli na chuť výhodám dnešného zriadenia.
 Ale keby mali možnosť, radi sa vo svojich flekoch zabetónujú navždy a vyrovnajú si účty s menšinami, novinármi aj "korupčnými" politickými oponentmi.
 Aj by vedeli ako.
-Uniformy, fakle, domobrana, hummer, pištoľ v parlamente, bagre v osadách, hliadky v divadlách, používanie ochranky na župných zastupiteľstvách, to všetko ukazuje, že hrozbu násilia používajú odjakživa s systematicky.
-Doplna sa s ďalšou črtou predsedu ĽSNS, ktorú znova a znova spomínajú tí, čo ho poznajú - so stihomamom.
-Dá sa skrátka pochopiť, že Kotleboci by Putin mohol byť sympatický, aj keby sa nakoniec ukázalo, že mu nedával peniaze.
+Uniformy, fakle, domobrana, hummer, pištoľ v parlamente, bagre v osadách, hliadky v divadlách, používanie ochranky na župných zastupiteľstvách, to všetko ukazuje, že hrozbu násilia používajú odjakživa aj systematicky.
+Dopĺňa sa s ďalšou črtou predsedu ĽSNS, ktorú znova a znova spomínajú tí, čo ho poznajú - so stihomamom.
+Dá sa skrátka pochopiť, že Kotlebovi by Putin mohol byť sympatický, aj keby sa nakoniec ukázalo, že mu nedával peniaze.
 
 
 ###### 2019

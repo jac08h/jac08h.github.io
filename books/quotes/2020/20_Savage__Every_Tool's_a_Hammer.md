@@ -1,6 +1,6 @@
-## Savage - Every tools a hammer
+## Savage - Every Tool's a Hammer
 
-There are few pleasures I now enjoy more than walking into and working out of a cleanshop.
+There are few pleasures I now enjoy more than walking into and working out of a clean shop.
 It’s the rare day I leave the shop in a state that’s less than perfectly clean.
 And yet, it still happens.
 I still run into days where the build was brutal, and I can’t stand to be there one more minute.

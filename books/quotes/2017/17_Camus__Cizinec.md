@@ -2,7 +2,7 @@
 
 Večer za mnou přišla Marie a vyzvídala, jestli bych si ji chtěl vzít.
 Řekl jsem jí, že je mi to jedno, a jestli o to stojí, mohli bychom něco udělat.
-Chtěla taky ode mě slzšet, jestli ji miluju.
+Chtěla taky ode mě slyšet, jestli ji miluju.
 Odpovědel jsem jí totéž, co už jednou, že přece o nic nejde, ale že ji podle všeho nemiluju.
 "Proč by sis mě tedy měl brát?" řekla.
 A já jí vysvětlil, že na něčem takovém ani dost málo nezáleží, a jestli si přeje, mužeme se vzít. 

@@ -15,7 +15,7 @@ Keďže si cenil sám seba ako kňaza a politika, bol citlivý na svoju dôstojn
 Aj keď bol nesmierne inteligentný, chýbala mu originalita a zvedavosť učenca.
 Rozumové argumenty boli preňho len taktikou, ako presadiť "pravdu".
 Zrejme si myslel, že riešením pre Slovákov je, aby boli jednoducho takí dobrí ako on: "Buďme... gardistami typu sv. Jozefa!"
-Keď ľudia nenaslaedovlai jeho vzor, chápal to ako tragédiu nepoddajnej slobodnej vôle, odvrátenie sa od liečivého betlehemského svetla.
+Keď ľudia nenasledovali jeho vzor, chápal to ako tragédiu nepoddajnej slobodnej vôle, odvrátenie sa od liečivého betlehemského svetla.
 
 
 ###### 2019
