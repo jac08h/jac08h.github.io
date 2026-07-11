@@ -1,4 +1,4 @@
-## Schirer - The Rise and Fall of the Third Reich
+## Shirer - The Rise and Fall of the Third Reich
 
 Sophie Scholl was handled so roughly during her interrogation by the Gestapo that she appeared in court with a broken leg.
 But her spirit was undimmed.

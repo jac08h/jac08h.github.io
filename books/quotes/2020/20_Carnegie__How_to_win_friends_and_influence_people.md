@@ -1,4 +1,4 @@
-## Carneige - How to win friends and influence people
+## Carnegie - How to win friends and influence people
 
 Some years ago, a department store in New York City, in recognition of the pressures its sales clerks were under during the Christmas rush, presented the readers of its advertisements with the following homely philosophy:
 
