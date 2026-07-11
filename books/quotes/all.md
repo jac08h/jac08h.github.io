@@ -1,5 +1,3 @@
-[Explore interactively](/library/)
-
 * [Acemoglu - Why Nations Fail](/books/quotes/2020/20_Acemoglu__Why_Nations_Fail)
 * [Aciman - Daj mi tvoje meno](/books/quotes/2018/18_Aciman__Daj_mi_tvoje_meno)
 * [Adams - The Hitchhiker's Guide to the Galaxy](/books/quotes/2023/23_Adams__The_Hitchhiker's_Guide_to_the_Galaxy)

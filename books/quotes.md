@@ -6,4 +6,4 @@ Collection of quotes from books I've read. One quote per book.
 * [Random quote](/books/quotes/random)
 * [All](/books/quotes/all)
 
-Also available as an [in-browser 3D library](/library/).
+Also available as an [in-browser 3D library](/library/) (desktop-only).
