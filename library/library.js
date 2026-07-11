@@ -158,7 +158,7 @@ function updateEnterSequence(dt) {
     }
 }
 
-fetch("../data/quotes.json")
+fetch("/books/quotes/data/quotes.json")
     .then(function (resp) {
         if (!resp.ok) {
             throw new Error("Failed to load quotes.json: " + resp.status);

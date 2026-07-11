@@ -1,4 +1,4 @@
-Explore another way: [📚 Library](/books/quotes/library/) (browse the shelves by year) · [🗒️ Floating Quotes](/books/quotes/float/) (ambient drifting quotes).
+[Explore interactively](/library/)
 
 * [Acemoglu - Why Nations Fail](/books/quotes/2020/20_Acemoglu__Why_Nations_Fail)
 * [Aciman - Daj mi tvoje meno](/books/quotes/2018/18_Aciman__Daj_mi_tvoje_meno)
