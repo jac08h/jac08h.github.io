@@ -2,17 +2,17 @@
 Organized by year of publication.
 
 ### 2026
-* **Quotes Library**
-    * Upgrading the [book collection](/books/quotes) into an [interactive in-browser 3D library](/library/) (desktop-only).
+* **SAFE: Sandboxed Actions Forensics and Evaluation for AI Control via Action-Aware Monitoring**
+    * Project done during [Apart's AI Control Hackathon](https://apartresearch.com/sprints/ai-control-hackathon-2026-03-20-to-2026-03-22).
+    * A proof-of-concept demonstration that monitoring of untrusted model was improved when the monitor could run the proposed commands in a sandbox and inspect the activity logs, such as file changes or network logs.
+    * [Project's page](https://apartresearch.com/project/safe-sandboxed-actions-forensics-and-evaluation-for-ai-control-via-actionaware-monitoring-h3fi)
 
 * **ChatbotChambers**
     * A web app where two chatbots talk to each other while you watch.
     * [Website](https://www.chatbotchambers.net/), [Demo video](https://youtu.be/WuS2g5VZ-NM), [Code](https://github.com/jac08h/ChatbotChambers)
 
-* **SAFE: Sandboxed Actions Forensics and Evaluation for AI Control via Action-Aware Monitoring**
-    * Project done during [Apart's AI Control Hackathon](https://apartresearch.com/sprints/ai-control-hackathon-2026-03-20-to-2026-03-22).
-    * A proof-of-concept demonstration that monitoring of untrusted model was improved when the monitor could run the proposed commands in a sandbox and inspect the activity logs, such as file changes or network logs.
-    * [Project's page](https://apartresearch.com/project/safe-sandboxed-actions-forensics-and-evaluation-for-ai-control-via-actionaware-monitoring-h3fi)
+* **Quotes Library**
+    * Upgraded the [book collection](/books/quotes) into an [interactive in-browser 3D library](/library/) (desktop-only).
 
 * <span id="random-word-display"></span>... (check back later!)
 
@@ -46,21 +46,21 @@ Organized by year of publication.
 
 ### 2025
 
-  * **volebneprieskumy.sk**
-      * A website providing an overview of opinion polls related to Slovak parliamentary elections.
-      * [Link](https://volebneprieskumy.sk/)
-  * **Great Filter**
-      * AI-powered content filtering for social media platforms. [Demo video](https://www.youtube.com/watch?v=japjNSU3O7A).
-      * [Chrome Web Store](https://chromewebstore.google.com/detail/great-filter/mbifgfgfbnemojmfkckodkikibihcgaj), [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/great-filter/)
-  * **Camera View Transition**
-      * Master's thesis. A design and implementation of a method for creating transitions between two camera views in soccer broadcasts.
-      * [Project website](https://jakubhalmes.com/camera_view_transition)
-  * **Fair Bet Calculator**
-      * Calculate a bet size between two people disagreeing on some event such that their subjective expected value is equal.
-      * [Claude Artifact](https://claude.site/artifacts/73c60e30-0d03-42a4-a513-08cee1f77f3b)
   * **ELO Rating Spreadsheet**
       * A template for logging matches (1v1, 2v2) which calculates player ratings.
       * [Google Sheet](https://docs.google.com/spreadsheets/d/1jKr7s25eHw5f0cF3uzbSaOR4m9I73-bgRrzjEVUeSW8/edit?usp=sharing)
+  * **Fair Bet Calculator**
+      * Calculate a bet size between two people disagreeing on some event such that their subjective expected value is equal.
+      * [Claude Artifact](https://claude.site/artifacts/73c60e30-0d03-42a4-a513-08cee1f77f3b)
+  * **Camera View Transition**
+      * Master's thesis. A design and implementation of a method for creating transitions between two camera views in soccer broadcasts.
+      * [Project website](https://jakubhalmes.com/camera_view_transition)
+  * **Great Filter**
+      * AI-powered content filtering for social media platforms. [Demo video](https://www.youtube.com/watch?v=japjNSU3O7A).
+      * [Chrome Web Store](https://chromewebstore.google.com/detail/great-filter/mbifgfgfbnemojmfkckodkikibihcgaj), [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/great-filter/)
+  * **volebneprieskumy.sk**
+      * A website providing an overview of opinion polls related to Slovak parliamentary elections.
+      * [Link](https://volebneprieskumy.sk/)
 
 ### 2024
 
