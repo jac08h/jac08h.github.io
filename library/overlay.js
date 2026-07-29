@@ -404,6 +404,22 @@ export function createOverlay() {
     closeBtn.addEventListener("click", close);
     backdropEl.addEventListener("click", close);
 
+    let swipeStart = null;
+    bookEl.addEventListener("pointerdown", function (event) {
+        if (event.pointerType !== "mouse") {
+            swipeStart = { x: event.clientX, y: event.clientY };
+        }
+    });
+    bookEl.addEventListener("pointerup", function (event) {
+        if (!swipeStart || event.pointerType === "mouse") return;
+        const dx = event.clientX - swipeStart.x;
+        const dy = event.clientY - swipeStart.y;
+        swipeStart = null;
+        if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+            paginate(dx < 0 ? 1 : -1);
+        }
+    });
+
     window.addEventListener("resize", function () {
         if (currentBook) {
             fitType();

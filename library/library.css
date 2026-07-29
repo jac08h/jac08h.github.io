@@ -14,7 +14,7 @@
 html, body {
     margin: 0;
     padding: 0;
-    height: 100%;
+    height: 100dvh;
     overflow: hidden;
 }
 
@@ -24,14 +24,24 @@ body {
     background: var(--bg-dark);
 }
 
+body.touch-mode {
+    overscroll-behavior: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
 #scene {
     position: fixed;
     inset: 0;
     width: 100%;
-    height: 100%;
+    height: 100dvh;
     display: block;
     outline: none;
     cursor: default;
+}
+
+body.touch-mode #scene {
+    touch-action: none;
 }
 
 .vignette {
@@ -145,7 +155,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    padding: 1.1rem 1.6rem;
+    padding: max(1.1rem, env(safe-area-inset-top)) max(1.6rem, env(safe-area-inset-right)) 1.1rem max(1.6rem, env(safe-area-inset-left));
     pointer-events: none;
     background: linear-gradient(180deg, rgba(5, 3, 2, 0.55), transparent);
 }
@@ -167,6 +177,56 @@ body {
     line-height: 1;
     align-self: center;
     transition: color 0.2s ease;
+}
+
+.pause-btn {
+    display: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid rgba(198, 160, 92, 0.4);
+    border-radius: 50%;
+    background: rgba(10, 6, 4, 0.48);
+    color: var(--text-dim);
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.touch-mode .pause-btn {
+    display: block;
+}
+
+.joystick {
+    position: fixed;
+    inset: 0;
+    z-index: 7;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+}
+
+.joystick.visible { opacity: 1; }
+
+.joystick-base {
+    position: fixed;
+    width: 112px;
+    height: 112px;
+    margin: -56px;
+    border: 2px solid rgba(243, 231, 214, 0.4);
+    border-radius: 50%;
+    background: rgba(10, 6, 4, 0.25);
+}
+
+.joystick-thumb {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 52px;
+    height: 52px;
+    margin: -26px;
+    border: 1px solid rgba(198, 160, 92, 0.7);
+    border-radius: 50%;
+    background: rgba(198, 160, 92, 0.3);
 }
 
 .mute-btn:hover,
@@ -860,7 +920,7 @@ body.playing #scene {
 
     .book {
         width: 94vw;
-        height: 74vh;
+        height: 74dvh;
     }
 
     /* Too narrow for a real spread — fold to a single readable page. */
@@ -890,6 +950,27 @@ body.playing #scene {
     .nav-next {
         right: 1rem;
     }
+
+    .close-btn,
+    .nav-arrow,
+    .book-nav-btn,
+    .mute-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .controls-hint {
+        white-space: normal;
+        text-align: center;
+    }
+
+    .touch-mode .esc-hint { display: none; }
+}
+
+@media (max-height: 500px) and (max-width: 900px) {
+    .book { height: 70dvh; }
+    .page-flow { column-count: 1; inset: 2.1rem 1.5rem; text-align: left; hyphens: none; }
+    .gutter, .running-head-right, .page-number-right { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -30,6 +30,7 @@ export function createPlayer(scene, camera, canvas, colliders, reducedMotion) {
         yaw: 0,
         pitch: 0,
         locked: false,
+        engaged: false,
         enabled: true,
         bobPhase: 0,
         speedFactor: 0
@@ -41,6 +42,7 @@ export function createPlayer(scene, camera, canvas, colliders, reducedMotion) {
     // look eases toward the target instead of snapping on every raw event.
     let pendingYaw = 0;
     let pendingPitch = 0;
+    const moveInput = new THREE.Vector2();
 
     function applyLook() {
         rigYaw.rotation.y = state.yaw;
@@ -49,6 +51,7 @@ export function createPlayer(scene, camera, canvas, colliders, reducedMotion) {
 
     document.addEventListener("pointerlockchange", function () {
         state.locked = document.pointerLockElement === canvas;
+        state.engaged = state.locked;
         if (lockHint) {
             lockHint(state.locked);
         }
@@ -81,13 +84,13 @@ export function createPlayer(scene, camera, canvas, colliders, reducedMotion) {
     document.addEventListener("keydown", function (event) {
         if (KEY_DIRS[event.code]) {
             keys[event.code] = true;
-            if (state.locked) {
+            if (state.engaged) {
                 event.preventDefault();
             }
         }
         if (event.code === "ShiftLeft" || event.code === "ShiftRight") {
             keys.shift = true;
-            if (state.locked) {
+            if (state.engaged) {
                 event.preventDefault();
             }
         }
@@ -207,22 +210,24 @@ export function createPlayer(scene, camera, canvas, colliders, reducedMotion) {
         keys: keys,
 
         update: function (dt) {
-            if (!state.enabled) {
+            if (!state.enabled || !state.engaged) {
                 state.speedFactor = 0;
-                pendingYaw = 0;
-                pendingPitch = 0;
+                if (!state.engaged) {
+                    pendingYaw = 0;
+                    pendingPitch = 0;
+                }
                 return;
             }
             applyLookSmoothing(dt);
-            let forward = 0;
-            let strafe = 0;
+            let forward = moveInput.y;
+            let strafe = moveInput.x;
             Object.keys(KEY_DIRS).forEach(function (code) {
                 if (keys[code]) {
                     forward += KEY_DIRS[code].f;
                     strafe += KEY_DIRS[code].s;
                 }
             });
-            step(dt, forward, strafe, !!keys.shift);
+            step(dt, forward, strafe, !!keys.shift || moveInput.lengthSq() > 0.85);
         },
 
         teleport: function (x, z, yaw, pitch) {
@@ -255,6 +260,25 @@ export function createPlayer(scene, camera, canvas, colliders, reducedMotion) {
             if (!on) {
                 vel.set(0, 0);
                 state.speedFactor = 0;
+            }
+        },
+
+        injectLook: function (dYaw, dPitch) {
+            if (state.enabled && state.engaged) {
+                pendingYaw += dYaw;
+                pendingPitch += dPitch;
+            }
+        },
+
+        injectMove: function (x, y) {
+            moveInput.set(x, y).clampLength(0, 1);
+        },
+
+        setEngaged: function (on) {
+            state.engaged = !!on;
+            if (!on) {
+                moveInput.set(0, 0);
+                vel.set(0, 0);
             }
         },
 

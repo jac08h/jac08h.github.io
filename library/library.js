@@ -9,6 +9,7 @@ import { buildBooks, BOOK_DEPTH } from "./books.js";
 import { createOverlay } from "./overlay.js";
 import { createPlayer } from "./player.js";
 import { createGrab } from "./grab.js";
+import { createTouchController } from "./touch.js";
 
 const REACH = 2.0;
 
@@ -25,22 +26,21 @@ const radarCanvas = document.getElementById("radar-canvas");
 const escHintEl = document.getElementById("esc-hint");
 const musicEl = document.getElementById("bg-music");
 const muteBtn = document.getElementById("mute-btn");
+const pauseBtn = document.getElementById("pause-btn");
+const joystickEl = document.getElementById("joystick");
 const paperViewEl = document.getElementById("paper-view");
 const paperTextEl = document.getElementById("paper-text");
 const paperCloseEl = document.getElementById("paper-close");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+const touchMode = new URLSearchParams(window.location.search).get("touch") === "1" ||
+    !window.matchMedia("(any-pointer: fine)").matches ||
+    !("requestPointerLock" in HTMLElement.prototype);
 
 function showFallback(reason) {
     const el = document.getElementById("fallback");
     document.getElementById("fallback-reason").textContent = reason;
     el.hidden = false;
     introEl.classList.add("gone");
-}
-
-if (coarsePointer || !("requestPointerLock" in HTMLElement.prototype)) {
-    showFallback("This walkable library needs a keyboard and mouse.");
-    throw new Error("First-person library: unsupported input device");
 }
 
 let renderer;
@@ -57,7 +57,7 @@ try {
 // multi-pass UnrealBloom blur are fragment-bound, so on a HiDPI panel rendering
 // at 2× is the main source of frame lag. 1.5× keeps edges clean (antialias is
 // on and bloom is a soft blur) while cutting fragment/bloom work by ~40%.
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, touchMode ? 1.15 : 1.5));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.3;
@@ -66,12 +66,14 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
     62, window.innerWidth / window.innerHeight, 0.05, 80);
 
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
-const bloomPass = new UnrealBloomPass(
-    new THREE.Vector2(window.innerWidth, window.innerHeight), 0.55, 0.5, 0.82);
-composer.addPass(bloomPass);
-composer.addPass(new OutputPass());
+const composer = touchMode ? null : new EffectComposer(renderer);
+if (composer) {
+    composer.addPass(new RenderPass(scene, camera));
+    const bloomPass = new UnrealBloomPass(
+        new THREE.Vector2(window.innerWidth, window.innerHeight), 0.55, 0.5, 0.82);
+    composer.addPass(bloomPass);
+    composer.addPass(new OutputPass());
+}
 
 // --- Boot -------------------------------------------------------------------
 
@@ -85,6 +87,8 @@ let occluders = [];
 let activeAisle = null;
 let started = false;
 let entered = false;
+let touchController = null;
+let frameEma = 0;
 
 // Scripted walk-in sequence state. Phases: "beat" (short pause) → "doors"
 // (ease open) → "walk" (scripted stride from spawn to insideSpawn), then done.
@@ -195,6 +199,24 @@ function start(booksData) {
     player.teleport(stacks.spawn.x, stacks.spawn.z, stacks.spawn.yaw, 0);
     player.onLockChange(onLockChange);
     grab = createGrab(scene, camera, player, overlay, onBookReturned, siblingsForBook);
+    if (touchMode) {
+        document.body.classList.add("touch-mode");
+        const introText = introEl.querySelector(".intro-pill-text");
+        if (introText) introText.textContent = "tap to enter";
+        if (controlsHintEl) {
+            controlsHintEl.textContent =
+                "drag to look · left thumb to walk · tap a book to pick it up";
+        }
+    }
+    // Hybrids remain in desktop mode, but their touch gestures still work once
+    // pointer lock is engaged (useful on touch-screen laptops).
+    if (joystickEl) {
+        touchController = createTouchController(canvas, player, joystickEl, function () {
+            if (started && entered && !overlay.isOpen() && !paperOpen && !enterSeq && aimed) {
+                grabRecord(aimed);
+            }
+        });
+    }
 
     activeAisle = stacks.aisles[0];
     // Radar HUD disabled for now — hidden via CSS and not drawn per frame. The
@@ -277,7 +299,11 @@ function enter() {
         introEl.classList.add("gone");
     }, 600);
     document.body.classList.add("playing");
-    player.lock();
+    if (touchMode) {
+        player.setEngaged(true);
+    } else {
+        player.lock();
+    }
     showControlsHint();
     if (reducedMotion) {
         finishEnterInstant();
@@ -312,6 +338,12 @@ function onLockChange(locked) {
 // veil up with a dead mouse. Retry once after the cooldown so a single click
 // reliably resumes; the veil only hides once onLockChange sees a real lock.
 function requestResume() {
+    if (touchMode) {
+        player.setEngaged(true);
+        pauseEl.classList.remove("visible");
+        playMusic();
+        return;
+    }
     player.lock().then(function () {
         if (!player.state.locked) {
             window.setTimeout(function () {
@@ -324,6 +356,17 @@ function requestResume() {
 }
 
 pauseEl.addEventListener("click", requestResume);
+
+if (pauseBtn) {
+    pauseBtn.addEventListener("click", function (event) {
+        event.stopPropagation();
+        if (touchMode && entered && !overlay.isOpen() && !paperOpen) {
+            player.setEngaged(false);
+            pauseEl.classList.add("visible");
+            if (musicEl) musicEl.pause();
+        }
+    });
+}
 
 // The pause-screen "back to home" link must navigate rather than be swallowed
 // by the pause veil's click-to-resume handler.
@@ -338,7 +381,7 @@ canvas.addEventListener("click", function () {
     if (!started || !entered || overlay.isOpen()) {
         return;
     }
-    if (!player.state.locked) {
+    if (!player.state.engaged) {
         requestResume();
     }
 });
@@ -483,7 +526,7 @@ function drawRadar(force) {
     radarLastDraw = now;
 
     // Ease the view toward the framing the current mode wants.
-    const walking = started && player && player.state.locked;
+    const walking = started && player && player.state.engaged;
     const target = walking && player ? radarWalkView() : radarFitView();
     const k = radarView.set ? 1 - Math.exp(-4.5 * dtDraw) : 1;
     radarView.x += (target.x - radarView.x) * k;
@@ -738,7 +781,7 @@ function radarPointToYear(clientX, clientY) {
 
 if (radarCanvas) {
     radarCanvas.addEventListener("click", function (event) {
-        if (!started || (player && player.state.locked)) {
+        if (!started || (player && player.state.engaged)) {
             return;
         }
         const year = radarPointToYear(event.clientX, event.clientY);
@@ -752,7 +795,7 @@ function updateRadarInteractivity() {
     if (!radarEl) {
         return;
     }
-    const interactive = started && player && !player.state.locked;
+    const interactive = started && player && !player.state.engaged;
     radarEl.classList.toggle("interactive", interactive);
 }
 
@@ -761,6 +804,10 @@ function updateRadarInteractivity() {
 const raycaster = new THREE.Raycaster();
 raycaster.far = REACH;
 const centerNdc = new THREE.Vector2(0, 0);
+const aimAssistNdc = [
+    new THREE.Vector2(-0.035, 0), new THREE.Vector2(0.035, 0),
+    new THREE.Vector2(0, -0.035), new THREE.Vector2(0, 0.035)
+];
 let aimed = null;
 
 function pickCenter() {
@@ -768,17 +815,24 @@ function pickCenter() {
         return null;
     }
     player.rigYaw.updateMatrixWorld(true);
-    raycaster.setFromCamera(centerNdc, camera);
+    const intersect = function (ndc) {
+        raycaster.setFromCamera(ndc, camera);
+        const hits = raycaster.intersectObjects(raycastTargets.concat(occluders), false);
+        return hits.length ? hits[0].object.userData.record || null : null;
+    };
     // Raycast against pick proxies AND the solid shelf occluders in one pass,
     // then only accept the nearest hit if it is a pickable target (carries a
     // record). If the closest thing along the aim ray is shelf wood, the book
     // behind it is hidden and must not be pickable.
-    const hits = raycaster.intersectObjects(
-        raycastTargets.concat(occluders), false);
-    if (hits.length === 0) {
-        return null;
+    const direct = intersect(centerNdc);
+    if (direct || !touchMode) {
+        return direct;
     }
-    return hits[0].object.userData.record || null;
+    for (let i = 0; i < aimAssistNdc.length; i++) {
+        const assisted = intersect(aimAssistNdc[i]);
+        if (assisted) return assisted;
+    }
+    return null;
 }
 
 // Relative luminance (sRGB) of an HSL leather color, used to pick a readable
@@ -1019,7 +1073,7 @@ function grabRecord(record) {
 function onBookReturned() {
     player.setEnabled(true);
     canvas.focus({ preventScroll: true });
-    if (entered) {
+    if (entered && !touchMode) {
         player.lock();
     }
 }
@@ -1041,7 +1095,7 @@ function openPaper() {
         paperTextEl.textContent = stacks.paper.record.book.quotes[0];
     }
     player.setEnabled(false);
-    player.unlock();
+    if (!touchMode) player.unlock();
     if (paperViewEl) {
         paperViewEl.hidden = false;
         paperViewEl.setAttribute("aria-hidden", "false");
@@ -1067,7 +1121,7 @@ function closePaper() {
     }
     player.setEnabled(true);
     canvas.focus({ preventScroll: true });
-    if (entered) {
+    if (entered && !touchMode) {
         player.lock();
     }
 }
@@ -1095,7 +1149,7 @@ document.addEventListener("keydown", function (event) {
 });
 
 canvas.addEventListener("mousedown", function (event) {
-    if (!started || overlay.isOpen() || !player.state.locked || enterSeq) {
+    if (!started || overlay.isOpen() || !player.state.engaged || enterSeq) {
         return;
     }
     if (event.button === 0 && aimed) {
@@ -1107,7 +1161,7 @@ document.addEventListener("keydown", function (event) {
     if (!started || overlay.isOpen() || enterSeq) {
         return;
     }
-    if (event.code === "KeyE" && aimed && player.state.locked) {
+    if (event.code === "KeyE" && aimed && player.state.engaged) {
         grabRecord(aimed);
     }
 });
@@ -1116,7 +1170,7 @@ window.addEventListener("resize", function () {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
+    if (composer) composer.setSize(window.innerWidth, window.innerHeight);
 });
 
 // --- Frame loop -----------------------------------------------------------
@@ -1131,6 +1185,7 @@ function animate() {
     const dt = Math.min((now - lastFrameTime) / 1000, 0.05);
     lastFrameTime = now;
     elapsedTime += dt;
+    frameEma = frameEma ? frameEma * 0.92 + dt * 1000 * 0.08 : dt * 1000;
 
     if (started) {
         player.update(dt);
@@ -1145,7 +1200,7 @@ function animate() {
             setAimed(null);
         }
         if (escHintEl) {
-            escHintEl.classList.toggle("visible", player.state.locked);
+            escHintEl.classList.toggle("visible", player.state.engaged && !touchMode);
         }
 
         const aisle = nearestAisle();
@@ -1160,7 +1215,7 @@ function animate() {
         }
     }
 
-    composer.render();
+    if (composer) composer.render(); else renderer.render(scene, camera);
 
     if (started && !readyFlagged) {
         readyFlagged = true;
@@ -1224,6 +1279,10 @@ window.__library = {
             books: records.length,
             entered: entered,
             locked: player ? player.state.locked : false,
+            engaged: player ? player.state.engaged : false,
+            touchMode: touchMode,
+            joystick: touchController ? touchController.state() : { x: 0, y: 0 },
+            frameTime: Number(frameEma.toFixed(1)),
             player: player ? {
                 x: Number(pos.x.toFixed(3)),
                 z: Number(pos.z.toFixed(3)),
@@ -1242,12 +1301,14 @@ window.__library = {
         entered = true;
         introEl.classList.add("gone");
         document.body.classList.add("playing");
+        player.setEngaged(true);
         finishEnterInstant();
     },
     enterAnimated: function () {
         entered = true;
         introEl.classList.add("gone");
         document.body.classList.add("playing");
+        player.setEngaged(true);
         if (reducedMotion) {
             finishEnterInstant();
         } else {
@@ -1265,11 +1326,24 @@ window.__library = {
     },
     setLocked: function (on) {
         player.state.locked = !!on;
+        player.setEngaged(on);
     },
     setKeys: function (map) {
         Object.keys(map).forEach(function (code) {
             player.keys[code] = map[code];
         });
+    },
+    setTouchMode: function () {
+        return touchMode;
+    },
+    injectLook: function (dx, dy) {
+        player.injectLook(dx, dy);
+    },
+    injectMove: function (x, y) {
+        player.injectMove(x, y);
+    },
+    tap: function () {
+        if (aimed && player.state.engaged) grabRecord(aimed);
     },
     colliders: function () {
         return stacks ? stacks.colliders : [];

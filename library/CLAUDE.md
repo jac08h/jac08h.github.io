@@ -13,8 +13,9 @@ auto-fit so it never scrolls. Closing the book animates it back into its slot.
 No visible player body — the camera is a disembodied first-person view; the
 walk still drives head bob and stride-timed sway.
 
-Desktop-only: coarse-pointer / no-pointer-lock devices get the `#fallback`
-links instead of booting the renderer.
+Touch devices use drag-look, a floating left-thumb joystick, centre-reticle
+tap picking, and an on-screen pause button. Fine-pointer hybrids retain the
+desktop pointer-lock flow. Add `?touch=1` to force touch mode for testing.
 
 ## Files
 
@@ -90,7 +91,8 @@ rodney screenshot -w 1400 -h 900 /tmp/shot.png   # then Read the PNG
 Test hooks on `window.__library` — **none may require pointer lock** (headless
 Chrome can refuse it); they drive the player via teleports instead:
 
-- `state()` → `{ready, books, entered, locked, player:{x,z,yaw,pitch},
+- `state()` → `{ready, books, entered, locked, engaged, touchMode, joystick,
+  frameTime, player:{x,z,yaw,pitch},
   activeYear, aimedBookId, grabState, overlayOpen, doorsOpen, entering}`
   (`activeYear` is the nearest shelf FACE's year, not the aisle's; `doorsOpen`
   is 0..1, `entering` is true while the scripted walk-in sequence runs)
@@ -105,6 +107,8 @@ Chrome can refuse it); they drive the player via teleports instead:
 - `teleportTo(x, z, yaw, pitch)`, `nudge(dx, dz)` (substepped through the
   collision solver), `colliders()` (AABB list), `setKeys({KeyW:true, ...})`
   (drives real movement, walk cycle and head bob)
+- `injectLook(dx, dy)`, `injectMove(x, y)`, and `tap()` exercise the touch
+  input paths without browser pointer events.
 - `aimAtBook(id)` — teleport in front of the spine and aim the center ray at
   it; returns whether it is now aimed
 - `openBookById(id)` / `openFirstBookOfYear(y)` — instant grab (skips the

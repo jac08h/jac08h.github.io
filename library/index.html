@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Library | jh</title>
     <link rel="stylesheet" href="library.css">
     <script type="importmap">
@@ -42,12 +42,17 @@
 
     <header class="hud hud-header">
         <nav class="hud-nav" aria-label="Music">
+            <button id="pause-btn" class="pause-btn" aria-label="Pause">Ⅱ</button>
             <button id="mute-btn" class="mute-btn" aria-label="Mute music" aria-pressed="false">
                 <span class="mute-on" aria-hidden="true">♪</span>
                 <span class="mute-off" aria-hidden="true">♪̸</span>
             </button>
         </nav>
     </header>
+
+    <div id="joystick" class="joystick" aria-hidden="true">
+        <div class="joystick-base"><div class="joystick-thumb"></div></div>
+    </div>
 
     <audio id="bg-music" src="nocturne.mp3" loop preload="auto"></audio>
 
