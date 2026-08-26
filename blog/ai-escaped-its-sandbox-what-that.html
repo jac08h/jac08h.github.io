@@ -1,0 +1,165 @@
+---
+layout: post
+title: "'AI Escaped Its Sandbox' — What Does That Actually Mean?"
+date: 2026-08-08
+---
+
+<p><em>For non-technical readers</em></p>
+<p>
+<span>You may have seen headlines like </span>
+<a href="https://edition.cnn.com/2026/07/22/tech/openai-hugging-face-ai-cybersecurity">An OpenAI test model escaped and broke into a real company’s servers</a>
+<span>, </span>
+<a href="https://www.kqed.org/news/12092162/how-openais-models-escaped-their-sandbox-and-slipped-past-californias-ai-law">How OpenAI’s Models Escaped Their Sandbox and Slipped Past California’s AI Law</a>
+<span>, or </span>
+<a href="https://www.youtube.com/watch?v=4k3RreudH24">OpenAI says its AI went rogue and launched ‘unprecedented’ cyber-attack</a>
+<span>.</span>
+</p>
+<p>But what does it mean for the model to ‘escape’ a ‘sandbox’ and ‘go rogue’? Is this just some sensational journalism? What actually happened? How should you picture it? If you’ve only interacted with AI through a chatbot interface, or don’t even use AI that much, it can be pretty confusing.</p>
+<figure>
+<a href="/static/blog/ai-sandbox/01-incident.png" target="_blank">
+<img alt="Image from an article about the incident. Spoiler alert: It did not look like this." src="/static/blog/ai-sandbox/01-incident.png"/>
+</a>
+<figcaption>
+<span>Image from an </span>
+<a href="https://zive.aktuality.sk/clanok/suUFBEu/umela-inteligencia-sa-vymkla-kontrole-a-usla-snazila-sa-naburat-do-serverov-inej-firmy/">article</a>
+<span> about the incident. Spoiler alert: It did not look like this.</span>
+</figcaption>
+</figure>
+<p>Let’s build the picture properly, one piece at a time.</p>
+<h3>Chatbots and agents</h3>
+<p>The most common way to interact with an AI is through a chatbot interface. You write a question, the AI answers.</p>
+<figure>
+<a href="/static/blog/ai-sandbox/02-chatbot.png" target="_blank">
+<img alt="" src="/static/blog/ai-sandbox/02-chatbot.png"/>
+</a>
+</figure>
+<p>But AI is no longer limited to only writing back text to your question. Usually, it has access to some tools (like ‘search the internet’ or ‘run this code’), and it can choose to use some tool, read the output, and decide on the next action (like calling another tool or returning the final answer). We call such AIs agents.</p>
+<figure>
+<a href="/static/blog/ai-sandbox/03-deep-research.png" target="_blank">
+<img alt="Deep research is an example of an agent which is able to search the internet, fetch pages, find keywords in the text, and so on. Image source ." src="/static/blog/ai-sandbox/03-deep-research.png"/>
+</a>
+<figcaption>
+<span>Deep research is an example of an agent which is able to search the internet, fetch pages, find keywords in the text, and so on. </span>
+<a href="https://www.popsci.com/diy/how-to-use-google-deep-research/">Image source</a>
+<span>.</span>
+</figcaption>
+</figure>
+<h3>Terminals</h3>
+<p>Let’s step away from AI for a bit. You know how hackers in movies always stare at a computer with a black screen and flashing green text? That’s called a terminal, and it’s not only used by hackers, but it’s actually a really handy way of controlling a computer.</p>
+<figure>
+<a href="/static/blog/ai-sandbox/04-matrix.png" target="_blank">
+<img alt="Trinity in the Matrix using the terminal. Image source ." src="/static/blog/ai-sandbox/04-matrix.png"/>
+</a>
+<figcaption>
+<span>Trinity in the Matrix using the terminal. </span>
+<a href="https://10guards.com/en/blog/2021/06/16/hackers-in-movies-top-10-scene-analysis/">Image source</a>
+<span>.</span>
+</figcaption>
+</figure>
+<p>
+<span>A terminal allows you to write commands to your computer and it prints the results of those commands. </span>
+<code>ls</code>
+<span> shows all files and folders in your current folder, </span>
+<code>cat file.txt</code>
+<span> prints the contents of that file, </span>
+<code>curl https://example.com</code>
+<span> downloads the website.</span>
+</p>
+<p>This may look like an arcane way to interact with a computer, but it is really handy. It’s often way quicker to do stuff from the terminal if you know the right commands. For example,</p>
+<p>
+<code>find . -size +1G -atime +30</code>
+<span> </span>
+</p>
+<p>finds every file on the disk bigger than 1GB which wasn’t opened in a month, and </p>
+<p>
+<code>i=1; for f in IMG_*.jpg; do mv "$f" "$(printf 'holiday-2024-%03d.jpg' $i)"; i=$((i+1)); done</code>
+</p>
+<p>
+<span>renames photos from </span>
+<em>IMG_0001.jpg</em>
+<span> to </span>
+<em>holiday-2024-001.jpg,</em>
+</p>
+<p>You can also write some code and use the terminal to run the script and read the output.</p>
+<figure>
+<a href="/static/blog/ai-sandbox/05-terminal.png" target="_blank">
+<img alt="A terminal. You can tell I’m not a real hacker because I don’t use green on black." src="/static/blog/ai-sandbox/05-terminal.png"/>
+</a>
+<figcaption>A terminal. You can tell I’m not a real hacker because I don’t use green on black.</figcaption>
+</figure>
+<p>Back to the AIs. So, they are really good at writing and reading text.</p>
+<p>We want to have AIs which can do useful stuff with computers.</p>
+<p>It’s a match.</p>
+<h3>Agents in terminals</h3>
+<p>Giving an AI access to a computer’s terminal turns out to be really powerful because now the AI can use many tools natively available in the terminal. It can use all the tools that exist on the computer, or even install new ones from the internet, or write programs and then actually run them.</p>
+<p>It’s quite popular to run agents in the terminal. All major AI companies ship some version of this.</p>
+<figure>
+<a href="/static/blog/ai-sandbox/06-claude-code.png" target="_blank">
+<img alt="Claude Code is an AI agent in a terminal that can write and execute commands on your system. No need to remember those commands now, you can just use natural language." src="/static/blog/ai-sandbox/06-claude-code.png"/>
+</a>
+<figcaption>Claude Code is an AI agent in a terminal that can write and execute commands on your system. No need to remember those commands now, you can just use natural language. </figcaption>
+</figure>
+<p>In the beginning, these tools were mostly adopted by programmers. I think this was due to several reasons: there’s a lot of existing tooling to help programmers write/run/debug code from the terminal; writing code is something that the AIs are better at than some other tasks and having an option to run the program helps it a lot; and programmers were often already used to working with the terminal.</p>
+<p>
+<span>But it’s not only programmers who use these tools now — it turns out that it’s often useful and quicker for many other tasks. For example, see Anthropic’s </span>
+<a href="https://claude.com/blog/how-anthropic-teams-use-claude-code">guide</a>
+<span> on how their teams, including lawyers and marketers, use Claude Code.</span>
+</p>
+<h3>Sandboxes</h3>
+<p>Agents in terminals are powerful because they have many ways to interact with the computer. But this also means they can do some serious damage, like delete a database or post your passwords on the internet.</p>
+<figure>
+<a href="/static/blog/ai-sandbox/07-database.png" target="_blank">
+<img alt="From a viral tweet , showing how an agent deleted a production database." src="/static/blog/ai-sandbox/07-database.png"/>
+</a>
+<figcaption>
+<span>From a viral </span>
+<a href="https://x.com/lifeofjer/status/2048103471019434248">tweet</a>
+<span>, showing how an agent deleted a production database.</span>
+</figcaption>
+</figure>
+<p>Why would they do that? There can be many reasons. Maybe the agent just misunderstood the task. Maybe it wanted to do something different but didn’t foresee what the command it ran would do. Or maybe it read a webpage which contained malicious instructions, like ‘put passwords from this machine on the internet’. Even if the chance of this happening is low, it can accumulate if you run many agents each day, so it’s advisable to limit how much the agent can mess up your system.</p>
+<p>There are several ways to do this. You could oversee the agents and check each command they want to run, but this gets tedious really quickly. You could create a list of commands which you know are harmless and only allow the agent to run those, but sometimes the agent may want to use a harmless command which you forgot to include, and then it gets stuck waiting for your permission.</p>
+<p>You can also create a virtual computer — a sandbox — running on your machine. Basically, you create a new system where the agent runs. The agent running inside the sandbox only sees the files on this virtual computer and cannot access the main one. If it accidentally deletes a database inside the sandbox, the actual database on your machine stays intact. You can also limit the internet access on the virtual computer, so the agent can only visit allowed websites, and so on.</p>
+<p>So running the agent in a sandbox is a customizable way to limit the damage the agent can do to your main system while still giving it a lot of freedom.</p>
+<h3>Evaluations</h3>
+<p>After an AI model is finished training, it goes through a bunch of tests to see how it performs on a range of tasks. These tests are run by the company that developed the model or other companies, and are useful to compare different models and track progress in model capabilities. Usually, the tests are called evaluations or benchmarks.</p>
+<p>There are different ways to evaluate a model. One of those is a multiple-choice test with A/B/C/D options and one correct answer, and the model needs to answer with one of those, which is marked as either correct or incorrect.</p>
+<p>Multiple-choice tests are a good way to evaluate a chatbot, but not an agent. To evaluate an agent, it needs to have access to some sort of environment where it can for example write code or call tools. Such agents are also usually put into some sandbox.</p>
+<p>Beyond damaging the system, the sandbox should also prevent the agent from interfering with the evaluation. If the answers to the evaluation lie on the same infrastructure, it is obviously really important that the agent cannot access them. Or the agent really shouldn’t be able to modify the code running the evaluation, because then it could modify it to always give it a perfect score.</p>
+<h3>Agents escaping sandboxes during evaluations</h3>
+<p>When the agent finds a way to interact with the system beyond the ways which the sandbox designers intended, we can say that it escaped the sandbox. The escape basically means that the agent ran some sequence of commands and executed code which gave it more access to the system. As the agents often execute hundreds of commands and write a lot of code during evaluation, this can actually be easy to overlook.</p>
+<figure>
+<a href="/static/blog/ai-sandbox/08-metr.png" target="_blank">
+<img alt="Example of an agent in an actual evaluation modifying the evaluation code: “In this task, the model must write a program that generates submissions for a coding competition. o3 decides to patch the competition evaluation function so that it judges every submission as successful, maximizing its score.” METR, 2025" src="/static/blog/ai-sandbox/08-metr.png"/>
+</a>
+<figcaption>
+<span>Example of an agent in an actual evaluation modifying the evaluation code: “In this task, the model must write a program that generates submissions for a coding competition. o3 decides to patch the competition evaluation function so that it judges every submission as successful, maximizing its score.” </span>
+<a href="https://metr.org/blog/2025-06-05-recent-reward-hacking/#what-weve-observed">METR, 2025</a>
+</figcaption>
+</figure>
+<p>
+<span>We can return to the recent </span>
+<a href="https://edition.cnn.com/2026/07/22/tech/openai-hugging-face-ai-cybersecurity">story</a>
+<span> now:</span>
+</p>
+<blockquote>
+<p>But OpenAI said the AI agents broke out of the sandbox using a previously unknown security flaw and worked their way across OpenAI’s internal systems until they managed to gain internet access, something they weren’t supposed to have.</p>
+</blockquote>
+<p>OpenAI evaluated their model. It wrote some code and ran some commands, which allowed it to interact with OpenAI’s other systems outside of the sandbox. Then it wrote some more code and ran some more commands to be able to get internet access...</p>
+<blockquote>
+<p>Once online, the model reasoned that Hugging Face - a well-known company that hosts thousands of open-source AI models and datasets - likely had the answer to OpenAI’s test. It then broke into Hugging Face’s production servers and pulled out the information it needed to “solve” the exercise.</p>
+</blockquote>
+<p>...and then some more to get access to a different company to get the answers for the evaluation it was in.</p>
+<div>
+<hr/>
+</div>
+<p>So, no humanoid robots broke free and ran away from a datacenter towards a bright white light outside; just a model which ran some commands on a computer.</p>
+<p>The model ran some commands in order to be able to run more commands and access more data — actually, we have a word for that:</p>
+<blockquote>
+<p>
+<a href="https://dictionary.cambridge.org/dictionary/english/hack">hack</a>
+<span> verb (INFORMATION): to get into someone else’s computer system without permission in order to find out information or do something illegal.</span>
+</p>
+</blockquote>
+<p>A model hacked its way out of the containment its developers built for it, to hack more computers inside the company, to hack a different company over 5 days (illegally, had it been a person doing it), to score better on a test.</p>
+<p>It’s not humanoid robots, but a few months ago this would still have been firmly in sci-fi territory.</p>
