@@ -9,6 +9,7 @@ Also available on [Substack](https://unpredictabletokens.substack.com/).
 
 ### 2026
 
+* <small style="color: #999;">Aug 29</small> [Book Notes: Chokepoints](/blog/book-notes-chokepoints.html)
 * <small style="color: #999;">Aug&nbsp;&nbsp;8</small> ['AI Escaped Its Sandbox' — What Does That Actually Mean?](/blog/ai-escaped-its-sandbox-what-that.html) <small style="color: #999;">— For non-technical readers</small>
 * <small style="color: #999;">Aug&nbsp;&nbsp;2</small> [Why I Watch Soccer](/blog/why-i-watch-soccer.html)
 * <small style="color: #999;">Jul 23</small> [Too Many Fire Alarms?](/blog/too-many-fire-alarms.html)
