@@ -310,24 +310,146 @@ function buildPendants(scene, positions) {
     return lamps;
 }
 
-function buildLadder(scene, woodTex, x, z) {
+// A constrained rolling library ladder. Its local x axis is the ladder's
+// width; rotating the movable group about y makes that width run along the
+// shelf (world z), while local z points toward/away from the shelf (world x).
+function buildLadder(scene, woodTex, x, stops) {
     const group = new THREE.Group();
+    const ladder = new THREE.Group();
     const mat = woodMaterial(woodTex, 0xc0a888, 0.7);
+    const brass = new THREE.MeshStandardMaterial({
+        color: 0x87642d, roughness: 0.32, metalness: 0.88
+    });
+    const wheelMat = new THREE.MeshStandardMaterial({
+        color: 0x241911, roughness: 0.55, metalness: 0.3
+    });
+    const lean = -0.14;
+    ladder.rotation.x = lean;
     [-1, 1].forEach(function (s) {
-        const rail = new THREE.Mesh(new THREE.BoxGeometry(0.055, 3.5, 0.04), mat);
-        rail.position.set(s * 0.24, 1.75, 0);
-        group.add(rail);
+        const rail = new THREE.Mesh(new THREE.BoxGeometry(0.055, 3.35, 0.055), mat);
+        rail.position.set(s * 0.24, 1.675, 0);
+        ladder.add(rail);
     });
     const rungGeo = new THREE.CylinderGeometry(0.018, 0.018, 0.46, 8);
-    for (let y = 0.3; y < 3.3; y += 0.34) {
+    for (let y = 0.3; y < 3.18; y += 0.34) {
         const rung = new THREE.Mesh(rungGeo, mat);
         rung.rotation.z = Math.PI / 2;
-        rung.position.set(0, y, 0);
-        group.add(rung);
+        rung.position.set(0, y, 0.015);
+        ladder.add(rung);
     }
-    group.position.set(x, 0, z);
-    group.rotation.x = -0.18;
+    group.add(ladder);
+
+    const wheels = [];
+    const wheelGeo = new THREE.CylinderGeometry(0.075, 0.075, 0.045, 10);
+    [-1, 1].forEach(function (s) {
+        const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+        wheel.rotation.z = Math.PI / 2;
+        wheel.position.set(s * 0.24, 3.2, -0.04);
+        ladder.add(wheel);
+        wheels.push(wheel);
+        const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.026, 0.052, 8), brass);
+        cap.rotation.z = Math.PI / 2;
+        cap.position.copy(wheel.position);
+        ladder.add(cap);
+    });
+    // Subtle lower casters make the rolling mechanism legible without adding
+    // a bulky base that would pinch the aisle.
+    [-1, 1].forEach(function (s) {
+        const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.035, 8), wheelMat);
+        wheel.rotation.z = Math.PI / 2;
+        wheel.position.set(s * 0.2, 0.1, 0.08);
+        ladder.add(wheel);
+        wheels.push(wheel);
+    });
+
+    const pick = new THREE.Mesh(
+        new THREE.BoxGeometry(0.7, 3.45, 0.3),
+        new THREE.MeshBasicMaterial({ visible: false }));
+    pick.position.set(0, 1.68, 0);
+    group.add(pick);
+    group.position.set(x, 0, stops[0].z);
+    group.rotation.y = Math.PI / 2;
     scene.add(group);
+
+    const collider = { minX: 0, maxX: 0, minZ: 0, maxZ: 0 };
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const record = { isLadder: true, group: group };
+    pick.userData.record = record;
+    const state = { currentStop: 0, targetStop: 0, moving: false, elapsed: 0, fromZ: stops[0].z };
+    const duration = 0.92;
+
+    function updateCollider() {
+        // The ladder lies close to the left shelf face and projects mostly
+        // along z. This is deliberately a little narrower than the pick proxy.
+        collider.minX = group.position.x - 0.27;
+        collider.maxX = group.position.x + 0.34;
+        collider.minZ = group.position.z - 0.34;
+        collider.maxZ = group.position.z + 0.34;
+    }
+
+    function setStop(index) {
+        state.currentStop = index;
+        state.targetStop = index;
+        state.moving = false;
+        record.moving = false;
+        state.elapsed = 0;
+        group.position.z = stops[index].z;
+        updateCollider();
+    }
+
+    updateCollider();
+    return {
+        group: group, pick: pick, record: record, collider: collider, stops: stops,
+        moveNext: function () {
+            if (state.moving) return false;
+            state.fromZ = group.position.z;
+            state.targetStop = (state.currentStop + 1) % stops.length;
+            if (reducedMotion) {
+                setStop(state.targetStop);
+                return true;
+            }
+            state.elapsed = 0;
+            state.moving = true;
+            record.moving = true;
+            return true;
+        },
+        update: function (dt) {
+            if (!state.moving) return;
+            state.elapsed += dt;
+            const raw = Math.min(1, state.elapsed / duration);
+            const eased = raw < 0.5 ? 2 * raw * raw : 1 - Math.pow(-2 * raw + 2, 2) / 2;
+            const destination = stops[state.targetStop].z;
+            const previousZ = group.position.z;
+            group.position.z = state.fromZ + (destination - state.fromZ) * eased;
+            const distance = group.position.z - previousZ;
+            wheels.forEach(function (wheel) {
+                wheel.rotation.y += distance / 0.06;
+            });
+            updateCollider();
+            if (raw >= 1) setStop(state.targetStop);
+        },
+        state: function () {
+            return {
+                currentStop: state.currentStop, targetStop: state.targetStop,
+                moving: state.moving, x: group.position.x, z: group.position.z
+            };
+        }
+    };
+}
+
+function buildLadderRail(scene, x) {
+    const brass = new THREE.MeshStandardMaterial({
+        color: 0x87642d, roughness: 0.3, metalness: 0.9
+    });
+    const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.027, 0.027, 4.25, 10), brass);
+    rail.rotation.x = Math.PI / 2;
+    rail.position.set(x - 0.24, 3.18, -2.3);
+    scene.add(rail);
+    [-4.25 / 2, 0, 4.25 / 2].forEach(function (offset) {
+        const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.16, 0.06), brass);
+        bracket.position.set(x - 0.17, 3.18, -2.3 + offset);
+        scene.add(bracket);
+    });
 }
 
 function buildDust(scene, bounds, cones) {
@@ -490,11 +612,14 @@ export function buildStacks(scene, years) {
         minZ: tableZ - 0.58, maxZ: tableZ + 0.58
     });
 
-    buildLadder(scene, woodTex, 2 * STACKS.pitch, 0.62);
-    colliders.push({
-        minX: 2 * STACKS.pitch - 0.35, maxX: 2 * STACKS.pitch + 0.35,
-        minZ: 0.1, maxZ: 0.9
-    });
+    // First aisle, along the face of the left unit. Stops avoid the aisle
+    // mouth at z=0 and the rear crossover beyond z=-4.6.
+    const ladderX = 0.58;
+    const ladder = buildLadder(scene, woodTex, ladderX, [
+        { z: -0.82 }, { z: -2.3 }, { z: -3.78 }
+    ]);
+    buildLadderRail(scene, ladderX);
+    colliders.push(ladder.collider);
 
     // One pendant fixture per aisle, but only alternate aisles get a real
     // PointLight (the rest glow via emissive bulb + bloom). With an odd aisle
@@ -523,6 +648,6 @@ export function buildStacks(scene, years) {
         bays: bays, decorBays: decorBays, plaques: plaques, lamps: lamps,
         updateDust: updateDust, colliders: colliders, aisles: aisles,
         spawn: entry.spawn, bounds: bounds, entry: entry,
-        occluders: occluders, paper: paper, updateClock: room.updateClock
+        occluders: occluders, paper: paper, ladder: ladder, updateClock: room.updateClock
     };
 }
