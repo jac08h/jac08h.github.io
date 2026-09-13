@@ -44,7 +44,7 @@ function rowCounts(n, rows) {
     return counts;
 }
 
-function makeRealBook(book, dims) {
+function makeRealBook(book, dims, spineSupersample) {
     const colors = leatherFor(book);
     const group = new THREE.Group();
 
@@ -53,7 +53,7 @@ function makeRealBook(book, dims) {
     body.position.z = -BOOK_DEPTH / 2;
     group.add(body);
 
-    const spineMaps = makeSpineTexture(book, colors);
+    const spineMaps = makeSpineTexture(book, colors, spineSupersample);
     const spine = new THREE.Mesh(unitPlane, new THREE.MeshStandardMaterial({
         map: spineMaps.map,
         emissive: 0xffffff,
@@ -125,7 +125,8 @@ function fillRow(innerW, reals, rng, onReal, onFiller) {
 // Places all real and filler books into the bays. Returns interactive book
 // records (ordered by bay, then shelf row, then position) and the meshes to
 // raycast against.
-export function buildBooks(scene, bays, decorBays, booksData) {
+export function buildBooks(scene, bays, decorBays, booksData, options) {
+    const spineSupersample = (options && options.spineSupersample) || 3;
     const byYear = {};
     booksData.forEach(function (book) {
         (byYear[book.year] = byYear[book.year] || []).push(book);
@@ -150,7 +151,7 @@ export function buildBooks(scene, bays, decorBays, booksData) {
             let rowRecord = null;
             overflow = fillRow(innerW, rowReals, rng,
                 function onReal(book, dims, x) {
-                    const built = makeRealBook(book, dims);
+                    const built = makeRealBook(book, dims, spineSupersample);
                     const group = built.group;
                     group.position.set(x, rowY + dims.ht / 2, bookFrontZ);
                     bay.group.add(group);

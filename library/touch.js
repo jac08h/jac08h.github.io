@@ -1,6 +1,9 @@
 const LOOK_SENSITIVITY = 0.003;
-const TAP_DISTANCE = 10;
-const TAP_DURATION = 300;
+const TAP_DISTANCE = 14;
+// Generous: on a phone rendering at a few fps the pointerup handler can run
+// well after the finger lifted, so tap timing uses event timestamps, not
+// handler time, and tolerates a slow press.
+const TAP_DURATION = 500;
 const STICK_RADIUS = 56;
 
 // Touch input is deliberately separate from the player controller: it turns
@@ -50,7 +53,7 @@ export function createTouchController(canvas, player, joystickEl, onTap) {
         } else if (!look) {
             look = {
                 id: event.pointerId, x: event.clientX, y: event.clientY,
-                startX: event.clientX, startY: event.clientY, time: performance.now()
+                startX: event.clientX, startY: event.clientY, time: event.timeStamp
             };
         }
     }
@@ -74,7 +77,7 @@ export function createTouchController(canvas, player, joystickEl, onTap) {
             resetStick();
         } else if (look && event.pointerId === look.id) {
             const distance = Math.hypot(event.clientX - look.startX, event.clientY - look.startY);
-            if (distance < TAP_DISTANCE && performance.now() - look.time < TAP_DURATION) {
+            if (distance < TAP_DISTANCE && event.timeStamp - look.time < TAP_DURATION) {
                 onTap(event.clientX, event.clientY);
             }
             look = null;

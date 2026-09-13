@@ -222,8 +222,11 @@ function spineCanvasTexture(canvas) {
 // Book spine: leather gradient + grain + gilt bands + vertical title/author.
 // Returns { map, emissiveMap }: the emissive map carries only the lettering
 // and gilt bands, so titles stay readable independent of scene lighting.
-export function makeSpineTexture(book, colors) {
-    const w = 96, h = 384, ss = 3;
+// `ss` is the canvas supersampling factor: 3 on desktop for crisp lettering,
+// 1 on touch devices — 212 books × 2 maps at 288×1152 RGBA is ~560 MB of GPU
+// memory, which kills the WebGL context (or the whole tab) on phones.
+export function makeSpineTexture(book, colors, ss = 3) {
+    const w = 96, h = 384;
     const canvas = makeCanvas(w * ss, h * ss);
     const ctx = canvas.getContext("2d");
     ctx.scale(ss, ss);

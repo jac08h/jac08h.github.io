@@ -53,7 +53,9 @@ desktop pointer-lock flow. Add `?touch=1` to force touch mode for testing.
   group to the scene and restores the exact parent/local transform on return;
   `openInstant`/instant close for tests.
 - `books.js` — places one year's spines per shelf face plus filler
-  `InstancedMesh`.
+  `InstancedMesh`. Takes `{spineSupersample}`: 3 on desktop, 1 in touch mode —
+  212 books × 2 spine maps at 3× is ~560 MB of textures, which kills the
+  WebGL context on phones.
 - `overlay.js` — the opened two-page spread. Highlight + blurred-filler
   layout and `fitType()` (shrinks font until no overflow) live here.
 - `textures.js` — procedural canvas textures (wood, floor, rug, spines, year
@@ -109,8 +111,12 @@ Chrome can refuse it); they drive the player via teleports instead:
   (drives real movement, walk cycle and head bob)
 - `injectLook(dx, dy)`, `injectMove(x, y)`, and `tap()` exercise the touch
   input paths without browser pointer events.
+- `info()` → `{render, memory, pixelRatio}` from `renderer.info` (draw calls,
+  triangles, live texture count) — for budgeting mobile changes
 - `aimAtBook(id)` — teleport in front of the spine and aim the center ray at
   it; returns whether it is now aimed
+- `aimAtLadder()` — teleport to the open side of the rolling ladder, aim at its enlarged pick target, and return whether it is selected
+- `moveLadder()` — request the ladder's next stop; returns false while it is already travelling; `ladderState()` → `{currentStop, targetStop, moving, x, z}`
 - `openBookById(id)` / `openFirstBookOfYear(y)` — instant grab (skips the
   animation) + overlay
 - `grabBookById(id)` — the full animated grab (reach → slide → fly)
@@ -118,10 +124,19 @@ Chrome can refuse it); they drive the player via teleports instead:
 
 Also `window.__LIBRARY_READY` (first rendered frame) and `window.__frames`.
 
+The first aisle has a rolling library ladder mounted on the left shelf face. It cycles between three fixed stops when aimed and activated (click, E, or a look-side touch tap). The ladder's guide rail is static; its group, wheels, pick proxy, and one mutable player-collision AABB travel together. Reduced motion changes stops immediately. `state().aimedObject` distinguishes `book`, `paper`, `ladder`, and `null`, while `aimedBookId` remains book-only.
+
 Gotchas learned the hard way:
 - `rodney screenshot -w/-h` only scales the **capture**, not the JS viewport
   (`window.innerWidth` stays desktop). Media-query/mobile layout can't be
-  verified this way — assert on `getComputedStyle`/`innerWidth` instead.
+  verified this way. To validate the real mobile path, launch Rodney, open
+  `/library/?touch=1`, then use Chrome DevTools Protocol's
+  `Emulation.setDeviceMetricsOverride` (390 × 844, `mobile: true`) and
+  `Emulation.setTouchEmulationEnabled`; reload and assert that
+  `window.innerWidth === 390`, `window.innerHeight === 844`, and
+  `window.__library.state().touchMode === true`. Capture a screenshot after
+  that check. `websocket.create_connection(..., suppress_origin=True)` is
+  needed when connecting directly to Rodney's local DevTools endpoint.
 - Headless rAF can run at ~7 fps with dt clamped to 0.05 s, so grab/return
   animations take a few of wall-clock seconds — poll `state().grabState`
   instead of assuming timings.

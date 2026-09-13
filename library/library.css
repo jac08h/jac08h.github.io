@@ -913,14 +913,41 @@ body.playing #scene {
 }
 
 @media (max-width: 760px) {
+    /* Phone layout: the page sits in the upper part of the screen, below the
+       close button, and all chrome (caption, quote arrows, same-year book
+       nav) lives in a fixed strip under it — nothing overlaps the page. */
     .stage {
         gap: 0.3rem;
-        padding: 1.2rem 0.4rem;
+        padding: 4.9rem 0.4rem 0;
+        align-items: flex-start;
     }
 
     .book {
         width: 94vw;
-        height: 74dvh;
+        height: calc(100dvh - 14.3rem - env(safe-area-inset-bottom, 0px));
+    }
+
+    .book-caption {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.3rem;
+        bottom: calc(0.9rem + env(safe-area-inset-bottom, 0px));
+        max-width: 70vw;
+    }
+
+    .caption-title {
+        font-size: 1rem;
+        line-height: 1.2;
+    }
+
+    .caption-author {
+        font-size: 0.78rem;
+    }
+
+    .caption-indicator {
+        min-height: 1.4rem;
+        display: inline-flex;
+        align-items: center;
     }
 
     /* Too narrow for a real spread — fold to a single readable page. */
@@ -937,10 +964,13 @@ body.playing #scene {
         display: none;
     }
 
+    /* Quote arrows flank the caption's quote counter row. */
     .nav-arrow {
         position: fixed;
-        bottom: 4.2rem;
+        bottom: calc(4.4rem + env(safe-area-inset-bottom, 0px));
         z-index: 13;
+        width: 44px;
+        height: 44px;
     }
 
     .nav-prev {

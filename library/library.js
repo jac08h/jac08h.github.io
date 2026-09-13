@@ -184,7 +184,9 @@ function start(booksData) {
     });
 
     stacks = buildStacks(scene, years);
-    const built = buildBooks(scene, stacks.bays, stacks.decorBays, booksData);
+    const built = buildBooks(scene, stacks.bays, stacks.decorBays, booksData, {
+        spineSupersample: touchMode ? 1 : 3
+    });
     records = built.records;
     raycastTargets = built.raycastTargets;
     occluders = stacks.occluders || [];
@@ -193,6 +195,9 @@ function start(booksData) {
     // the blurred book overlay.
     if (stacks.paper) {
         raycastTargets.push(stacks.paper.pick);
+    }
+    if (stacks.ladder) {
+        raycastTargets.push(stacks.ladder.pick);
     }
 
     player = createPlayer(scene, camera, canvas, stacks.colliders, reducedMotion);
@@ -205,7 +210,7 @@ function start(booksData) {
         if (introText) introText.textContent = "tap to enter";
         if (controlsHintEl) {
             controlsHintEl.textContent =
-                "drag to look · left thumb to walk · tap a book to pick it up";
+                "drag to look · left thumb to walk · tap an object to interact";
         }
     }
     // Hybrids remain in desktop mode, but their touch gestures still work once
@@ -213,7 +218,7 @@ function start(booksData) {
     if (joystickEl) {
         touchController = createTouchController(canvas, player, joystickEl, function () {
             if (started && entered && !overlay.isOpen() && !paperOpen && !enterSeq && aimed) {
-                grabRecord(aimed);
+                interactWith(aimed);
             }
         });
     }
@@ -850,7 +855,13 @@ function setAimed(record) {
         return;
     }
     aimed = record;
-    if (record && record.isPaper) {
+    if (record && record.isLadder) {
+        aimLabelEl.textContent = "move ladder";
+        aimLabelEl.style.background = "rgba(10, 6, 3, 0.72)";
+        aimLabelEl.style.color = "#f6ecd9";
+        reticleEl.classList.add("aiming");
+        aimLabelEl.classList.add("visible");
+    } else if (record && record.isPaper) {
         aimLabelEl.textContent = "a note";
         aimLabelEl.style.background = "rgba(10, 6, 3, 0.72)";
         aimLabelEl.style.color = "#f6ecd9";
@@ -1024,7 +1035,8 @@ function updatePopEntry(entry, dt) {
 }
 
 function updateAnticipation(dt) {
-    const rawTarget = (aimed && grab.isIdle() && !overlay.isOpen()) ? aimed : null;
+    const rawTarget = (aimed && !aimed.isPaper && !aimed.isLadder &&
+        grab.isIdle() && !overlay.isOpen()) ? aimed : null;
 
     if (rawTarget) {
         missTimer = 0;
@@ -1056,18 +1068,24 @@ function updateAnticipation(dt) {
     }
 }
 
-function grabRecord(record) {
+function interactWith(record) {
+    if (record && record.isLadder) {
+        return stacks.ladder.moveNext();
+    }
     if (record && record.isPaper) {
         dropPopEntry(record);
         setAimed(null);
         openPaper();
-        return;
+        return true;
     }
+    if (!record) return false;
     const restPose = restPoseFor(record);
     dropPopEntry(record);
     if (grab.begin(record, restPose)) {
         setAimed(null);
+        return true;
     }
+    return false;
 }
 
 function onBookReturned() {
@@ -1153,7 +1171,7 @@ canvas.addEventListener("mousedown", function (event) {
         return;
     }
     if (event.button === 0 && aimed) {
-        grabRecord(aimed);
+        interactWith(aimed);
     }
 });
 
@@ -1162,7 +1180,7 @@ document.addEventListener("keydown", function (event) {
         return;
     }
     if (event.code === "KeyE" && aimed && player.state.engaged) {
-        grabRecord(aimed);
+        interactWith(aimed);
     }
 });
 
@@ -1188,6 +1206,7 @@ function animate() {
     frameEma = frameEma ? frameEma * 0.92 + dt * 1000 * 0.08 : dt * 1000;
 
     if (started) {
+        stacks.ladder.update(dt);
         player.update(dt);
         updateEnterSequence(dt);
         grab.update(dt);
@@ -1271,6 +1290,23 @@ function aimAtRecord(record) {
     return aimed === record;
 }
 
+function aimAtLadder() {
+    if (!stacks || !stacks.ladder) return false;
+    const target = new THREE.Vector3();
+    stacks.ladder.group.updateMatrixWorld(true);
+    stacks.ladder.group.getWorldPosition(target);
+    target.y = STACKS.eyeHeight;
+    // The ladder occupies the left side of the first aisle; approach from its
+    // open side so the test path neither needs pointer lock nor intersects it.
+    const standX = target.x + 1.0;
+    const standZ = target.z;
+    const eye = new THREE.Vector3(standX, STACKS.eyeHeight, standZ);
+    const dir = target.clone().sub(eye);
+    player.teleport(standX, standZ, Math.atan2(-dir.x, -dir.z), 0);
+    setAimed(pickCenter());
+    return aimed === stacks.ladder.record;
+}
+
 window.__library = {
     state: function () {
         const pos = player ? player.rigYaw.position : { x: 0, z: 0 };
@@ -1290,7 +1326,8 @@ window.__library = {
                 pitch: Number(player.state.pitch.toFixed(3))
             } : null,
             activeYear: player && stacks ? nearestFaceYear() : null,
-            aimedBookId: aimed ? aimed.book.id : null,
+            aimedBookId: aimed && !aimed.isPaper && !aimed.isLadder ? aimed.book.id : null,
+            aimedObject: aimed ? (aimed.isLadder ? "ladder" : aimed.isPaper ? "paper" : "book") : null,
             grabState: grab ? grab.state() : "idle",
             overlayOpen: overlay.isOpen(),
             doorsOpen: doorsOpen,
@@ -1343,10 +1380,14 @@ window.__library = {
         player.injectMove(x, y);
     },
     tap: function () {
-        if (aimed && player.state.engaged) grabRecord(aimed);
+        if (aimed && player.state.engaged) interactWith(aimed);
     },
     colliders: function () {
         return stacks ? stacks.colliders : [];
+    },
+    info: function () {
+        return { render: renderer.info.render, memory: renderer.info.memory,
+            pixelRatio: renderer.getPixelRatio() };
     },
     aimAtBook: function (id) {
         const record = findRecord(id);
@@ -1396,6 +1437,15 @@ window.__library = {
         }
         aimAtRecord(stacks.paper.record);
         return aimed === stacks.paper.record;
+    },
+    aimAtLadder: function () {
+        return aimAtLadder();
+    },
+    moveLadder: function () {
+        return stacks && stacks.ladder ? stacks.ladder.moveNext() : false;
+    },
+    ladderState: function () {
+        return stacks && stacks.ladder ? stacks.ladder.state() : null;
     },
     openPaper: function () {
         if (stacks && stacks.paper) {
