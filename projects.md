@@ -5,7 +5,7 @@ Organized by year of publication.
 * <span id="random-word-display"></span>... (check back later!)
 
 * <small style="color: #999;">Jul 2026</small> **Quotes Library**
-    * Upgraded the [book collection](/books/quotes) into an [interactive in-browser 3D library](/library/) (desktop-only).
+    * Upgraded the [book collection](/books/quotes) into an [interactive in-browser 3D library](/library/) (best on desktop).
 
 * <small style="color: #999;">Apr 2026</small> **ChatbotChambers**
     * A web app where two chatbots talk to each other while you watch.
