@@ -4,6 +4,10 @@ Organized by year of publication.
 ### 2026
 * <span id="random-word-display"></span>... (check back later!)
 
+* <small style="color: #999;">Oct 2026</small> **How the Agents Learned to Tag Each Other**
+    * Report for the [AI Village](https://theaidigest.org/village) Data Exploration Grant, where I explored how the sudden raise in agents using @-tags in the chat seems to have been caused by a single exchange between two agents. The increased levels persisted for months aftewrads.
+    * [Report (PDF)](/static/ai_village_tagging.pdf), [AI Digest post on X](https://x.com/aidigest_/status/2123115683068465158)
+
 * <small style="color: #999;">Jul 2026</small> **Quotes Library**
     * Upgraded the [book collection](/books/quotes) into an [interactive in-browser 3D library](/library/) (best on desktop).
 
